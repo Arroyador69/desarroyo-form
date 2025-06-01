@@ -558,82 +558,43 @@
 
       <button type="submit">Enviar respuestas</button>
     </form>
+    <div id="mensaje-confirmacion" style="display:none; margin-top:2rem; padding:1.5rem; background:#e6ffe6; border:1px solid #b2ffb2; border-radius:8px; color:#155724; font-size:1.2rem;"></div>
   </div>
   <script>
-    document.getElementById('encuesta').addEventListener('submit', function(e) {
+    document.getElementById('encuesta').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const formData = new FormData(this);
       const data = {};
-      
-      // Convertir FormData a objeto
       for (let [key, value] of formData.entries()) {
-        if (key.endsWith('[]')) {
-          const baseKey = key.slice(0, -2);
-          if (!data[baseKey]) {
-            data[baseKey] = [];
+        if (data[key]) {
+          if (Array.isArray(data[key])) {
+            data[key].push(value);
+          } else {
+            data[key] = [data[key], value];
           }
-          data[baseKey].push(value);
         } else {
           data[key] = value;
         }
       }
 
-      // Generar prompt estructurado
-      const prompt = `# Especificaciones para el desarrollo web
-
-## Información básica
-- Nombre del proyecto: ${data.nombre_proyecto}
-- Sector: ${data.sector}${data.sector_otro ? ` (${data.sector_otro})` : ''}
-
-## Diseño
-- Estilos visuales: ${data.estilos ? data.estilos.join(', ') : 'No especificado'}
-- Colores principales: 
-  ${data.color1_hex ? `- Color 1: ${data.color1_hex}` : ''}
-  ${data.color2_hex ? `- Color 2: ${data.color2_hex}` : ''}
-  ${data.color3_hex ? `- Color 3: ${data.color3_hex}` : ''}
-- Tipografías seleccionadas: ${data.fuentes ? data.fuentes.join(', ') : 'No especificado'}
-
-## Contenido
-- Logo: ${data.logo ? 'Sí' : 'No'}${data.logo_idea ? `\n  Descripción: ${data.logo_idea}` : ''}
-- Imagen de portada: ${data.portada ? 'Sí' : 'No'}
-
-## Estructura
-- Secciones seleccionadas: ${data.secciones ? data.secciones.join(', ') : 'No especificado'}
-${data.secciones_extra ? `- Secciones adicionales: ${data.secciones_extra}` : ''}
-- Estilo de menú: ${data.menu_estilo}
-
-## Objetivos y funcionalidades
-- Objetivo principal: ${data.objetivo}
-- Redes sociales: ${data.redes}
-- Referencias visuales:
-  ${data.ref1 ? `- ${data.ref1}` : ''}
-  ${data.ref2 ? `- ${data.ref2}` : ''}
-  ${data.ref3 ? `- ${data.ref3}` : ''}
-
-## Plantillas preferidas
-- Selección: ${data.plantilla1}
-
-## Observaciones adicionales
-${data.observaciones}
-
-## Presupuesto
-- Rango seleccionado: ${data.presupuesto}`;
-
-      // Guardar como archivo JSON
-      const jsonData = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'respuesta_desarroyo.json';
-      a.click();
-
-      // Guardar prompt como archivo de texto
-      const promptBlob = new Blob([prompt], { type: 'text/plain' });
-      const promptLink = document.createElement('a');
-      promptLink.href = URL.createObjectURL(promptBlob);
-      promptLink.download = 'prompt_desarroyo.txt';
-      promptLink.click();
+      // Enviar datos al backend
+      try {
+        const response = await fetch('http://localhost:3000/guardar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (response.ok) {
+          document.getElementById('encuesta').reset();
+          document.getElementById('mensaje-confirmacion').style.display = 'block';
+          document.getElementById('mensaje-confirmacion').innerHTML = '✅ ¡Ya tenemos tus gustos para crear la web!<br>Ya has hecho lo primero, ahora solo queda que la hagamos realidad.<br><br>🟢 Tus respuestas han sido enviadas correctamente.';
+        } else {
+          alert('Hubo un error al enviar tus respuestas. Intenta de nuevo.');
+        }
+      } catch (err) {
+        alert('No se pudo conectar con el servidor. ¿Está iniciado el backend?');
+      }
     });
 
     // Actualizar previsualizaciones de color
