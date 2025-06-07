@@ -819,6 +819,42 @@
         <textarea name="observaciones" rows="5" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
       </label>
 
+      <p style="margin: 2rem 0; color: #333; font-weight: bold;">
+        🛠️ Recibirás <strong>una revisión gratuita</strong> tras la primera entrega. Cambios adicionales tendrán un coste entre <strong>40 € y 100 €</strong>, según el nivel de edición.
+      </p>
+
+      <label>
+        <strong>¿Cómo conociste DesArroyo.Tech?</strong>
+        <select name="fuente_descubrimiento">
+          <option value="">Selecciona una opción</option>
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="recomendacion">Recomendación</option>
+          <option value="google">Google / Buscador</option>
+          <option value="evento">Evento / Taller</option>
+          <option value="otro">Otro</option>
+        </select>
+      </label>
+
+      <label>
+        <strong>¿Para qué fecha necesitas tu web?</strong><br/>
+        <small>Opcional, solo si tienes una fecha límite concreta</small>
+        <input type="date" name="fecha_entrega_deseada" />
+      </label>
+
+      <label style="margin-top: 2rem;">
+        <input type="checkbox" name="autoriza_portafolio" />
+        Autorizo que mi web pueda mostrarse como ejemplo en el portafolio de DesArroyo.Tech.
+      </label>
+
+      <label>
+        <input type="checkbox" name="publicar_testimonio" />
+        Quiero dejar un comentario o testimonio cuando reciba mi web
+      </label>
+
+      <input type="hidden" name="referencia" value="campaña_desconocida" />
+      <input type="hidden" name="cliente_categoria" value="profesional_creativo" />
+
       <div class="consentimiento">
         <div class="consentimiento-header">
           <h3>✅ 📄 TEXTO FINAL DE CONSENTIMIENTO PARA LA ENCUESTA</h3>
@@ -993,66 +1029,6 @@
       this.classList.toggle('active');
       const content = this.nextElementSibling;
       content.classList.toggle('active');
-    });
-
-    // Validación del formulario
-    document.getElementById('encuesta').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Validar campos obligatorios
-      const nombre = document.querySelector('input[name="nombre_completo"]').value.trim();
-      const email = document.querySelector('input[name="email"]').value.trim();
-      const telefono = document.querySelector('input[name="telefono"]').value.trim();
-      const aceptaTerminos = document.querySelector('input[name="acepta_terminos"]').checked;
-
-      if (!nombre || !email || !telefono || !aceptaTerminos) {
-        alert('Por favor, completa todos los campos obligatorios y acepta los términos y condiciones.');
-        return;
-      }
-
-      // Si todo está correcto, procesar el formulario
-      const formData = new FormData(this);
-      const data = {};
-      
-      // Procesar los datos del formulario
-      for (let [key, value] of formData.entries()) {
-        // Limpiar nombres de campos de array
-        if (key.endsWith('[]')) {
-          key = key.slice(0, -2);
-          if (!data[key]) data[key] = [];
-          data[key].push(value);
-        } else {
-          data[key] = value;
-        }
-      }
-
-      // Añadir selecciones de menú, plantilla y footer
-      const menuSeleccionado = document.querySelector('input[name="menu_estilo"]:checked');
-      const plantillaSeleccionada = document.querySelector('input[name="plantilla_estilo"]:checked');
-      const footerSeleccionado = document.querySelector('input[name="footer_estilo"]:checked');
-
-      if (menuSeleccionado) data.menu_seleccionado = menuSeleccionado.value;
-      if (plantillaSeleccionada) data.plantilla_seleccionada = plantillaSeleccionada.value;
-      if (footerSeleccionado) data.footer_seleccionado = footerSeleccionado.value;
-
-      // Enviar datos al backend
-      fetch('https://arroyo805.app.n8n.cloud/webhook/desarroyo-webhook', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('mensaje-confirmacion').style.display = 'block';
-        document.getElementById('mensaje-confirmacion').textContent = '¡Gracias! Hemos recibido tus respuestas. Te enviaremos tu web en menos de 24 horas.';
-        document.getElementById('encuesta').reset();
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.');
-      });
     });
 
     // Funcionalidad del modal
