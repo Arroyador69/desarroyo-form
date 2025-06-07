@@ -7,10 +7,11 @@
   <title>Encuesta Desarroyo Tech</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       background: #f8f8f8;
       padding: 2rem;
       line-height: 1.6;
+      color: #333;
     }
     .container {
       max-width: 800px;
@@ -25,145 +26,101 @@
     }
     label {
       display: block;
-      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
     }
-    input, select, textarea {
+    input[type="text"], input[type="email"], input[type="tel"], select, textarea {
       width: 100%;
-      padding: 0.8rem;
-      margin-top: 0.3rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .font-preview, .menu-preview, .template-preview {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .font-option, .menu-option, .template-option {
-      padding: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .color-picker {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
-    }
-    .color-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .color-preview {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-      margin-bottom: 0.5rem;
-    }
-    .secciones-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    .seccion-option {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
       padding: 0.5rem;
       border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 4px;
     }
-    .menu-option, .template-option {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    .menu-option img, .template-option img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-    .menu-option h4, .template-option h4 {
-      margin: 0;
-      color: #333;
-    }
-    .menu-option p, .template-option p {
-      margin: 0;
-      font-size: 0.9rem;
+    small {
       color: #666;
+      display: block;
+      margin-bottom: 0.5rem;
     }
-    .footer-preview {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-    .footer-option {
+    .color-preview {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
       border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      transition: all 0.3s ease;
+      margin-right: 10px;
+      vertical-align: middle;
     }
-    .footer-option:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    .footer-option img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-    }
-    .footer-option h4 {
-      margin: 0.5rem 0;
-      color: #333;
-    }
-    .footer-option p {
-      margin: 0.5rem 0;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .footer-option input[type="radio"] {
+    .menu-preview, .template-preview, .footer-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
       margin-top: 1rem;
     }
     .menu-option, .template-option, .footer-option {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
-      position: relative;
     }
     .menu-option:hover, .template-option:hover, .footer-option:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-color: #4CAF50;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .menu-option.seleccionado, .template-option.seleccionado, .footer-option.seleccionado {
-      border: 2px solid #4CAF50;
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    .menu-option.selected, .template-option.selected, .footer-option.selected {
+      border-color: #4CAF50;
+      background: #f0fff0;
     }
-    .menu-option.seleccionado::after, .template-option.seleccionado::after, .footer-option.seleccionado::after {
-      content: '✓';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #4CAF50;
-      color: white;
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
+    .menu-option img, .template-option img, .footer-option img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
     }
-    input[type="radio"] {
+    .menu-option h4, .template-option h4, .footer-option h4 {
+      margin: 0.5rem 0;
+      color: #2c3e50;
+    }
+    .menu-option p, .template-option p, .footer-option p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .menu-option input[type="radio"], .template-option input[type="radio"], .footer-option input[type="radio"] {
       display: none;
+    }
+    .consentimiento {
+      margin-top: 2rem;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .consentimiento-header {
+      background: #f8f9fa;
+      padding: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .consentimiento-header h3 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    .consentimiento-content {
+      padding: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease-out;
+      background: #fff;
+    }
+    .consentimiento-content.active {
+      padding: 2rem;
+      max-height: 2000px;
+    }
+    .consentimiento-header .toggle-icon {
+      transition: transform 0.3s ease;
+    }
+    .consentimiento-header.active .toggle-icon {
+      transform: rotate(180deg);
     }
   </style>
 </head>
@@ -172,7 +129,32 @@
     <h1>Encuesta Inteligente para Crear tu Web Ideal</h1>
     <p>Esta encuesta te ayudará a definir tu web perfecta en menos de 10 minutos. Cada sección incluye ejemplos y explicaciones. Al finalizar, generaremos tu diseño ideal internamente.</p>
 
-    <form id="encuesta">
+    <form id="encuesta" style="max-width:800px; margin:0 auto; padding:2rem;">
+      <p style="background:#fff7d1; border:1px solid #f5d441; padding:1rem; border-radius:10px;">
+        ⚠️ <strong>Importante:</strong> Esta encuesta generará automáticamente una versión de tu web a partir de tus respuestas.<br>
+        🕐 En menos de <strong>24 horas</strong> recibirás una primera muestra por email. Revisa también la carpeta de spam.<br>
+        📩 Después deberás confirmar <strong>por email la hora exacta</strong> en la que deseas recibir la versión final.<br>
+        💬 Además, el equipo recibirá tu confirmación por Telegram para avanzar.<br><br>
+        Tómate este proceso en serio. Esta web está hecha a medida para ti.
+      </p>
+
+      <label>
+        <strong>Nombre completo</strong><br/>
+        <input type="text" name="nombre_completo" required />
+      </label>
+
+      <label>
+        <strong>Correo electrónico</strong><br/>
+        <small>Usaremos este email para enviarte tu web. Revisa también la carpeta de spam.</small><br/>
+        <input type="email" name="email" required />
+      </label>
+
+      <label>
+        <strong>Número de teléfono</strong><br/>
+        <small>Solo si deseas recibir tu muestra por WhatsApp o Telegram</small><br/>
+        <input type="tel" name="telefono" required />
+      </label>
+
       <label>
         <strong>1. Nombre del proyecto o marca</strong><br/>
         <small>¿Cómo se llama tu proyecto o empresa?</small>
@@ -692,29 +674,66 @@
       </label>
 
       <label>
-        <strong>15. Observaciones finales</strong><br/>
-        <small>¿Hay algo especial que quieras contarme sobre tu visión para la web?</small>
-        <textarea name="observaciones"></textarea>
-      </label>
-
-      <label>
-        <strong>16. Presupuesto estimado</strong><br/>
+        <strong>15. Presupuesto estimado</strong><br/>
         <small>Si tuvieras esta web ideal creada por ti en 2 semanas, ¿cuánto estarías dispuesto a pagar?</small>
         <select name="presupuesto">
-          <option>400 €</option>
-          <option>800 €</option>
-          <option>1200 €</option>
-          <option>1600 €</option>
-          <option>2000 €</option>
-          <option>2400 €</option>
-          <option>2800 €</option>
-          <option>3200 €</option>
-          <option>3600 €</option>
-          <option>4000 €</option>
+          <option>400 €</option>
+          <option>800 €</option>
+          <option>1200 €</option>
+          <option>1600 €</option>
+          <option>2000 €</option>
+          <option>2400 €</option>
+          <option>2800 €</option>
+          <option>3200 €</option>
+          <option>3600 €</option>
+          <option>4000 €</option>
         </select>
       </label>
 
-      <button type="submit">Enviar respuestas</button>
+      <label>
+        <strong>16. ¿Algo más que quieras contarme?</strong><br/>
+        <small>Visión, estilo, mensajes clave, símbolos, etc.</small><br/>
+        <textarea name="observaciones" rows="5" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+      </label>
+
+      <div class="consentimiento">
+        <div class="consentimiento-header">
+          <h3>✅ 📄 TEXTO FINAL DE CONSENTIMIENTO PARA LA ENCUESTA</h3>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="consentimiento-content">
+          <p style="font-weight: bold; margin-bottom: 1rem;">🔒 Compromiso del cliente y aceptación de condiciones:</p>
+          
+          <p>Al enviar esta encuesta, confirmo que:</p>
+          
+          <ul style="list-style: none; padding-left: 0;">
+            <li style="margin-bottom: 0.8rem;">✅ He respondido con la mayor sinceridad posible, entendiendo que mi web se generará automáticamente a partir de estas respuestas.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Entiendo que recibiré una primera versión de mi web en un plazo máximo de 24 horas, a modo de muestra privada.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Acepto que esta primera versión es solo una demostración interna, y no puede ser publicada, copiada ni utilizada sin autorización hasta haber sido aprobada y abonada.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Confirmo que tras la entrega de la muestra recibiré un correo (posiblemente en spam) donde deberé indicar la hora exacta a la que deseo recibir mi versión final. Esta confirmación también será notificada al equipo de DesArroyo.Tech por Telegram.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Sé que tengo derecho a una única revisión gratuita tras la primera entrega. Si deseo más cambios, deberé abonar un precio según lo acordado (entre 40 € y 100 € por versión nueva).</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Entiendo que las futuras versiones no se entregarán sin antes confirmar el pago correspondiente.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Acepto que mi web será privada, protegida por propiedad intelectual hasta el momento del pago, y DesArroyo.Tech conservará el derecho de incluirla como ejemplo en su portafolio solo si yo lo autorizo después.</li>
+            
+            <li style="margin-bottom: 0.8rem;">✅ Acepto el tratamiento de mis datos según la Ley de Protección de Datos (RGPD), con fines exclusivamente relacionados con el desarrollo de mi web.</li>
+          </ul>
+
+          <label style="display: block; margin-top: 2rem; font-weight: bold;">
+            <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem;" />
+            He leído y acepto los términos y condiciones anteriores.
+          </label>
+
+          <input type="hidden" name="estado_inicial" value="Esperando confirmación de entrega" />
+        </div>
+      </div>
+
+      <button type="submit" style="margin-top: 2rem; padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s ease;">Enviar respuestas</button>
     </form>
     <div id="mensaje-confirmacion" style="display:none; margin-top:2rem; padding:1.5rem; background:#e6ffe6; border:1px solid #b2ffb2; border-radius:8px; color:#155724; font-size:1.2rem;"></div>
   </div>
@@ -839,6 +858,13 @@
     link.href = `https://fonts.googleapis.com/css2?${fonts.map(font => `family=${font.replace(' ', '+')}`).join('&')}&display=swap`;
     link.rel = 'stylesheet';
     document.head.appendChild(link);
+
+    // Añadir funcionalidad al acordeón de consentimiento
+    document.querySelector('.consentimiento-header').addEventListener('click', function() {
+      this.classList.toggle('active');
+      const content = this.nextElementSibling;
+      content.classList.toggle('active');
+    });
   </script>
 </body>
 </html>
