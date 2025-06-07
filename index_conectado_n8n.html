@@ -59,6 +59,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
+      position: relative;
     }
     .menu-option:hover, .template-option:hover, .footer-option:hover {
       border-color: #4CAF50;
@@ -121,6 +122,80 @@
     }
     .consentimiento-header.active .toggle-icon {
       transform: rotate(180deg);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 90%;
+      max-height: 90vh;
+      position: relative;
+      overflow: auto;
+    }
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      background: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+    }
+    .modal-close:hover {
+      background: #f0f0f0;
+    }
+    .zoom-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.5rem;
+      border-radius: 50%;
+      display: none;
+    }
+    .menu-option:hover .zoom-icon,
+    .template-option:hover .zoom-icon,
+    .footer-option:hover .zoom-icon {
+      display: block;
+    }
+    .section-instructions {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid #dee2e6;
+    }
+    .section-instructions p {
+      margin: 0;
+      color: #666;
+    }
+    .section-instructions strong {
+      color: #2c3e50;
     }
   </style>
 </head>
@@ -399,85 +474,101 @@
       </label>
 
       <label>
-        <strong>9. Estilo de menú</strong><br/>
-        <small>El menú es la barra de navegación. Aquí puedes ver los estilos distintos para elegir (desktop y móvil).</small>
+        <strong>9. Estilo de Menú</strong><br/>
+        <small>Elige el menú que mejor se adapte a tu web</small>
+        <div class="section-instructions">
+          <p><strong>💡 Instrucciones:</strong> Haz clic en cualquier opción para verla en grande. Selecciona la que más te guste haciendo clic en el botón de radio.</p>
+        </div>
         <div class="menu-preview">
           <div class="menu-option">
             <img src="img/menus/menu1.png" alt="Menú 1" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 1</h4>
-            <p>Estilo de menú 1</p>
+            <p>Descripción del menú 1</p>
             <input type="radio" name="menu_estilo" value="menu1" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu2.png" alt="Menú 2" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 2</h4>
-            <p>Estilo de menú 2</p>
+            <p>Descripción del menú 2</p>
             <input type="radio" name="menu_estilo" value="menu2" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu3.png" alt="Menú 3" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 3</h4>
-            <p>Estilo de menú 3</p>
+            <p>Descripción del menú 3</p>
             <input type="radio" name="menu_estilo" value="menu3" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu4.png" alt="Menú 4" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 4</h4>
-            <p>Estilo de menú 4</p>
+            <p>Descripción del menú 4</p>
             <input type="radio" name="menu_estilo" value="menu4" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu5.png" alt="Menú 5" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 5</h4>
-            <p>Estilo de menú 5</p>
+            <p>Descripción del menú 5</p>
             <input type="radio" name="menu_estilo" value="menu5" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu6.png" alt="Menú 6" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 6</h4>
-            <p>Estilo de menú 6</p>
+            <p>Descripción del menú 6</p>
             <input type="radio" name="menu_estilo" value="menu6" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu7.png" alt="Menú 7" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 7</h4>
-            <p>Estilo de menú 7</p>
+            <p>Descripción del menú 7</p>
             <input type="radio" name="menu_estilo" value="menu7" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu8.png" alt="Menú 8" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 8</h4>
-            <p>Estilo de menú 8</p>
+            <p>Descripción del menú 8</p>
             <input type="radio" name="menu_estilo" value="menu8" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu9.png" alt="Menú 9" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 9</h4>
-            <p>Estilo de menú 9</p>
+            <p>Descripción del menú 9</p>
             <input type="radio" name="menu_estilo" value="menu9" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu10.png" alt="Menú 10" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 10</h4>
-            <p>Estilo de menú 10</p>
+            <p>Descripción del menú 10</p>
             <input type="radio" name="menu_estilo" value="menu10" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu11.png" alt="Menú 11" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 11</h4>
-            <p>Estilo de menú 11</p>
+            <p>Descripción del menú 11</p>
             <input type="radio" name="menu_estilo" value="menu11" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu12.png" alt="Menú 12" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 12</h4>
-            <p>Estilo de menú 12</p>
+            <p>Descripción del menú 12</p>
             <input type="radio" name="menu_estilo" value="menu12" />
           </div>
           <div class="menu-option">
             <img src="img/menus/menu13.png" alt="Menú 13" />
+            <span class="zoom-icon">🔍</span>
             <h4>Menú 13</h4>
-            <p>Estilo de menú 13</p>
+            <p>Descripción del menú 13</p>
             <input type="radio" name="menu_estilo" value="menu13" />
           </div>
         </div>
@@ -504,83 +595,99 @@
       </label>
 
       <label>
-        <strong>13. Plantillas</strong><br/>
-        <small>Selecciona el estilo de plantilla que prefieras para tu web.</small>
+        <strong>13. Estilo de Plantilla</strong><br/>
+        <small>Elige la plantilla que mejor se adapte a tu web</small>
+        <div class="section-instructions">
+          <p><strong>💡 Instrucciones:</strong> Haz clic en cualquier opción para verla en grande. Selecciona la que más te guste haciendo clic en el botón de radio.</p>
+        </div>
         <div class="template-preview">
           <div class="template-option">
             <img src="img/estilos/estilo1.png" alt="Estilo 1" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 1</h4>
             <p>Descripción del estilo 1</p>
             <input type="radio" name="plantilla_estilo" value="estilo1" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo2.png" alt="Estilo 2" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 2</h4>
             <p>Descripción del estilo 2</p>
             <input type="radio" name="plantilla_estilo" value="estilo2" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo3.png" alt="Estilo 3" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 3</h4>
             <p>Descripción del estilo 3</p>
             <input type="radio" name="plantilla_estilo" value="estilo3" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo4.png" alt="Estilo 4" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 4</h4>
             <p>Descripción del estilo 4</p>
             <input type="radio" name="plantilla_estilo" value="estilo4" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo5.png" alt="Estilo 5" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 5</h4>
             <p>Descripción del estilo 5</p>
             <input type="radio" name="plantilla_estilo" value="estilo5" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo6.png" alt="Estilo 6" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 6</h4>
             <p>Descripción del estilo 6</p>
             <input type="radio" name="plantilla_estilo" value="estilo6" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo7.png" alt="Estilo 7" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 7</h4>
             <p>Descripción del estilo 7</p>
             <input type="radio" name="plantilla_estilo" value="estilo7" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo8.png" alt="Estilo 8" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 8</h4>
             <p>Descripción del estilo 8</p>
             <input type="radio" name="plantilla_estilo" value="estilo8" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo9.png" alt="Estilo 9" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 9</h4>
             <p>Descripción del estilo 9</p>
             <input type="radio" name="plantilla_estilo" value="estilo9" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo10.png" alt="Estilo 10" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 10</h4>
             <p>Descripción del estilo 10</p>
             <input type="radio" name="plantilla_estilo" value="estilo10" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo11.png" alt="Estilo 11" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 11</h4>
             <p>Descripción del estilo 11</p>
             <input type="radio" name="plantilla_estilo" value="estilo11" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo12.png" alt="Estilo 12" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 12</h4>
             <p>Descripción del estilo 12</p>
             <input type="radio" name="plantilla_estilo" value="estilo12" />
           </div>
           <div class="template-option">
             <img src="img/estilos/estilo13.png" alt="Estilo 13" />
+            <span class="zoom-icon">🔍</span>
             <h4>Estilo 13</h4>
             <p>Descripción del estilo 13</p>
             <input type="radio" name="plantilla_estilo" value="estilo13" />
@@ -590,82 +697,98 @@
 
       <label>
         <strong>14. Estilo de Footer</strong><br/>
-        <small>Selecciona el estilo de pie de página que prefieras para tu web.</small>
+        <small>Elige el footer que mejor se adapte a tu web</small>
+        <div class="section-instructions">
+          <p><strong>💡 Instrucciones:</strong> Haz clic en cualquier opción para verla en grande. Selecciona la que más te guste haciendo clic en el botón de radio.</p>
+        </div>
         <div class="footer-preview">
           <div class="footer-option">
             <img src="img/footer/footer1.png" alt="Footer 1" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 1</h4>
             <p>Descripción del footer 1</p>
             <input type="radio" name="footer_estilo" value="footer1" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer2.png" alt="Footer 2" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 2</h4>
             <p>Descripción del footer 2</p>
             <input type="radio" name="footer_estilo" value="footer2" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer3.png" alt="Footer 3" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 3</h4>
             <p>Descripción del footer 3</p>
             <input type="radio" name="footer_estilo" value="footer3" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer4.png" alt="Footer 4" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 4</h4>
             <p>Descripción del footer 4</p>
             <input type="radio" name="footer_estilo" value="footer4" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer5.png" alt="Footer 5" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 5</h4>
             <p>Descripción del footer 5</p>
             <input type="radio" name="footer_estilo" value="footer5" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer6.png" alt="Footer 6" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 6</h4>
             <p>Descripción del footer 6</p>
             <input type="radio" name="footer_estilo" value="footer6" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer7.png" alt="Footer 7" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 7</h4>
             <p>Descripción del footer 7</p>
             <input type="radio" name="footer_estilo" value="footer7" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer8.png" alt="Footer 8" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 8</h4>
             <p>Descripción del footer 8</p>
             <input type="radio" name="footer_estilo" value="footer8" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer9.png" alt="Footer 9" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 9</h4>
             <p>Descripción del footer 9</p>
             <input type="radio" name="footer_estilo" value="footer9" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer10.png" alt="Footer 10" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 10</h4>
             <p>Descripción del footer 10</p>
             <input type="radio" name="footer_estilo" value="footer10" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer11.png" alt="Footer 11" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 11</h4>
             <p>Descripción del footer 11</p>
             <input type="radio" name="footer_estilo" value="footer11" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer12.png" alt="Footer 12" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 12</h4>
             <p>Descripción del footer 12</p>
             <input type="radio" name="footer_estilo" value="footer12" />
           </div>
           <div class="footer-option">
             <img src="img/footer/footer13.png" alt="Footer 13" />
+            <span class="zoom-icon">🔍</span>
             <h4>Footer 13</h4>
             <p>Descripción del footer 13</p>
             <input type="radio" name="footer_estilo" value="footer13" />
@@ -723,19 +846,25 @@
             
             <li style="margin-bottom: 0.8rem;">✅ Acepto el tratamiento de mis datos según la Ley de Protección de Datos (RGPD), con fines exclusivamente relacionados con el desarrollo de mi web.</li>
           </ul>
-
-          <label style="display: block; margin-top: 2rem; font-weight: bold;">
-            <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem;" />
-            He leído y acepto los términos y condiciones anteriores.
-          </label>
-
-          <input type="hidden" name="estado_inicial" value="Esperando confirmación de entrega" />
         </div>
       </div>
+
+      <label style="display: block; margin-top: 2rem; font-weight: bold; padding: 1rem; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+        <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem;" />
+        He leído y acepto los términos y condiciones anteriores.
+      </label>
+
+      <input type="hidden" name="estado_inicial" value="Esperando confirmación de entrega" />
 
       <button type="submit" style="margin-top: 2rem; padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s ease;">Enviar respuestas</button>
     </form>
     <div id="mensaje-confirmacion" style="display:none; margin-top:2rem; padding:1.5rem; background:#e6ffe6; border:1px solid #b2ffb2; border-radius:8px; color:#155724; font-size:1.2rem;"></div>
+  </div>
+  <div id="imageModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <img id="modalImage" src="" alt="Vista previa" />
+    </div>
   </div>
   <script>
     document.getElementById('encuesta').addEventListener('submit', async function(e) {
@@ -864,6 +993,100 @@
       this.classList.toggle('active');
       const content = this.nextElementSibling;
       content.classList.toggle('active');
+    });
+
+    // Validación del formulario
+    document.getElementById('encuesta').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Validar campos obligatorios
+      const nombre = document.querySelector('input[name="nombre_completo"]').value.trim();
+      const email = document.querySelector('input[name="email"]').value.trim();
+      const telefono = document.querySelector('input[name="telefono"]').value.trim();
+      const aceptaTerminos = document.querySelector('input[name="acepta_terminos"]').checked;
+
+      if (!nombre || !email || !telefono || !aceptaTerminos) {
+        alert('Por favor, completa todos los campos obligatorios y acepta los términos y condiciones.');
+        return;
+      }
+
+      // Si todo está correcto, procesar el formulario
+      const formData = new FormData(this);
+      const data = {};
+      
+      // Procesar los datos del formulario
+      for (let [key, value] of formData.entries()) {
+        // Limpiar nombres de campos de array
+        if (key.endsWith('[]')) {
+          key = key.slice(0, -2);
+          if (!data[key]) data[key] = [];
+          data[key].push(value);
+        } else {
+          data[key] = value;
+        }
+      }
+
+      // Añadir selecciones de menú, plantilla y footer
+      const menuSeleccionado = document.querySelector('input[name="menu_estilo"]:checked');
+      const plantillaSeleccionada = document.querySelector('input[name="plantilla_estilo"]:checked');
+      const footerSeleccionado = document.querySelector('input[name="footer_estilo"]:checked');
+
+      if (menuSeleccionado) data.menu_seleccionado = menuSeleccionado.value;
+      if (plantillaSeleccionada) data.plantilla_seleccionada = plantillaSeleccionada.value;
+      if (footerSeleccionado) data.footer_seleccionado = footerSeleccionado.value;
+
+      // Enviar datos al backend
+      fetch('https://arroyo805.app.n8n.cloud/webhook/desarroyo-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('mensaje-confirmacion').style.display = 'block';
+        document.getElementById('mensaje-confirmacion').textContent = '¡Gracias! Hemos recibido tus respuestas. Te enviaremos tu web en menos de 24 horas.';
+        document.getElementById('encuesta').reset();
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Hubo un error al enviar el formulario. Por favor, inténtalo de nuevo.');
+      });
+    });
+
+    // Funcionalidad del modal
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeBtn = document.querySelector('.modal-close');
+
+    // Función para abrir el modal
+    function openModal(imgSrc) {
+      modal.style.display = 'flex';
+      modalImg.src = imgSrc;
+    }
+
+    // Función para cerrar el modal
+    function closeModal() {
+      modal.style.display = 'none';
+    }
+
+    // Cerrar modal al hacer clic en el botón de cerrar
+    closeBtn.onclick = closeModal;
+
+    // Cerrar modal al hacer clic fuera de la imagen
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    }
+
+    // Añadir eventos de clic a todas las imágenes
+    document.querySelectorAll('.menu-option img, .template-option img, .footer-option img').forEach(img => {
+      img.addEventListener('click', function(e) {
+        e.preventDefault();
+        openModal(this.src);
+      });
     });
   </script>
 </body>
