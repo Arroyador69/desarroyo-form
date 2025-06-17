@@ -317,12 +317,88 @@
     .neon-terms input[type="checkbox"] {
       accent-color: #00fff7;
     }
+    #parallax-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 60% 40%, #00fff733 0%, transparent 70%),
+                  radial-gradient(ellipse at 20% 80%, #a259ff33 0%, transparent 70%),
+                  #10131a;
+      transition: background 0.3s;
+    }
+    .container { position: relative; z-index: 1; }
+    .progress-bar-container {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 14px;
+      background: #181c26;
+      border-radius: 8px;
+      box-shadow: 0 0 12px #00fff7cc, 0 0 8px #a259ff44;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+      border: 2px solid #00fff7;
+      position: relative;
+      z-index: 2;
+    }
+    .progress-bar-neon {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+      box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;
+      border-radius: 8px;
+      transition: width 0.5s cubic-bezier(.4,2,.3,1), box-shadow 0.3s;
+    }
+    .progress-text {
+      color: #00fff7;
+      font-weight: bold;
+      font-size: 1rem;
+      text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
+      letter-spacing: 1px;
+    }
+    /* Animaciones de entrada */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(.4,2,.3,1), transform 0.8s cubic-bezier(.4,2,.3,1);
+      will-change: opacity, transform;
+    }
+    .fade-in-section.visible {
+      opacity: 1;
+      transform: none;
+    }
+    /* Micro-animaciones en iconos */
+    .zoom-icon {
+      animation: neon-pulse 2s infinite alternate;
+    }
+    @keyframes neon-pulse {
+      0% { filter: drop-shadow(0 0 0 #00fff7); }
+      100% { filter: drop-shadow(0 0 8px #00fff7) drop-shadow(0 0 12px #a259ff); }
+    }
+    /* Feedback visual inmediato en selecciones */
+    .menu-option.selected, .template-option.selected, .footer-option.selected {
+      animation: select-glow 0.5s;
+    }
+    @keyframes select-glow {
+      0% { box-shadow: 0 0 0 #00fff7; }
+      100% { box-shadow: 0 0 24px #00fff7cc, 0 0 32px #a259ff44; }
+    }
   </style>
 </head>
 <body>
+  <div id="parallax-bg"></div>
   <div class="container">
     <div class="logo-container">
       <img src="img/A_logo_for_&quot;DesArroyo_Tech&quot;_is_displayed_in_neon_t.png" alt="DesArroyo Tech Logo" class="logo-img" />
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-neon" id="progress-bar"></div>
+      </div>
+      <span id="progress-text" class="progress-text">0% completado</span>
     </div>
     <h1>Encuesta Inteligente para Crear tu Web Ideal</h1>
     <p>Al completar esta encuesta, crearemos automáticamente una primera versión de tu web ideal para ti o tu negocio.</p>
@@ -1204,6 +1280,59 @@
         e.preventDefault();
         openModal(this.src);
       });
+    });
+
+    // Parallax fondo neón
+    const parallaxBg = document.getElementById('parallax-bg');
+    document.addEventListener('mousemove', function(e) {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      parallaxBg.style.background = `radial-gradient(ellipse at ${60 + x*20}% ${40 + y*20}%, #00fff733 0%, transparent 70%),`
+        + `radial-gradient(ellipse at ${20 + x*30}% ${80 - y*20}%, #a259ff33 0%, transparent 70%), #10131a`;
+    });
+
+    // Barra de progreso visual
+    const form = document.getElementById('encuesta');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const camposClave = [
+      'nombre_completo', 'email', 'telefono', 'nombre_proyecto', 'sector',
+      'estilos[]', 'color1', 'color2', 'color3', 'fuentes[]', 'logo', 'logo_idea',
+      'portada', 'secciones[]', 'menu_estilo', 'plantilla_estilo', 'footer_estilo',
+      'objetivo', 'redes', 'ref1', 'ref2', 'ref3', 'presupuesto', 'observaciones',
+      'fuente_descubrimiento', 'fecha_entrega_deseada', 'acepta_terminos'
+    ];
+    function calcularProgreso() {
+      let total = camposClave.length;
+      let completados = 0;
+      camposClave.forEach(campo => {
+        if (campo.endsWith('[]')) {
+          const checkboxes = form.querySelectorAll(`[name='${campo}']`);
+          if ([...checkboxes].some(cb => cb.checked)) completados++;
+        } else if (campo === 'logo' || campo === 'portada') {
+          // Opcional: no contar archivos subidos
+          completados++;
+        } else if (campo === 'acepta_terminos') {
+          if (form.querySelector(`[name='${campo}']`).checked) completados++;
+        } else {
+          const el = form.querySelector(`[name='${campo}']`);
+          if (el && el.value && el.value !== '') completados++;
+        }
+      });
+      let percent = Math.round((completados / total) * 100);
+      progressBar.style.width = percent + '%';
+      progressText.textContent = percent + '% completado';
+    }
+    form.addEventListener('input', calcularProgreso);
+    form.addEventListener('change', calcularProgreso);
+    window.addEventListener('DOMContentLoaded', calcularProgreso);
+
+    // Animaciones de entrada para secciones
+    document.querySelectorAll('label, .section-instructions, .neon-important, .neon-terms').forEach((section, i) => {
+      section.classList.add('fade-in-section');
+      setTimeout(() => {
+        section.classList.add('visible');
+      }, 200 + i * 120);
     });
   </script>
 </body>
