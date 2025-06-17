@@ -165,17 +165,40 @@
       max-height: 0;
       overflow: hidden;
       transition: all 0.3s ease-out;
-      background: #fff;
+      background: #181c26;
+      color: #eafcff;
     }
     .consentimiento-content.active {
       padding: 2rem;
       max-height: 2000px;
+      background: #181c26;
+      color: #eafcff;
     }
     .consentimiento-header .toggle-icon {
       transition: transform 0.3s ease;
     }
     .consentimiento-header.active .toggle-icon {
       transform: rotate(180deg);
+    }
+    .consentimiento-content p[style*="font-weight: bold"] {
+      color: #00fff7 !important;
+      font-weight: bold !important;
+      text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
+    }
+    .consentimiento-content ul li {
+      color: #eafcff;
+      font-size: 1.05rem;
+      margin-bottom: 0.8rem;
+    }
+    .consentimiento-content ul li strong, .consentimiento-content ul li b {
+      color: #00fff7;
+    }
+    .consentimiento-content ul li::marker, .consentimiento-content ul li:before {
+      color: #00fff7;
+    }
+    .consentimiento-content {
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;
     }
     .modal {
       display: none;
@@ -277,6 +300,22 @@
     .menu-option img:hover, .template-option img:hover, .footer-option img:hover {
       box-shadow: 0 0 24px #a259ffcc, 0 0 32px #00fff7cc;
       border: 2.5px solid #a259ff;
+    }
+    .neon-terms {
+      display: block;
+      margin-top: 2rem;
+      font-weight: bold;
+      padding: 1rem;
+      background: #181c26;
+      border: 2px solid #00fff7;
+      border-radius: 8px;
+      color: #eafcff;
+      box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;
+      font-size: 1.05rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .neon-terms input[type="checkbox"] {
+      accent-color: #00fff7;
     }
   </style>
 </head>
@@ -981,7 +1020,7 @@
         </div>
       </div>
 
-      <label style="display: block; margin-top: 2rem; font-weight: bold; padding: 1rem; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
+      <label class="neon-terms">
         <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem;" />
         He leído y acepto los términos y condiciones anteriores.
       </label>
