@@ -8,18 +8,104 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
+      background: #10131a;
       padding: 2rem;
       line-height: 1.6;
-      color: #333;
+      color: #eafcff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .logo-img {
+      max-width: 300px;
+      width: 100%;
+      height: auto;
+      display: inline-block;
+      filter: drop-shadow(0 0 40px #00fff7) drop-shadow(0 0 10px #a259ff);
+      background: #181c26;
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: #00fff7;
+      text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
     }
     .container {
       max-width: 800px;
       margin: auto;
-      background: white;
+      background: #181c26;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px #00fff733, 0 0 40px #a259ff22;
+    }
+    button, .btn {
+      background: linear-gradient(90deg, #00fff7 0%, #00cfff 50%, #a259ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+      box-shadow: 0 0 10px #00fff7aa;
+    }
+    button:hover, .btn:hover {
+      background: linear-gradient(90deg, #a259ff 0%, #00fff7 100%);
+      box-shadow: 0 0 20px #a259ffcc, 0 0 40px #00fff744;
+      transform: scale(1.04);
+    }
+    input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+      background: #151922;
+      color: #eafcff;
+      border: 1px solid #00fff7;
+      border-radius: 4px;
+      transition: border 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 6px #00fff733;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
+      border: 1.5px solid #a259ff;
+      box-shadow: 0 0 12px #a259ff99;
+      outline: none;
+    }
+    .menu-option.selected, .template-option.selected, .footer-option.selected {
+      border-color: #00fff7;
+      background: #181c26;
+      box-shadow: 0 0 12px #00fff7cc;
+    }
+    .menu-option:hover, .template-option:hover, .footer-option:hover {
+      border-color: #a259ff;
+      box-shadow: 0 0 16px #a259ff99;
+      transition: border 0.3s, box-shadow 0.3s;
+    }
+    a {
+      color: #a259ff;
+      text-decoration: underline;
+      transition: color 0.3s;
+    }
+    a:hover {
+      color: #00fff7;
+    }
+    /* Gradiente para barras o elementos destacados */
+    .neon-bar {
+      height: 8px;
+      width: 100%;
+      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+      border-radius: 4px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 16px #00fff7cc;
+    }
+    /* Modo oscuro/neón aplicado en todo el sitio */
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #181c26;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00fff733, 0 0 40px #a259ff22;
     }
     h1, h2 {
       color: #222;
@@ -27,12 +113,6 @@
     label {
       display: block;
       margin-bottom: 1.5rem;
-    }
-    input[type="text"], input[type="email"], input[type="tel"], select, textarea {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
     }
     small {
       color: #666;
@@ -60,32 +140,6 @@
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-    }
-    .menu-option:hover, .template-option:hover, .footer-option:hover {
-      border-color: #4CAF50;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .menu-option.selected, .template-option.selected, .footer-option.selected {
-      border-color: #4CAF50;
-      background: #f0fff0;
-    }
-    .menu-option img, .template-option img, .footer-option img {
-      width: 100%;
-      height: auto;
-      border-radius: 4px;
-      margin-bottom: 0.5rem;
-    }
-    .menu-option h4, .template-option h4, .footer-option h4 {
-      margin: 0.5rem 0;
-      color: #2c3e50;
-    }
-    .menu-option p, .template-option p, .footer-option p {
-      margin: 0;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .menu-option input[type="radio"], .template-option input[type="radio"], .footer-option input[type="radio"] {
-      display: none;
     }
     .consentimiento {
       margin-top: 2rem;
@@ -197,10 +251,40 @@
     .section-instructions strong {
       color: #2c3e50;
     }
+    .neon-important {
+      display: block;
+      background: #181c26;
+      border: 2px solid #00fff7;
+      border-radius: 14px;
+      color: #eafcff;
+      box-shadow: 0 0 24px #00fff7cc, 0 0 40px #a259ff44;
+      padding: 1.2rem;
+      font-size: 1.08rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .menu-option img, .template-option img, .footer-option img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      background: #10131a;
+      border: 2px solid #00fff7;
+      border-radius: 8px;
+      box-shadow: 0 0 12px #00fff7cc, 0 0 8px #a259ff44;
+      margin-bottom: 0.5rem;
+      transition: box-shadow 0.3s, border 0.3s;
+    }
+    .menu-option img:hover, .template-option img:hover, .footer-option img:hover {
+      box-shadow: 0 0 24px #a259ffcc, 0 0 32px #00fff7cc;
+      border: 2.5px solid #a259ff;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="logo-container">
+      <img src="img/A_logo_for_&quot;DesArroyo_Tech&quot;_is_displayed_in_neon_t.png" alt="DesArroyo Tech Logo" class="logo-img" />
+    </div>
     <h1>Encuesta Inteligente para Crear tu Web Ideal</h1>
     <p>Al completar esta encuesta, crearemos automáticamente una primera versión de tu web ideal para ti o tu negocio.</p>
 
@@ -210,18 +294,16 @@
 
     <form id="encuesta" style="max-width:800px; margin:0 auto; padding:2rem;">
       <p style="background:#fff7d1; border:1px solid #f5d441; padding:1rem; border-radius:10px;">
-        💡 <strong>Importante:</strong> Todo el proceso es inteligente y serás acompañado en cada paso.<br><br>
-
-        Cada sección incluye ejemplos, referencias visuales y explicaciones claras. Al finalizar, nuestro equipo generará tu diseño ideal de forma interna.<br><br>
-
-        ⸻<br><br>
-
-        ⚠️ <strong>Lo que debes saber antes de comenzar:</strong><br>
-        • ⏱️ En 24 horas recibirás una primera muestra por email. Revisa también tu carpeta de spam o papelera.<br>
-        • 📩 Deberás confirmar por email la hora exacta en que quieres recibir la versión final.<br>
-        • 📲 Nuestro equipo también recibirá tu confirmación para avanzar con la entrega.<br><br>
-
-        🔒 Tómate este proceso en serio: esta web será creada 100% a medida para ti.
+        <span class="neon-important">
+          💡 <strong>Importante:</strong> Todo el proceso es inteligente y serás acompañado en cada paso.<br><br>
+          Cada sección incluye ejemplos, referencias visuales y explicaciones claras. Al finalizar, nuestro equipo generará tu diseño ideal de forma interna.<br><br>
+          ⸻<br><br>
+          ⚠️ <strong>Lo que debes saber antes de comenzar:</strong><br>
+          • ⏱️ En 24 horas recibirás una primera muestra por email. Revisa también tu carpeta de spam o papelera.<br>
+          • 📩 Deberás confirmar por email la hora exacta en que quieres recibir la versión final.<br>
+          • 📲 Nuestro equipo también recibirá tu confirmación para avanzar con la entrega.<br><br>
+          🔒 Tómate este proceso en serio: esta web será creada 100% a medida para ti.
+        </span>
       </p>
 
       <label>
