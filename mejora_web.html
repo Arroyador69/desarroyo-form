@@ -172,6 +172,111 @@
       color: #155724;
       font-size: 1.2rem;
     }
+
+    /* Banner de Cookies */
+    .cookie-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(24, 28, 38, 0.98);
+      backdrop-filter: blur(10px);
+      border-top: 2px solid #00fff7;
+      box-shadow: 0 0 20px #00fff733, 0 0 40px #a259ff22;
+      padding: 1.5rem;
+      z-index: 10000;
+      transform: translateY(100%);
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cookie-banner.show {
+      transform: translateY(0);
+    }
+
+    .cookie-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .cookie-text {
+      flex: 1;
+      color: #eafcff;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .cookie-text a {
+      color: #00fff7;
+      text-decoration: underline;
+      transition: color 0.3s;
+    }
+
+    .cookie-text a:hover {
+      color: #a259ff;
+    }
+
+    .cookie-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+
+    .cookie-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cookie-btn.accept {
+      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+      color: #fff;
+      box-shadow: 0 0 10px #00fff7aa;
+    }
+
+    .cookie-btn.accept:hover {
+      box-shadow: 0 0 15px #00fff7cc, 0 0 25px #a259ff66;
+      transform: translateY(-2px);
+    }
+
+    .cookie-btn.reject {
+      background: transparent;
+      color: #eafcff;
+      border: 1px solid #eafcff;
+    }
+
+    .cookie-btn.reject:hover {
+      background: rgba(234, 252, 255, 0.1);
+      border-color: #00fff7;
+      color: #00fff7;
+    }
+
+    @media (max-width: 768px) {
+      .cookie-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+
+      .cookie-buttons {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .cookie-btn {
+        flex: 1;
+        max-width: 150px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -304,6 +409,53 @@
       const content = this.nextElementSibling;
       content.classList.toggle('active');
     });
+
+    // Gestión de Cookies
+    function showCookieBanner() {
+      const banner = document.getElementById('cookie-banner');
+      if (banner && !localStorage.getItem('cookiesAccepted')) {
+        setTimeout(() => {
+          banner.classList.add('show');
+        }, 1000);
+      }
+    }
+
+    function acceptCookies() {
+      localStorage.setItem('cookiesAccepted', 'true');
+      localStorage.setItem('cookiesAcceptedDate', new Date().toISOString());
+      hideCookieBanner();
+    }
+
+    function rejectCookies() {
+      localStorage.setItem('cookiesAccepted', 'false');
+      localStorage.setItem('cookiesRejectedDate', new Date().toISOString());
+      hideCookieBanner();
+    }
+
+    function hideCookieBanner() {
+      const banner = document.getElementById('cookie-banner');
+      if (banner) {
+        banner.classList.remove('show');
+      }
+    }
+
+    // Mostrar banner al cargar la página
+    document.addEventListener('DOMContentLoaded', showCookieBanner);
   </script>
+
+  <!-- Banner de Cookies -->
+  <div id="cookie-banner" class="cookie-banner">
+    <div class="cookie-content">
+      <div class="cookie-text">
+        <strong>🍪 Utilizamos cookies</strong> para mejorar tu experiencia en nuestro sitio web. 
+        Al continuar navegando, aceptas nuestra <a href="cookies.html">política de cookies</a> y 
+        <a href="politica-privacidad.html">política de privacidad</a>.
+      </div>
+      <div class="cookie-buttons">
+        <button class="cookie-btn reject" onclick="rejectCookies()">Rechazar</button>
+        <button class="cookie-btn accept" onclick="acceptCookies()">Aceptar</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html> 
