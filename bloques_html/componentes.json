@@ -1,0 +1,198 @@
+{
+  "menus": {
+    "menu1": {
+      "imagen": "img/menus/menu1.png",
+      "html": "bloques_html/menus/menu1.html",
+      "descripcion": "Menú minimalista y moderno"
+    },
+    "menu2": {
+      "imagen": "img/menus/menu2.png",
+      "html": "bloques_html/menus/menu2.html",
+      "descripcion": "Menú con efecto hover"
+    },
+    "menu3": {
+      "imagen": "img/menus/menu3.png",
+      "html": "bloques_html/menus/menu3.html",
+      "descripcion": "Menú con iconos"
+    },
+    "menu4": {
+      "imagen": "img/menus/menu4.png",
+      "html": "bloques_html/menus/menu4.html",
+      "descripcion": "Menú con submenús"
+    },
+    "menu5": {
+      "imagen": "img/menus/menu5.png",
+      "html": "bloques_html/menus/menu5.html",
+      "descripcion": "Menú clásico con carácter"
+    },
+    "menu6": {
+      "imagen": "img/menus/menu6.png",
+      "html": "bloques_html/menus/menu6.html",
+      "descripcion": "Menú creativo y visible"
+    },
+    "menu7": {
+      "imagen": "img/menus/menu7.png",
+      "html": "bloques_html/menus/menu7.html",
+      "descripcion": "Menú informativo y periodístico"
+    },
+    "menu8": {
+      "imagen": "img/menus/menu8.png",
+      "html": "bloques_html/menus/menu8.html",
+      "descripcion": "Menú personal y directo"
+    },
+    "menu9": {
+      "imagen": "img/menus/menu9.png",
+      "html": "bloques_html/menus/menu9.html",
+      "descripcion": "Menú artístico y original"
+    },
+    "menu10": {
+      "imagen": "img/menus/menu10.png",
+      "html": "bloques_html/menus/menu10.html",
+      "descripcion": "Menú refinado y sutil"
+    },
+    "menu11": {
+      "imagen": "img/menus/menu11.png",
+      "html": "bloques_html/menus/menu11.html",
+      "descripcion": "Menú publicitario y directo"
+    },
+    "menu12": {
+      "imagen": "img/menus/menu12.png",
+      "html": "bloques_html/menus/menu12.html",
+      "descripcion": "Menú informativo y cargado"
+    }
+  },
+  "estilos": {
+    "estilo1": {
+      "imagen": "img/estilos/estilo1.png",
+      "html": "bloques_html/estilos/estilo1.html",
+      "descripcion": "Legal Nomads - Estilo ilustrado y personal"
+    },
+    "estilo2": {
+      "imagen": "img/estilos/estilo2.png",
+      "html": "bloques_html/estilos/estilo2.html",
+      "descripcion": "AngelList Talent - Minimalismo profesional"
+    },
+    "estilo3": {
+      "imagen": "img/estilos/estilo3.png",
+      "html": "bloques_html/estilos/estilo3.html",
+      "descripcion": "TiendaNube - E-commerce limpio y moderno"
+    },
+    "estilo4": {
+      "imagen": "img/estilos/estilo4.png",
+      "html": "bloques_html/estilos/estilo4.html",
+      "descripcion": "Estilo 4"
+    },
+    "estilo5": {
+      "imagen": "img/estilos/estilo5.png",
+      "html": "bloques_html/estilos/estilo5.html",
+      "descripcion": "Estilo 5"
+    },
+    "estilo6": {
+      "imagen": "img/estilos/estilo6.png",
+      "html": "bloques_html/estilos/estilo6.html",
+      "descripcion": "Estilo 6"
+    },
+    "estilo7": {
+      "imagen": "img/estilos/estilo7.png",
+      "html": "bloques_html/estilos/estilo7.html",
+      "descripcion": "Estilo 7"
+    },
+    "estilo8": {
+      "imagen": "img/estilos/estilo8.png",
+      "html": "bloques_html/estilos/estilo8.html",
+      "descripcion": "Empire Flippers - Marketplace profesional"
+    },
+    "estilo9": {
+      "imagen": "img/estilos/estilo9.png",
+      "html": "bloques_html/estilos/estilo9.html",
+      "descripcion": "Livestrong - Blog editorial moderno"
+    },
+    "estilo10": {
+      "imagen": "img/estilos/estilo10.png",
+      "html": "bloques_html/estilos/estilo10.html",
+      "descripcion": "MoonKo - Boutique visual natural"
+    },
+    "estilo11": {
+      "imagen": "img/estilos/estilo11.png",
+      "html": "bloques_html/estilos/estilo11.html",
+      "descripcion": "Stack Overflow - Interfaz de comunidad técnica"
+    },
+    "estilo12": {
+      "imagen": "img/estilos/estilo12.png",
+      "html": "bloques_html/estilos/estilo12.html",
+      "descripcion": "The 4-Hour Workweek - Landing de alto impacto"
+    },
+    "estilo13": {
+      "imagen": "img/estilos/estilo13.png",
+      "html": "bloques_html/estilos/estilo13.html",
+      "descripcion": "Weidert Group - Agencia B2B elegante"
+    }
+  },
+  "footers": {
+    "footer1": {
+      "imagen": "img/footer/footer1.png",
+      "html": "bloques_html/footers/footer1.html",
+      "descripcion": "Footer minimalista"
+    },
+    "footer2": {
+      "imagen": "img/footer/footer2.png",
+      "html": "bloques_html/footers/footer2.html",
+      "descripcion": "Footer con redes sociales"
+    },
+    "footer3": {
+      "imagen": "img/footer/footer3.png",
+      "html": "bloques_html/footers/footer3.html",
+      "descripcion": "Footer con newsletter"
+    },
+    "footer4": {
+      "imagen": "img/footer/footer4.png",
+      "html": "bloques_html/footers/footer4.html",
+      "descripcion": "Footer con mapa del sitio"
+    },
+    "footer5": {
+      "imagen": "img/footer/footer5.png",
+      "html": "bloques_html/footers/footer5.html",
+      "descripcion": "Footer con contactos"
+    },
+    "footer6": {
+      "imagen": "img/footer/footer6.png",
+      "html": "bloques_html/footers/footer6.html",
+      "descripcion": "Footer con logo"
+    },
+    "footer7": {
+      "imagen": "img/footer/footer7.png",
+      "html": "bloques_html/footers/footer7.html",
+      "descripcion": "Footer con enlaces rápidos"
+    },
+    "footer8": {
+      "imagen": "img/footer/footer8.png",
+      "html": "bloques_html/footers/footer8.html",
+      "descripcion": "Footer con copyright"
+    },
+    "footer9": {
+      "imagen": "img/footer/footer9.png",
+      "html": "bloques_html/footers/footer9.html",
+      "descripcion": "Footer con formulario"
+    },
+    "footer10": {
+      "imagen": "img/footer/footer10.png",
+      "html": "bloques_html/footers/footer10.html",
+      "descripcion": "Footer con testimonios"
+    },
+    "footer11": {
+      "imagen": "img/footer/footer11.png",
+      "html": "bloques_html/footers/footer11.html",
+      "descripcion": "Footer con blog"
+    },
+    "footer12": {
+      "imagen": "img/footer/footer12.png",
+      "html": "bloques_html/footers/footer12.html",
+      "descripcion": "Footer con mapa y contacto"
+    },
+    "footer13": {
+      "imagen": "img/footer/footer13.png",
+      "html": "bloques_html/footers/footer13.html",
+      "descripcion": "Footer de moda y estilo"
+    }
+  }
+} 

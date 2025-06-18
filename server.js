@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const GestorComponentes = require('./bloques_html/componentes');
 
 const app = express();
 const PORT = 3000;
@@ -11,17 +12,62 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
+// Inicializar el gestor de componentes
+const gestorComponentes = new GestorComponentes();
+
 // Asegura que la carpeta 'respuestas' existe
 const respuestasDir = path.join(__dirname, 'respuestas');
 if (!fs.existsSync(respuestasDir)) {
   fs.mkdirSync(respuestasDir);
 }
 
-app.post('/guardar', (req, res) => {
+// Endpoint para obtener información de componentes
+app.get('/api/componentes/:tipo', (req, res) => {
+  const tipo = req.params.tipo;
+  const componentes = gestorComponentes.obtenerComponentes(tipo);
+  if (componentes) {
+    res.json(componentes);
+  } else {
+    res.status(404).json({ error: 'Tipo de componente no encontrado' });
+  }
+});
+
+// Endpoint para obtener un componente específico
+app.get('/api/componentes/:tipo/:id', async (req, res) => {
+  const { tipo, id } = req.params;
+  if (gestorComponentes.existeComponente(tipo, id)) {
+    const html = await gestorComponentes.obtenerHTML(tipo, id);
+    if (html) {
+      res.json({ html, info: gestorComponentes.obtenerInfo(tipo, id) });
+    } else {
+      res.status(500).json({ error: 'Error al cargar el HTML del componente' });
+    }
+  } else {
+    res.status(404).json({ error: 'Componente no encontrado' });
+  }
+});
+
+app.post('/guardar', async (req, res) => {
   const data = req.body;
   const fecha = new Date().toISOString().replace(/[:.]/g, '-');
   const jsonPath = path.join(respuestasDir, `respuestas_${fecha}.json`);
   const txtPath = path.join(respuestasDir, `prompt_${fecha}.txt`);
+
+  // Verificar que los componentes seleccionados existen
+  const menuValido = gestorComponentes.existeComponente('menus', data.menu_seleccionado);
+  const estiloValido = gestorComponentes.existeComponente('estilos', data.plantilla_seleccionada);
+  const footerValido = gestorComponentes.existeComponente('footers', data.footer_seleccionado);
+
+  if (!menuValido || !estiloValido || !footerValido) {
+    return res.status(400).json({ 
+      error: 'Componentes inválidos',
+      detalles: {
+        menu: menuValido ? 'válido' : 'inválido',
+        estilo: estiloValido ? 'válido' : 'inválido',
+        footer: footerValido ? 'válido' : 'inválido'
+      }
+    });
+  }
 
   // Guardar JSON
   fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), 'utf8');
