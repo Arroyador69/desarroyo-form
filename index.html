@@ -8,8 +8,28 @@
   <meta property="og:description" content="Creamos tu web HTML desde una encuesta. Personalizado, rápido y único.">
   <meta property="og:image" content="img/A_logo_for_&quot;DesArroyo_Tech&quot;_is_displayed_in_neon_t.png" />
   <meta property="og:type" content="website">
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <title>DesArroyo.Tech - Creación de Webs Inteligentes</title>
   <style>
+    html, body {
+      height: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 0;
+    }
+    main {
+      flex: 1 0 auto;
+    }
+    .footer {
+      flex-shrink: 0;
+    }
     body {
       font-family: Arial, sans-serif;
       background: #10131a;
@@ -17,7 +37,6 @@
       margin: 0;
       line-height: 1.6;
       color: #eafcff;
-      min-height: 100vh;
       position: relative;
       overflow-x: hidden;
     }
@@ -178,6 +197,8 @@
       text-align: center;
       border-top: 1px solid #00fff7;
       box-shadow: 0 0 20px #00fff733;
+      z-index: 2;
+      position: relative;
     }
 
     .footer-content {
@@ -298,7 +319,7 @@
 </head>
 <body>
   <div id="parallax-bg"></div>
-  
+  <main>
   <nav class="menu" role="navigation" aria-label="Menú principal">
     <ul>
       <li><a href="#inicio" aria-label="Ir a sección Inicio">Inicio</a></li>
@@ -329,7 +350,7 @@
         <li style="margin-bottom: 1rem;">✓ Automatizaciones con IA</li>
         <li style="margin-bottom: 1rem;">✓ Soluciones a medida para emprendedores, artistas y negocios</li>
       </ul>
-      <p>Email para contacto directo: <a href="mailto:hola@desarroyo.tech" style="color: #00fff7;">hola@desarroyo.tech</a></p>
+      <p>Email para contacto directo: <a href="mailto:alberto@desarroyo.tech" style="color: #00fff7;">alberto@desarroyo.tech</a></p>
     </div>
   </section>
 
@@ -367,14 +388,16 @@
       <h2>Hablemos</h2>
       <div class="neon-bar"></div>
       <p>¿Quieres una web, una automatización o algo único? Escríbenos.</p>
-      <a href="mailto:hola@desarroyo.tech" class="btn">Contactar por email</a>
+      <a href="mailto:alberto@desarroyo.tech" class="btn">Contactar por email</a>
     </div>
   </section>
-
-  <footer>
+  </main>
+  <footer class="footer">
     <div class="footer-content">
       <div class="footer-left">
         <span>Developed by DesArroyo.Tech</span>
+      </div>
+      <div class="footer-center">
         <div class="footer-links">
           <a href="aviso-legal.html" aria-label="Leer aviso legal">Aviso legal</a>
           <a href="politica-privacidad.html" aria-label="Leer política de privacidad">Política de privacidad</a>

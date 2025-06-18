@@ -4,71 +4,141 @@
   <meta charset="UTF-8" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <title>Mejora tu Web - DesArroyo.Tech</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
+      background: #10131a;
       padding: 2rem;
       line-height: 1.6;
-      color: #333;
+      color: #eafcff;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .logo-img {
+      max-width: 300px;
+      width: 100%;
+      height: auto;
+      display: inline-block;
+      filter: drop-shadow(0 0 40px #00fff7) drop-shadow(0 0 10px #a259ff);
+      background: #181c26;
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: #00fff7;
+      text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
     }
     .container {
       max-width: 800px;
       margin: auto;
-      background: white;
+      background: #181c26;
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      color: #222;
+      box-shadow: 0 0 20px #00fff733, 0 0 40px #a259ff22;
+      position: relative;
+      z-index: 1;
     }
     label {
       display: block;
       margin-bottom: 1.5rem;
     }
     input[type="text"], input[type="email"], input[type="datetime-local"], textarea {
+      background: #151922;
+      color: #eafcff;
+      border: 1px solid #00fff7;
+      border-radius: 4px;
+      transition: border 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 6px #00fff733;
       width: 100%;
       padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
       margin-top: 0.5rem;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="datetime-local"]:focus, textarea:focus {
+      border: 1.5px solid #a259ff;
+      box-shadow: 0 0 12px #a259ff99;
+      outline: none;
     }
     textarea {
       min-height: 100px;
       resize: vertical;
     }
     small {
-      color: #666;
+      color: #a259ff;
       display: block;
       margin-bottom: 0.5rem;
     }
+    .neon-important {
+      display: block;
+      background: #181c26;
+      border: 2px solid #00fff7;
+      border-radius: 14px;
+      color: #eafcff;
+      box-shadow: 0 0 24px #00fff7cc, 0 0 40px #a259ff44;
+      padding: 1.2rem;
+      font-size: 1.08rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+    button, .btn {
+      background: linear-gradient(90deg, #00fff7 0%, #00cfff 50%, #a259ff 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+      box-shadow: 0 0 10px #00fff7aa;
+      width: 100%;
+      margin-top: 2rem;
+      padding: 1rem 2rem;
+      display: inline-block;
+    }
+    button:hover, .btn:hover {
+      background: linear-gradient(90deg, #a259ff 0%, #00fff7 100%);
+      box-shadow: 0 0 20px #a259ffcc, 0 0 40px #00fff744;
+      transform: scale(1.04);
+    }
     .consentimiento {
       margin-top: 2rem;
-      border: 1px solid #dee2e6;
+      border: 1px solid #00fff7;
       border-radius: 8px;
       overflow: hidden;
+      background: #181c26;
+      box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;
     }
     .consentimiento-header {
-      background: #f8f9fa;
+      background: #10131a;
       padding: 1rem;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #dee2e6;
+      border-bottom: 1px solid #00fff7;
+      color: #00fff7;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
     .consentimiento-content {
       padding: 0;
       max-height: 0;
       overflow: hidden;
       transition: all 0.3s ease-out;
-      background: #fff;
+      background: #181c26;
+      color: #eafcff;
     }
     .consentimiento-content.active {
       padding: 2rem;
       max-height: 2000px;
+      background: #181c26;
+      color: #eafcff;
     }
     .consentimiento-header .toggle-icon {
       transition: transform 0.3s ease;
@@ -76,30 +146,21 @@
     .consentimiento-header.active .toggle-icon {
       transform: rotate(180deg);
     }
-    button {
-      background: #4CAF50;
-      color: white;
-      padding: 1rem 2rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      width: 100%;
-      margin-top: 2rem;
+    .consentimiento-content p[style*="font-weight: bold"] {
+      color: #00fff7 !important;
+      font-weight: bold !important;
+      text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
     }
-    button:hover {
-      background: #45a049;
+    .consentimiento-content ul li {
+      color: #eafcff;
+      font-size: 1.05rem;
+      margin-bottom: 0.8rem;
     }
-    .alert {
-      background: #fff7d1;
-      border: 1px solid #f5d441;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 2rem;
+    .consentimiento-content ul li strong, .consentimiento-content ul li b {
+      color: #00fff7;
     }
-    .alert strong {
-      color: #856404;
+    .consentimiento-content ul li::marker, .consentimiento-content ul li:before {
+      color: #00fff7;
     }
     #mensaje-confirmacion {
       display: none;
@@ -114,17 +175,19 @@
   </style>
 </head>
 <body>
+  <div class="logo-container">
+    <img src="img/A_logo_for_&quot;DesArroyo_Tech&quot;_is_displayed_in_neon_t.png" alt="Logotipo DesArroyo Tech en estilo neón con efectos de brillo" class="logo-img" />
+  </div>
   <div class="container">
     <h1>Mejora tu Web</h1>
     <p>Esta es tu oportunidad de perfeccionar tu web. Indica qué deseas mejorar y mantendremos lo que te gusta.</p>
-
-    <div class="alert">
+    <span class="neon-important">
       ⚠️ <strong>Importante:</strong> Esta es tu única edición gratuita incluida.<br>
       🕐 Recibirás tu versión mejorada en la fecha y hora que indiques.<br>
       📩 Deberás confirmar por email cuando la recibas.<br>
       💬 El equipo recibirá tu solicitud por Telegram para avanzar.<br><br>
       Sé específico y claro en tus cambios para obtener el mejor resultado.
-    </div>
+    </span>
 
     <form id="mejora-form">
       <label>
@@ -196,8 +259,8 @@
         </div>
       </div>
 
-      <label style="display: block; margin-top: 2rem; font-weight: bold; padding: 1rem; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;">
-        <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem;" />
+      <label class="neon-terms" style="display: block; margin-top: 2rem; font-weight: bold; padding: 1rem; background: #181c26; border: 2px solid #00fff7; border-radius: 8px; color: #eafcff; box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;">
+        <input type="checkbox" name="acepta_terminos" required style="margin-right: 0.5rem; accent-color: #00fff7;" />
         He leído y acepto los términos y condiciones anteriores.
       </label>
 
