@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
   <title>Encuesta Desarroyo Tech</title>
   <style>
     body {
@@ -65,59 +66,25 @@
       border-radius: 4px;
       transition: border 0.3s, box-shadow 0.3s;
       box-shadow: 0 0 6px #00fff733;
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 1.1rem;
     }
     input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
       border: 1.5px solid #a259ff;
       box-shadow: 0 0 12px #a259ff99;
       outline: none;
     }
-    .menu-option.selected, .template-option.selected, .footer-option.selected {
-      border-color: #00fff7;
-      background: #181c26;
-      box-shadow: 0 0 12px #00fff7cc;
-    }
-    .menu-option:hover, .template-option:hover, .footer-option:hover {
-      border-color: #a259ff;
-      box-shadow: 0 0 16px #a259ff99;
-      transition: border 0.3s, box-shadow 0.3s;
-    }
-    a {
-      color: #a259ff;
-      text-decoration: underline;
-      transition: color 0.3s;
-    }
-    a:hover {
-      color: #00fff7;
-    }
-    /* Gradiente para barras o elementos destacados */
-    .neon-bar {
-      height: 8px;
-      width: 100%;
-      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
-      border-radius: 4px;
-      margin-bottom: 2rem;
-      box-shadow: 0 0 16px #00fff7cc;
-    }
-    /* Modo oscuro/neón aplicado en todo el sitio */
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #181c26;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 20px #00fff733, 0 0 40px #a259ff22;
-    }
-    h1, h2 {
-      color: #222;
-    }
-    label {
-      display: block;
-      margin-bottom: 1.5rem;
+    textarea {
+      min-height: 100px;
+      resize: vertical;
     }
     small {
-      color: #666;
+      color: #a259ff;
       display: block;
       margin-bottom: 0.5rem;
+      font-size: 1rem;
     }
     .color-preview {
       display: inline-block;
@@ -143,22 +110,23 @@
     }
     .consentimiento {
       margin-top: 2rem;
-      border: 1px solid #dee2e6;
+      border: 1px solid #00fff7;
       border-radius: 8px;
       overflow: hidden;
+      background: #181c26;
+      box-shadow: 0 0 16px #00fff7cc, 0 0 24px #a259ff44;
     }
     .consentimiento-header {
-      background: #f8f9fa;
+      background: #10131a;
       padding: 1rem;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #dee2e6;
-    }
-    .consentimiento-header h3 {
-      margin: 0;
-      color: #2c3e50;
+      border-bottom: 1px solid #00fff7;
+      color: #00fff7;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
     .consentimiento-content {
       padding: 0;
@@ -284,7 +252,7 @@
       padding: 1.2rem;
       font-size: 1.08rem;
       font-weight: 500;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
     .menu-option img, .template-option img, .footer-option img {
       width: 100%;
@@ -408,18 +376,16 @@
     <p>Solo cuando estés satisfecho y decidas seguir adelante, realizarás el pago y recibirás tu web lista para usar.</p>
 
     <form id="encuesta" style="max-width:800px; margin:0 auto; padding:2rem;">
-      <p style="background:#fff7d1; border:1px solid #f5d441; padding:1rem; border-radius:10px;">
-        <span class="neon-important">
-          💡 <strong>Importante:</strong> Todo el proceso es inteligente y serás acompañado en cada paso.<br><br>
-          Cada sección incluye ejemplos, referencias visuales y explicaciones claras. Al finalizar, nuestro equipo generará tu diseño ideal de forma interna.<br><br>
-          ⸻<br><br>
-          ⚠️ <strong>Lo que debes saber antes de comenzar:</strong><br>
-          • ⏱️ En 24 horas recibirás una primera muestra por email. Revisa también tu carpeta de spam o papelera.<br>
-          • 📩 Deberás confirmar por email la hora exacta en que quieres recibir la versión final.<br>
-          • 📲 Nuestro equipo también recibirá tu confirmación para avanzar con la entrega.<br><br>
-          🔒 Tómate este proceso en serio: esta web será creada 100% a medida para ti.
-        </span>
-      </p>
+      <span class="neon-important">
+        💡 <strong>Importante:</strong> Todo el proceso es inteligente y serás acompañado en cada paso.<br><br>
+        Cada sección incluye ejemplos, referencias visuales y explicaciones claras. Al finalizar, nuestro equipo generará tu diseño ideal de forma interna.<br><br>
+        ⸻<br><br>
+        ⚠️ <strong>Lo que debes saber antes de comenzar:</strong><br>
+        • ⏱️ En 24 horas recibirás una primera muestra por email. Revisa también tu carpeta de spam o papelera.<br>
+        • 📩 Deberás confirmar por email la hora exacta en que quieres recibir la versión final.<br>
+        • 📲 Nuestro equipo también recibirá tu confirmación para avanzar con la entrega.<br><br>
+        🔒 Tómate este proceso en serio: esta web será creada 100% a medida para ti.
+      </span>
 
       <label>
         <strong>Nombre completo</strong><br/>
@@ -1103,7 +1069,7 @@
 
       <input type="hidden" name="estado_inicial" value="Esperando confirmación de entrega" />
 
-      <button type="submit" style="margin-top: 2rem; padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s ease;">Enviar respuestas</button>
+      <button type="submit" style="margin-top: 2rem; padding: 1rem 2rem; background: linear-gradient(90deg, #00fff7 0%, #00cfff 50%, #a259ff 100%); color: #fff; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s, box-shadow 0.3s, transform 0.2s; box-shadow: 0 0 10px #00fff7aa; width: 100%; display: inline-block;">Enviar respuestas</button>
     </form>
     <div id="mensaje-confirmacion" style="display:none; margin-top:2rem; padding:1.5rem; background:#e6ffe6; border:1px solid #b2ffb2; border-radius:8px; color:#155724; font-size:1.2rem;"></div>
   </div>

@@ -9,6 +9,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
 
 // Asegura que la carpeta 'respuestas' existe
 const respuestasDir = path.join(__dirname, 'respuestas');
@@ -31,6 +32,10 @@ app.post('/guardar', (req, res) => {
   fs.writeFileSync(txtPath, prompt, 'utf8');
 
   res.json({ ok: true, mensaje: 'Respuestas y prompt guardados correctamente.' });
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
