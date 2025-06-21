@@ -118,6 +118,131 @@
             border-radius: 8px;
             background: #15192299;
         }
+
+        /* Estilos del Chatbot */
+        #chat-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 255, 247, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(162, 89, 255, 0.5);
+        }
+
+        #chat-widget {
+            position: fixed;
+            bottom: 7rem;
+            right: 2rem;
+            width: 350px;
+            max-width: 90%;
+            background: #181c26;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        #chat-widget.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .chat-header {
+            background: linear-gradient(90deg, #00cfff 0%, #a259ff 100%);
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat-body {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            background: #00fff7;
+            color: #10131a;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background: #2a3142;
+            color: #eafcff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .quick-reply-btn {
+            background: transparent;
+            border: 1px solid #00fff7;
+            color: #00fff7;
+            border-radius: 15px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .quick-reply-btn:hover {
+            background: #00fff7;
+            color: #10131a;
+        }
+
+        .chat-footer {
+            border-top: 1px solid #00fff755;
+            padding: 1rem;
+        }
+
+        #chat-input {
+            width: 100%;
+            background: #151922;
+            border: 1px solid #00fff788;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +341,19 @@
         </div>
     </div>
 
+    <!-- Elementos del Chatbot -->
+    <button id="chat-button" aria-label="Abrir chat de ayuda">🤖</button>
+    <div id="chat-widget">
+        <div class="chat-header">Aura - Tu Asistente</div>
+        <div class="chat-body" id="chat-body">
+            <!-- El saludo inicial y las preguntas se añadirán con JS -->
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chat-input" placeholder="Escribe tu pregunta...">
+        </div>
+    </div>
+
+    <script src="chatbot.js"></script>
     <script>
         function generateWorkflowJson(data) {
             const appMapping = {
@@ -334,6 +472,86 @@
                 resultContent.textContent = `Error al generar el JSON: ${error.message}`;
             }
         });
+
+        // --- Lógica del Chatbot ---
+        const chatButton = document.getElementById('chat-button');
+        const chatWidget = document.getElementById('chat-widget');
+        const chatBody = document.getElementById('chat-body');
+        const chatInput = document.getElementById('chat-input');
+
+        const quickReplies = [
+            '¿Cómo instalo el flujo en n8n?',
+            '¿Cuánto cuesta una web personalizada?',
+            '¿Qué otros servicios ofrecen?',
+            '¿Puedo pedir una automatización a medida?',
+            'Dame ejemplos de "superpoderes"'
+        ];
+
+        function addMessage(message, className, isHTML = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${className}`;
+            if (isHTML) {
+                messageDiv.innerHTML = message;
+            } else {
+                messageDiv.textContent = message;
+            }
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function addQuickReplies() {
+            const repliesContainer = document.createElement('div');
+            repliesContainer.className = 'quick-replies';
+            
+            quickReplies.forEach(replyText => {
+                const replyBtn = document.createElement('button');
+                replyBtn.className = 'quick-reply-btn';
+                replyBtn.textContent = replyText;
+                replyBtn.onclick = () => {
+                    handleUserInput(replyText);
+                    // Opcional: eliminar botones tras el uso
+                    const allReplies = document.querySelectorAll('.quick-replies');
+                    allReplies.forEach(r => r.remove());
+                };
+                repliesContainer.appendChild(replyBtn);
+            });
+            chatBody.appendChild(repliesContainer);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+        
+        function initializeChat() {
+            addMessage("¡Hola! Soy Aura, tu asistente personal de DesArroyo.Tech. ¿En qué puedo ayudarte?", 'bot-message', true);
+            addQuickReplies();
+        }
+
+        function handleUserInput(userInput) {
+            addMessage(userInput, 'user-message');
+            
+            // Simular una pequeña espera para la respuesta del bot
+            setTimeout(() => {
+                const botResponse = getBotAnswer(userInput);
+                addMessage(botResponse, 'bot-message', true);
+            }, 500);
+        }
+
+        chatButton.addEventListener('click', () => {
+            chatWidget.classList.toggle('open');
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                // Eliminar botones de sugerencia si el usuario escribe
+                const allReplies = document.querySelectorAll('.quick-replies');
+                allReplies.forEach(r => r.remove());
+                
+                handleUserInput(chatInput.value);
+                chatInput.value = '';
+            }
+        });
+
+        // Iniciar el chat
+        initializeChat();
+
     </script>
 </body>
 </html> 
