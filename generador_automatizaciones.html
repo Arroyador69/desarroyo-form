@@ -3,48 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador y Guía de Flujos n8n</title>
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <title>Generador y Guía de Flujos n8n - DesArroyo.Tech</title>
     <style>
+        html, body {
+            height: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: 0;
+            font-family: Arial, sans-serif;
             background: #10131a;
-            color: #eafcff;
-            padding: 2rem;
+            padding: 0;
+            margin: 0;
             line-height: 1.6;
+            color: #eafcff;
+            position: relative;
+            overflow-x: hidden;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+
+        main {
+            flex: 1 0 auto;
         }
-        .section {
+
+        .footer {
+            flex-shrink: 0;
+        }
+
+        /* Fondo parallax */
+        #parallax-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 60% 40%, #00fff733 0%, transparent 70%),
+                        radial-gradient(ellipse at 20% 80%, #a259ff33 0%, transparent 70%),
+                        #10131a;
+            transition: background 0.3s;
+        }
+
+        /* Logo y header */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-img {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            display: inline-block;
+            filter: drop-shadow(0 0 40px #00fff7) drop-shadow(0 0 10px #a259ff);
             background: #181c26;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 0 25px #00fff733;
-            margin-bottom: 3rem;
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
-        h1, h2 {
+
+        /* Títulos */
+        h1, h2, h3, h4, h5, h6 {
             color: #00fff7;
-            border-bottom: 2px solid #00fff744;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
+            text-shadow: 0 0 8px #00fff7, 0 0 16px #a259ff44;
         }
+
         h1 {
             text-align: center;
             font-size: 2.5rem;
+            margin-bottom: 2rem;
         }
+
         h2 {
             font-size: 2rem;
+            margin-bottom: 1.5rem;
         }
+
+        /* Barra neón */
+        .neon-bar {
+            height: 8px;
+            width: 100%;
+            background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 16px #00fff7cc;
+        }
+
+        /* Contenedor principal */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Secciones */
+        .section {
+            background: rgba(24, 28, 38, 0.8);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid #00fff7;
+            box-shadow: 0 0 20px #00fff733;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Formularios */
         .form-group {
             margin-bottom: 1.5rem;
         }
+
         label {
             display: block;
             margin-bottom: 0.5rem;
             color: #00fff7;
             font-weight: 600;
+            text-shadow: 0 0 4px #00fff7;
         }
+
         input, select, textarea {
             width: 100%;
             padding: 0.8rem;
@@ -54,72 +139,156 @@
             border-radius: 6px;
             font-size: 1rem;
             box-sizing: border-box;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s ease;
         }
+
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #00fff7;
-            box-shadow: 0 0 10px #00fff755;
+            box-shadow: 0 0 15px #00fff755;
+            transform: scale(1.02);
         }
-        button {
-            background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
-            color: #10131a;
-            font-weight: 700;
+
+        /* Botones */
+        .btn, button {
+            background: linear-gradient(90deg, #00fff7 0%, #00cfff 50%, #a259ff 100%);
+            color: #fff;
             border: none;
-            padding: 1rem 2rem;
             border-radius: 8px;
-            cursor: pointer;
             font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+            box-shadow: 0 0 10px #00fff7aa;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 700;
             width: 100%;
             margin-top: 1rem;
-            transition: transform 0.2s ease;
         }
-        button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px #a259ff88;
+
+        .btn:hover, button:hover {
+            background: linear-gradient(90deg, #a259ff 0%, #00fff7 100%);
+            box-shadow: 0 0 20px #a259ffcc, 0 0 40px #00fff744;
+            transform: scale(1.04);
         }
+
+        /* Resultados */
         .result {
             margin-top: 2rem;
             padding: 1.5rem;
             background: #151922;
             border-radius: 8px;
             border-left: 5px solid #00ff00;
+            box-shadow: 0 0 15px #00ff0033;
         }
+
         .success {
             color: #caffca;
+            border-left-color: #00ff00;
         }
+
         .error {
             border-left-color: #ff0000;
             color: #ffcaca;
+            box-shadow: 0 0 15px #ff000033;
         }
+
+        /* Instrucciones */
         .instructions {
             margin-top: 2rem;
         }
+
         .step {
             margin-bottom: 1.5rem;
             padding-left: 1.5rem;
             border-left: 3px solid #00fff755;
+            transition: border-left-color 0.3s ease;
         }
+
+        .step:hover {
+            border-left-color: #00fff7;
+        }
+
         .step h3 {
             color: #a259ff;
             margin-top: 0;
+            text-shadow: 0 0 4px #a259ff;
         }
+
+        /* Código */
         code {
             background: #10131a;
             padding: 0.2rem 0.5rem;
             border-radius: 4px;
             font-family: "Fira Code", monospace;
             color: #f77f00;
+            border: 1px solid #f77f0033;
         }
+
+        /* Ejemplos */
         .example {
             border: 1px dashed #00fff755;
             padding: 1rem;
             margin-top: 1rem;
             border-radius: 8px;
             background: #15192299;
+            transition: border-color 0.3s ease;
         }
 
-        /* Estilos del Chatbot */
+        .example:hover {
+            border-color: #00fff7;
+        }
+
+        /* Animaciones de entrada */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(.4,2,.3,1), transform 0.8s cubic-bezier(.4,2,.3,1);
+            will-change: opacity, transform;
+        }
+
+        .fade-in-section.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* Footer */
+        footer {
+            background: #181c26;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid #00fff7;
+            box-shadow: 0 0 20px #00fff733;
+            z-index: 2;
+            position: relative;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 2rem;
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: #eafcff;
+            text-decoration: none;
+            margin: 0 1rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #00fff7;
+        }
+
+        /* Estilos del Chatbot mejorados */
         #chat-button {
             position: fixed;
             bottom: 2rem;
@@ -162,6 +331,7 @@
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
             pointer-events: none;
+            border: 1px solid #00fff733;
         }
 
         #chat-widget.open {
@@ -243,103 +413,156 @@
             border: 1px solid #00fff788;
             color: white;
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Generador y Guía de Flujos n8n</h1>
-
-        <!-- Parte 1: Generador de Flujos -->
-        <div class="section">
-            <h2>Parte 1: Genera tu Flujo de Automatización</h2>
-            <form id="test-form">
-                <div class="form-group">
-                    <label for="nombre">Nombre de la Automatización:</label>
-                    <input type="text" id="nombre" name="nombre" value="Mi Automatización" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Tu Email (para notificaciones):</label>
-                    <input type="email" id="email" name="email" value="tu@email.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción de la automatización:</label>
-                    <textarea id="descripcion" name="descripcion_automatizacion" rows="3" required>Cuando reciba un email urgente, enviar una notificación a Telegram.</textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="app_origen">Aplicación de Origen (Trigger):</label>
-                    <select id="app_origen" name="app_origen" required>
-                        <option value="gmail" selected>Gmail</option>
-                        <option value="webhook">Webhook</option>
-                        <option value="notion">Notion</option>
-                        <option value="google_sheets">Google Sheets</option>
-                        <option value="forms">Google Forms</option>
-                        <option value="calendar">Google Calendar</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="app_destino">Aplicación de Destino (Acción):</label>
-                    <select id="app_destino" name="app_destino" required>
-                        <option value="telegram" selected>Telegram</option>
-                        <option value="discord">Discord</option>
-                        <option value="google_sheets">Google Sheets</option>
-                        <option value="notion">Notion</option>
-                        <option value="email">Email</option>
-                        <option value="slack">Slack</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="datos_transferir">Datos a Transferir (Describe qué quieres enviar):</label>
-                    <textarea id="datos_transferir" name="datos_transferir" rows="2" required>Asunto, remitente y cuerpo del email</textarea>
-                </div>
-
-                <button type="submit">🚀 Generar y Descargar JSON</button>
-            </form>
-
-            <div id="result" class="result" style="display: none;">
-                <p id="result-content"></p>
+    <div id="parallax-bg"></div>
+    <main>
+        <div class="container">
+            <div class="logo-container fade-in-section">
+                <img src="img/A_logo_for_&quot;DesArroyo_Tech&quot;_is_displayed_in_neon_t.png" alt="Logotipo DesArroyo Tech en estilo neón con efectos de brillo" class="logo-img" />
             </div>
-        </div>
+            
+            <h1 class="fade-in-section">Generador y Guía de Flujos n8n</h1>
 
-        <!-- Parte 2: Guía de Implementación -->
-        <div class="section">
-            <h2>Parte 2: Cómo Poner tu Flujo Online en n8n</h2>
-            <p>¡Felicidades por generar tu flujo! Ahora, vamos a ponerlo a trabajar en la nube para que funcione 24/7. Sigue estos pasos:</p>
+            <!-- Parte 1: Generador de Flujos -->
+            <div class="section fade-in-section">
+                <h2>Parte 1: Genera tu Flujo de Automatización</h2>
+                <div class="neon-bar"></div>
+                <form id="test-form">
+                    <div class="form-group">
+                        <label for="nombre">Nombre de la Automatización:</label>
+                        <input type="text" id="nombre" name="nombre" value="Mi Automatización" required>
+                    </div>
 
-            <div class="instructions">
-                <div class="step">
-                    <h3>Paso 1: Importar el Flujo en n8n</h3>
-                    <p>Accede a tu cuenta de n8n Cloud (o auto-alojada). En el panel principal, busca el botón <strong>"Add workflow"</strong> y haz clic en <strong>"Import from file"</strong>. Selecciona el archivo <code>.json</code> que acabas de descargar.</p>
+                    <div class="form-group">
+                        <label for="email">Tu Email (para notificaciones):</label>
+                        <input type="email" id="email" name="email" value="tu@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion">Descripción de la automatización:</label>
+                        <textarea id="descripcion" name="descripcion_automatizacion" rows="3" required>Cuando reciba un email urgente, enviar una notificación a Telegram.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="app_origen">Aplicación de Origen (Trigger):</label>
+                        <select id="app_origen" name="app_origen" required>
+                            <option value="gmail" selected>Gmail</option>
+                            <option value="webhook">Webhook</option>
+                            <option value="notion">Notion</option>
+                            <option value="google_sheets">Google Sheets</option>
+                            <option value="forms">Google Forms</option>
+                            <option value="calendar">Google Calendar</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="app_destino">Aplicación de Destino (Acción):</label>
+                        <select id="app_destino" name="app_destino" required>
+                            <option value="telegram" selected>Telegram</option>
+                            <option value="discord">Discord</option>
+                            <option value="google_sheets">Google Sheets</option>
+                            <option value="notion">Notion</option>
+                            <option value="email">Email</option>
+                            <option value="slack">Slack</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="datos_transferir">Datos a Transferir (Describe qué quieres enviar):</label>
+                        <textarea id="datos_transferir" name="datos_transferir" rows="2" required>Asunto, remitente y cuerpo del email</textarea>
+                    </div>
+
+                    <button type="submit">🚀 Generar y Descargar JSON</button>
+                </form>
+
+                <div id="result" class="result" style="display: none;">
+                    <p id="result-content"></p>
                 </div>
+            </div>
 
-                <div class="step">
-                    <h3>Paso 2: Configurar las Credenciales</h3>
-                    <p>Un flujo no puede hacer nada si no tiene permisos. Cada nodo (Gmail, Telegram, etc.) que se conecta a una aplicación necesita credenciales.</p>
-                    <p>Haz clic en cada nodo de tu flujo. Verás un campo llamado <strong>"Credential"</strong> o similar. Si es la primera vez que usas esa app, tendrás que hacer clic en <strong>"Create New"</strong> y seguir las instrucciones para conectar tu cuenta.</p>
-                    <div class="example">
-                        <h4>Ejemplo: Conectar Telegram</h4>
-                        <p>Para el nodo de Telegram, te pedirá un <strong>"Access Token"</strong>. Este token te lo proporciona el <strong>BotFather</strong> en Telegram al crear un nuevo bot. Simplemente pega ese token en el campo de las credenciales y guarda.</p>
+            <!-- Parte 2: Guía de Implementación -->
+            <div class="section fade-in-section">
+                <h2>Parte 2: Cómo Poner tu Flujo Online en n8n</h2>
+                <div class="neon-bar"></div>
+                <p>¡Felicidades por generar tu flujo! Ahora, vamos a ponerlo a trabajar en la nube para que funcione 24/7. Sigue estos pasos:</p>
+
+                <div class="instructions">
+                    <div class="step">
+                        <h3>Paso 1: Importar el Flujo en n8n</h3>
+                        <p>Accede a tu cuenta de n8n Cloud (o auto-alojada). En el panel principal, busca el botón <strong>"Add workflow"</strong> y haz clic en <strong>"Import from file"</strong>. Selecciona el archivo <code>.json</code> que acabas de descargar.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Paso 2: Configurar las Credenciales</h3>
+                        <p>Un flujo no puede hacer nada si no tiene permisos. Cada nodo (Gmail, Telegram, etc.) que se conecta a una aplicación necesita credenciales.</p>
+                        <p>Haz clic en cada nodo de tu flujo. Verás un campo llamado <strong>"Credential"</strong> o similar. Si es la primera vez que usas esa app, tendrás que hacer clic en <strong>"Create New"</strong> y seguir las instrucciones para conectar tu cuenta.</p>
+                        <div class="example">
+                            <h4>Ejemplo: Conectar Telegram</h4>
+                            <p>Para el nodo de Telegram, te pedirá un <strong>"Access Token"</strong>. Este token te lo proporciona el <strong>BotFather</strong> en Telegram al crear un nuevo bot. Simplemente pega ese token en el campo de las credenciales y guarda.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Paso 3: Ajustar y Personalizar Nodos</h3>
+                        <p>El flujo generado es una plantilla. Es posible que necesites hacer pequeños ajustes para que se adapte perfectamente a tus necesidades.</p>
+                        <p>Por ejemplo, en un nodo de Telegram, querrás asegurarte de que el <strong>"Chat ID"</strong> sea el correcto para que los mensajes lleguen a ti o a tu grupo. Para un nodo de Gmail, puede que quieras añadir un filtro para que solo se active con correos de un remitente específico.</p>
+                        <p>La expresión <code>{{$json["body"]["datos_a_transferir"]}}</code> es un marcador de posición. Debes reemplazarla con las variables reales que te ofrece el nodo anterior (el trigger). Haz clic en el campo y usa el selector de variables para arrastrar los datos que necesites (ej: <code>{{$node["Gmail Trigger"].json["snippet"]}}</code>).</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Paso 4: ¡Activar el Flujo!</h3>
+                        <p>Una vez que todo esté configurado, haz clic en el interruptor <strong>"Active"</strong> en la esquina superior derecha. ¡Listo! Tu automatización está ahora online y se ejecutará automáticamente según lo que hayas definido en el trigger.</p>
                     </div>
                 </div>
-
-                <div class="step">
-                    <h3>Paso 3: Ajustar y Personalizar Nodos</h3>
-                    <p>El flujo generado es una plantilla. Es posible que necesites hacer pequeños ajustes para que se adapte perfectamente a tus necesidades.</p>
-                    <p>Por ejemplo, en un nodo de Telegram, querrás asegurarte de que el <strong>"Chat ID"</strong> sea el correcto para que los mensajes lleguen a ti o a tu grupo. Para un nodo de Gmail, puede que quieras añadir un filtro para que solo se active con correos de un remitente específico.</p>
-                    <p>La expresión <code>{{$json["body"]["datos_a_transferir"]}}</code> es un marcador de posición. Debes reemplazarla con las variables reales que te ofrece el nodo anterior (el trigger). Haz clic en el campo y usa el selector de variables para arrastrar los datos que necesites (ej: <code>{{$node["Gmail Trigger"].json["snippet"]}}</code>).</p>
-                </div>
-
-                <div class="step">
-                    <h3>Paso 4: ¡Activar el Flujo!</h3>
-                    <p>Una vez que todo esté configurado, haz clic en el interruptor <strong>"Active"</strong> en la esquina superior derecha. ¡Listo! Tu automatización está ahora online y se ejecutará automáticamente según lo que hayas definido en el trigger.</p>
-                </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span>Developed by DesArroyo.Tech</span>
+            </div>
+            <div class="footer-center">
+                <div class="footer-links">
+                    <a href="aviso-legal.html" aria-label="Leer aviso legal">Aviso legal</a>
+                    <a href="politica-privacidad.html" aria-label="Leer política de privacidad">Política de privacidad</a>
+                    <a href="cookies.html" aria-label="Leer política de cookies">Cookies</a>
+                </div>
+            </div>
+            <div class="footer-right">
+                <span>© 2025 DesArroyo.Tech - All rights reserved</span>
+            </div>
+        </div>
+    </footer>
 
     <!-- Elementos del Chatbot -->
     <button id="chat-button" aria-label="Abrir chat de ayuda">🤖</button>
@@ -355,6 +578,34 @@
 
     <script src="chatbot.js"></script>
     <script>
+        // Parallax fondo neón
+        const parallaxBg = document.getElementById('parallax-bg');
+        document.addEventListener('mousemove', function(e) {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            parallaxBg.style.background = `radial-gradient(ellipse at ${60 + x*20}% ${40 + y*20}%, #00fff733 0%, transparent 70%),`
+                + `radial-gradient(ellipse at ${20 + x*30}% ${80 - y*20}%, #a259ff33 0%, transparent 70%), #10131a`;
+        });
+
+        // Animaciones de entrada
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in-section').forEach((section) => {
+            observer.observe(section);
+        });
+
         function generateWorkflowJson(data) {
             const appMapping = {
                 gmail: 'n8n-nodes-base.gmailTrigger',
@@ -551,7 +802,6 @@
 
         // Iniciar el chat
         initializeChat();
-
     </script>
 </body>
 </html> 
