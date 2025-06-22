@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Pago Exitoso! - DesArroyo.Tech</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #10131a;
+            color: #eafcff;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .success-container {
+            background: rgba(24, 28, 38, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 600px;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 30px #00ff0033;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            color: #00ff00;
+            margin-bottom: 1rem;
+        }
+        
+        .telegram-link {
+            display: inline-block;
+            background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+            color: #10131a;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 1rem 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .telegram-link:hover {
+            transform: scale(1.05);
+        }
+        
+        .back-link {
+            color: #00fff7;
+            text-decoration: none;
+            margin-top: 2rem;
+            display: inline-block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">🎉</div>
+        <h1>¡Pago Confirmado!</h1>
+        <p>¡Felicidades! Ya tienes acceso premium a Aura, el asistente virtual de DesArroyo.Tech.</p>
+        
+        <h3>✅ Lo que incluye tu acceso premium:</h3>
+        <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+            <li>Consultas ilimitadas con Aura</li>
+            <li>Acceso al grupo de Telegram exclusivo</li>
+            <li>Contenido premium sobre tech y automatizaciones</li>
+            <li>Soporte prioritario</li>
+        </ul>
+        
+        <a href="https://t.me/desarroyo_tech_premium" class="telegram-link" target="_blank">
+            📱 Únete al Grupo de Telegram
+        </a>
+        
+        <p><small>Te hemos enviado un email con los detalles de tu compra.</small></p>
+        
+        <a href="/" class="back-link">← Volver a DesArroyo.Tech</a>
+    </div>
+    
+    <script>
+        // Verificar pago exitoso
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        
+        if (sessionId) {
+            // Confirmar pago en el backend
+            fetch('/api/confirm-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sessionId })
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Pago confirmado exitosamente');
+                }
+            }).catch(error => {
+                console.error('Error confirmando pago:', error);
+            });
+        }
+    </script>
+</body>
+</html> 
