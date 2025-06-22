@@ -1,0 +1,394 @@
+{
+  "name": "1.0 desarroyo form",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9fc9bcdb-1880-4785-b91b-123b21f1c300",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "33dcac00-9590-4f8c-9ba0-32c8e6e73c17",
+      "name": "1. Webhook Solicitud Web",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -20
+      ],
+      "webhookId": "9fc9bcdb-1880-4785-b91b-123b21f1c300"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $input.first().json.body;\n\nconst asArray = (val) => Array.isArray(val) ? val.join(', ') : 'No especificado';\nconst fallback = (val, def = 'No especificado') => val && val !== '' ? val : def;\n\nconst prompt = `Actúa como el Diseñador Web DesArroyo. Con base en estas respuestas, crea una página web en HTML + Tailwind + React limpia, responsiva, moderna y sin comentarios extra:\\n\\nNombre del proyecto: ${fallback(d.nombre_proyecto)}\\nSector: ${fallback(d.sector)}\\nObjetivo: ${fallback(d.objetivo)}\\nColores: ${fallback(d.color1)}, ${fallback(d.color2)}, ${fallback(d.color3)}\\nEstilos: ${asArray(d.estilos)}\\nTipografías: ${asArray(d.fuentes)}\\nSecciones: ${asArray(d.secciones)}\\nReferencias: ${fallback(d.ref1)}, ${fallback(d.ref2)}, ${fallback(d.ref3)}\\nObservaciones: ${fallback(d.observaciones, 'Ninguna')}\\n`;\n\n$input.item.json.prompt = prompt;\n$input.item.json.email = fallback(d.email, 'test@desarroyo.tech');\n$input.item.json.nombre = fallback(d.nombre_proyecto, 'Cliente');\n\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        -20
+      ],
+      "id": "2a9527c4-1f5a-465d-b7f9-88d9c41ccd51",
+      "name": "2. Generar Prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$node[\"2. Generar Prompt\"].json[\"prompt\"]}}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        440,
+        -20
+      ],
+      "id": "5f2143b7-834c-4c38-907a-886e1efbd071",
+      "name": "3. AI Agent (Genera Web v1)"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        440,
+        240
+      ],
+      "id": "5b274de4-7bb9-44ca-88bb-40fb51b6a110",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "rYG6c5CSNea9zNEO",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1524177976",
+        "text": "✅ **Nueva Web Generada**\n\nProyecto: `{{$node[\"2. Generar Prompt\"].json.nombre}}`\n\nPor favor, revisa el archivo adjunto. Si todo está correcto, pulsa 'Aprobar' para enviar el preview con el enlace de pago al cliente.",
+        "replyMarkup": "forceReply",
+        "forceReply": {},
+        "additionalFields": {}
+      },
+      "name": "4. Enviar a Telegram para Aprobación",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        -20
+      ],
+      "id": "0b13ee68-eba4-4ac8-8a21-6d52c34d443d",
+      "webhookId": "e497b106-5694-4f3d-92e3-f22fe75fce45",
+      "credentials": {
+        "telegramApi": {
+          "id": "LeJGBb8lAWcqVcmC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "id": "8317c679-ff7b-4c1b-87e7-58ab696f94c1",
+      "name": "5. Esperar Aprobación (Tú)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1180,
+        -20
+      ],
+      "webhookId": "67f89c01-c348-4e71-8a77-295a021b37b1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $node['3. AI Agent (Genera Web v1)'].json.output;\nconst logoUrl = 'https://i.imgur.com/your-logo.png'; // <-- CAMBIA ESTA URL POR LA DE TU LOGO\n\nconst watermarkStyle = `\n<style>\n  body::after {\n    content: '';\n    display: block;\n    position: fixed;\n    top: 50%;\n    left: 50%;\n    width: 200px; /* Ancho del logo */\n    height: 200px; /* Alto del logo */\n    background-image: url('${logoUrl}');\n    background-size: contain;\n    background-repeat: no-repeat;\n    background-position: center;\n    transform: translate(-50%, -50%);\n    opacity: 0.2;\n    z-index: 9999;\n    pointer-events: none;\n  }\n</style>\n`;\n\nconst newHtml = html.replace('</head>', watermarkStyle + '</head>');\n$input.item.json.watermarkedHtml = newHtml;\nreturn $input.item;"
+      },
+      "id": "5280155c-5226-4505-bd2b-bc700d2c2a4c",
+      "name": "6. Añadir Marca de Agua",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alberto@desarroyo.tech",
+        "toEmail": "={{$node[\"2. Generar Prompt\"].json.email}}",
+        "subject": "Tu web está lista para revisión",
+        "html": "...",
+        "options": {}
+      },
+      "name": "8. Enviar Email (Preview+Pago)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1880,
+        -20
+      ],
+      "id": "298b2c3e-7603-489e-8460-3fde2f63b582",
+      "webhookId": "824f647b-0ed5-49db-baee-31af443b8a58",
+      "credentials": {
+        "smtp": {
+          "id": "KOtb6EXo6jYslEYY",
+          "name": "Zoho Mail Alberto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "payment_method_types[]",
+              "value": "card"
+            },
+            {
+              "name": "mode",
+              "value": "payment"
+            },
+            {
+              "name": "success_url",
+              "value": "https://desarroyo.tech/success.html"
+            },
+            {
+              "name": "cancel_url",
+              "value": "https://desarroyo.tech/cancel.html"
+            },
+            {
+              "name": "line_items[0][price_data][currency]",
+              "value": "eur"
+            },
+            {
+              "name": "line_items[0][price_data][product_data][name]",
+              "value": "Web Personalizada - DesArroyo.tech"
+            },
+            {
+              "name": "line_items[0][price_data][unit_amount]",
+              "value": "9900"
+            },
+            {
+              "name": "line_items[0][quantity]",
+              "value": "1"
+            },
+            {
+              "name": "metadata[original_html]",
+              "value": "={{$node['3. AI Agent (Genera Web v1)'].json.output}}"
+            },
+            {
+              "name": "metadata[client_email]",
+              "value": "={{$node['2. Generar Prompt'].json.email}}"
+            },
+            {
+              "name": "metadata[client_name]",
+              "value": "={{$node['2. Generar Prompt'].json.nombre}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        -20
+      ],
+      "id": "290af987-898a-4e8f-b524-1d40484ca190",
+      "name": "8 HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "Qe8ZWUalilYYdIW3",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qGIMu3_bnjKgYr2EYLsFTuk3xTFaS1xdEcGN5_572oo",
+          "mode": "list",
+          "cachedResultName": "DesArroyo Tech  Webs Generadas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qGIMu3_bnjKgYr2EYLsFTuk3xTFaS1xdEcGN5_572oo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "HTMLGenerado",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qGIMu3_bnjKgYr2EYLsFTuk3xTFaS1xdEcGN5_572oo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ExecutionID": "{{$execution.id}}",
+            "HTMLGenerado": "{{$node[\"3. AI Agent (Genera Web v1)\"].json.output}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ExecutionID",
+              "displayName": "ExecutionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "HTMLGenerado",
+              "displayName": "HTMLGenerado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        780,
+        -20
+      ],
+      "id": "571feb22-93f1-4f39-b6d1-b8889f4e68ce",
+      "name": "4 Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "mstGuUQ2YFkwW5QF",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "1. Webhook Solicitud Web": {
+      "main": [
+        [
+          {
+            "node": "2. Generar Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Generar Prompt": {
+      "main": [
+        [
+          {
+            "node": "3. AI Agent (Genera Web v1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. AI Agent (Genera Web v1)": {
+      "main": [
+        [
+          {
+            "node": "4 Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "3. AI Agent (Genera Web v1)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Enviar a Telegram para Aprobación": {
+      "main": [
+        [
+          {
+            "node": "5. Esperar Aprobación (Tú)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Esperar Aprobación (Tú)": {
+      "main": [
+        [
+          {
+            "node": "6. Añadir Marca de Agua",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Añadir Marca de Agua": {
+      "main": [
+        [
+          {
+            "node": "8 HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8 HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "8. Enviar Email (Preview+Pago)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4 Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "4. Enviar a Telegram para Aprobación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cd869e0c-3dbb-4dd6-9460-1e01edc9ce19",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57e660098af2f11d023514f49f3439e195f900b4c09e74e749acd485f4031101"
+  },
+  "id": "T4DupqYLwVrrfCg4",
+  "tags": []
+}

@@ -1,0 +1,259 @@
+{
+    "name": "2 desarroyo-mejora-y-entrega",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "webhook-pago-confirmado",
+          "responseMode": "onReceived",
+          "options": {}
+        },
+        "name": "1. Webhook Pago Confirmado",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+        "webhookId": "webhook-pago-confirmado"
+      },
+      {
+        "parameters": {
+          "jsCode": "const event = $json.body;\\nif (event.type === 'checkout.session.completed') {\\n  const metadata = event.data.object.metadata;\\n  $input.item.json.html = metadata.original_html;\\n  $input.item.json.email = metadata.client_email;\\n  $input.item.json.nombre = metadata.client_name;\\n  return $input.item;\\n}\\nreturn null; // Ignorar otros eventos de Stripe"
+        },
+        "id": "b2c3d4e5-f6g7-h8i9-j0k1-l2m3n4o5p6q7",
+        "name": "2. Parsear Datos de Stripe",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          220,
+          0
+        ]
+      },
+      {
+        "parameters": {
+          "fromEmail": "alberto@desarroyo.tech",
+          "toEmail": "={{$node[\\\"2. Parsear Datos de Stripe\\\"].json.email}}",
+          "subject": "✅ Tu Web está Lista + Opción de Mejora Gratuita",
+          "html": "<!DOCTYPE html>\\n<html>\\n<head>\\n    <meta charset=\\\"UTF-8\\\">\\n    <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n    <title>Tu Web está Lista - DesArroyo.tech</title>\\n    <style>\\n        body {\\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\\n            margin: 0;\\n            padding: 0;\\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\\n            color: #333;\\n        }\\n        .container {\\n            max-width: 600px;\\n            margin: 0 auto;\\n            background: white;\\n            border-radius: 20px;\\n            overflow: hidden;\\n            box-shadow: 0 20px 40px rgba(0,0,0,0.1);\\n        }\\n        .header {\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);\\n            padding: 40px 30px;\\n            text-align: center;\\n            position: relative;\\n        }\\n        .logo {\\n            width: 80px;\\n            height: 80px;\\n            margin: 0 auto 20px;\\n            background: rgba(255,255,255,0.2);\\n            border-radius: 50%;\\n            display: flex;\\n            align-items: center;\\n            justify-content: center;\\n            font-size: 24px;\\n            font-weight: bold;\\n            color: white;\\n        }\\n        .header h1 {\\n            color: white;\\n            margin: 0;\\n            font-size: 28px;\\n            font-weight: 300;\\n        }\\n        .content {\\n            padding: 40px 30px;\\n        }\\n        .success-icon {\\n            text-align: center;\\n            font-size: 60px;\\n            margin-bottom: 20px;\\n        }\\n        .section {\\n            margin-bottom: 30px;\\n            padding: 25px;\\n            border-radius: 15px;\\n            background: #f8f9fa;\\n            border-left: 5px solid #4ecdc4;\\n        }\\n        .section h2 {\\n            color: #2c3e50;\\n            margin-top: 0;\\n            font-size: 22px;\\n        }\\n        .btn {\\n            display: inline-block;\\n            padding: 15px 30px;\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);\\n            color: white;\\n            text-decoration: none;\\n            border-radius: 50px;\\n            font-weight: bold;\\n            margin: 10px 5px;\\n            transition: transform 0.3s ease;\\n        }\\n        .btn:hover {\\n            transform: translateY(-2px);\\n        }\\n        .btn-secondary {\\n            background: linear-gradient(45deg, #667eea, #764ba2);\\n        }\\n        .footer {\\n            background: #2c3e50;\\n            color: white;\\n            text-align: center;\\n            padding: 30px;\\n        }\\n        .highlight {\\n            background: linear-gradient(45deg, #ffeaa7, #fab1a0);\\n            padding: 20px;\\n            border-radius: 15px;\\n            margin: 20px 0;\\n            text-align: center;\\n        }\\n    </style>\\n</head>\\n<body>\\n    <div class=\\\"container\\\">\\n        <div class=\\\"header\\\">\\n            <div class=\\\"logo\\\">D</div>\\n            <h1>¡Tu Web está Lista! 🚀</h1>\\n        </div>\\n        \\n        <div class=\\\"content\\\">\\n            <div class=\\\"success-icon\\\">✅</div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>¡Hola {{$node[\\\"2. Parsear Datos de Stripe\\\"].json.nombre}}!</h2>\\n                <p>Tu pago ha sido confirmado y tu web está lista para descargar. ¡Esperamos que te encante el resultado!</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>📁 Tu Web Incluye:</h2>\\n                <ul>\\n                    <li>Archivo HTML completo y funcional</li>\\n                    <li>Diseño responsivo y moderno</li>\\n                    <li>Optimizado para todos los dispositivos</li>\\n                    <li>Listo para subir a tu hosting</li>\\n                </ul>\\n            </div>\\n            \\n            <div class=\\\"highlight\\\">\\n                <h3>🎁 BONUS: Mejora Gratuita</h3>\\n                <p>¿Te gustaría que mejoremos tu web? ¡Es completamente gratis!</p>\\n                <p>Puedes pedir cambios de diseño, nuevas secciones, mejoras de funcionalidad... ¡Lo que necesites!</p>\\n            </div>\\n            \\n            <div style=\\\"text-align: center; margin: 30px 0;\\\">\\n                <a href=\\\"https://desarroyo.tech/mejora_web.html?email={{$node[\\\"2. Parsear Datos de Stripe\\\"].json.email}}&nombre={{$node[\\\"2. Parsear Datos de Stripe\\\"].json.nombre}}\\\" class=\\\"btn\\\">\\n                    🎨 Solicitar Mejora Gratuita\\n                </a>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>📞 ¿Necesitas Ayuda?</h2>\\n                <p>Si tienes alguna pregunta sobre tu web o necesitas ayuda para subirla, no dudes en contactarnos:</p>\\n                <p><strong>Email:</strong> alberto@desarroyo.tech</p>\\n            </div>\\n        </div>\\n        \\n        <div class=\\\"footer\\\">\\n            <p><strong>DesArroyo.tech</strong></p>\\n            <p>Creando experiencias web únicas</p>\\n        </div>\\n    </div>\\n</body>\\n</html>",
+          "attachments": [
+            {
+              "content": "={{$node[\\\"2. Parsear Datos de Stripe\\\"].json.html}}",
+              "fileName": "web-{{$node[\\\"2. Parsear Datos de Stripe\\\"].json.nombre}}.html"
+            }
+          ]
+        },
+        "id": "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
+        "name": "3. Email Entrega v1 + Encuesta Mejora",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          440,
+          0
+        ],
+        "credentials": {
+          "smtp": {
+            "id": "KOtb6EXo6jYslEYY",
+            "name": "Zoho Mail Alberto"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "webhook-mejora",
+          "options": {}
+        },
+        "name": "4. Webhook Encuesta Mejora",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [
+          0,
+          400
+        ],
+        "id": "160e7869-e358-415a-86a5-61e204946ba3",
+        "webhookId": "webhook-mejora"
+      },
+      {
+        "parameters": {
+          "url": "={{$json.body.url_actual}}",
+          "responseFormat": "string",
+          "options": {}
+        },
+        "name": "5. Obtener HTML Original",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 1,
+        "position": [
+          220,
+          400
+        ],
+        "id": "c8b39e3b-74af-42ae-b1bf-1d24a77bf379"
+      },
+      {
+        "parameters": {
+          "values": {
+            "string": [
+              {
+                "name": "prompt",
+                "value": "Actúa como el Diseñador Web DesArroyo. El cliente ya tiene una web v1 y quiere mejorarla. Con base en el HTML original y las respuestas de la encuesta de mejora, crea una versión mejorada en HTML + Tailwind + React limpia, responsiva y moderna.\\n\\n=== HTML ORIGINAL ===\\n{{$node[\\\"5. Obtener HTML Original\\\"].json}}\\n\\n=== ENCUESTA DE MEJORA ===\\nMejoras solicitadas: {{$json.body.mejoras}}\\nNuevas secciones: {{$json.body.nuevas_secciones}}\\nCambios de diseño: {{$json.body.cambios_diseno}}\\nFuncionalidades adicionales: {{$json.body.funcionalidades}}\\nObservaciones: {{$json.body.observaciones}}\\n\\n=== INSTRUCCIONES ===\\n1. Mantén la estructura base y el estilo visual original\\n2. Implementa las mejoras solicitadas de forma elegante\\n3. Añade las nuevas secciones si se solicitan\\n4. Mejora la funcionalidad según lo pedido\\n5. Optimiza el código y la experiencia de usuario\\n6. Asegúrate de que sea completamente responsivo\\n7. No incluyas comentarios extra en el código\\n\\nGenera solo el HTML final mejorado, sin explicaciones adicionales."
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "6. Crear Prompt Mejora",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 1,
+        "position": [
+          440,
+          400
+        ],
+        "id": "46d1f2b1-013f-4fcc-a2ff-07807044bb00"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{$node[\\\"6. Crear Prompt Mejora\\\"].json[\\\"prompt\\\"]}}",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.9,
+        "position": [
+          660,
+          400
+        ],
+        "id": "4ef38009-752b-43db-b03e-ece82c5d4ab2",
+        "name": "7. AI Agent (Genera Web v2)"
+      },
+      {
+        "parameters": {
+          "chatId": "1524177976",
+          "text": "✅ **Web Mejorada Lista**\\n\\nRevisa la v2. ¿Apruebas la entrega final al cliente?",
+          "replyMarkup": {
+            "inlineKeyboard": [
+              [
+                {
+                  "text": "✅ Aprobar y Enviar Versión Final",
+                  "url": "={{$node[\\\"9. Esperar Aprobación Final\\\"].json.webhookUrl}}?executionId={{$execution.id}}"
+                }
+              ]
+            ]
+          },
+          "binaryData": true,
+          "file": "={{$node[\\\"7. AI Agent (Genera Web v2)\\\"].json.output}}",
+          "fileName": "preview_mejora_para_aprobar.html"
+        },
+        "name": "8. Enviar a Telegram para Aprobación Final",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1.2,
+        "position": [
+          880,
+          400
+        ],
+        "id": "d4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
+        "credentials": {
+          "telegramApi": {
+            "id": "LeJGBb8lAWcqVcmC",
+            "name": "Telegram account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "resume": "webhook"
+        },
+        "name": "9. Esperar Aprobación Final",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1100,
+          400
+        ],
+        "id": "e5f6g7h8-i9j0-k1l2-m3n4-o5p6q7r8s9t0"
+      },
+      {
+        "parameters": {
+          "fromEmail": "alberto@desarroyo.tech",
+          "toEmail": "={{$node[\\\"4. Webhook Encuesta Mejora\\\"].json.body.email}}",
+          "subject": "🚀 Tu Web Mejorada está Lista",
+          "html": "<!DOCTYPE html>\\n<html>\\n<head>\\n    <meta charset=\\\"UTF-8\\\">\\n    <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n    <title>Tu Web Mejorada - DesArroyo.tech</title>\\n    <style>\\n        body {\\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\\n            margin: 0;\\n            padding: 0;\\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\\n            color: #333;\\n        }\\n        .container {\\n            max-width: 600px;\\n            margin: 0 auto;\\n            background: white;\\n            border-radius: 20px;\\n            overflow: hidden;\\n            box-shadow: 0 20px 40px rgba(0,0,0,0.1);\\n        }\\n        .header {\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);\\n            padding: 40px 30px;\\n            text-align: center;\\n            position: relative;\\n        }\\n        .logo {\\n            width: 80px;\\n            height: 80px;\\n            margin: 0 auto 20px;\\n            background: rgba(255,255,255,0.2);\\n            border-radius: 50%;\\n            display: flex;\\n            align-items: center;\\n            justify-content: center;\\n            font-size: 24px;\\n            font-weight: bold;\\n            color: white;\\n        }\\n        .header h1 {\\n            color: white;\\n            margin: 0;\\n            font-size: 28px;\\n            font-weight: 300;\\n        }\\n        .content {\\n            padding: 40px 30px;\\n        }\\n        .success-icon {\\n            text-align: center;\\n            font-size: 60px;\\n            margin-bottom: 20px;\\n        }\\n        .section {\\n            margin-bottom: 30px;\\n            padding: 25px;\\n            border-radius: 15px;\\n            background: #f8f9fa;\\n            border-left: 5px solid #4ecdc4;\\n        }\\n        .section h2 {\\n            color: #2c3e50;\\n            margin-top: 0;\\n            font-size: 22px;\\n        }\\n        .btn {\\n            display: inline-block;\\n            padding: 15px 30px;\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);\\n            color: white;\\n            text-decoration: none;\\n            border-radius: 50px;\\n            font-weight: bold;\\n            margin: 10px 5px;\\n            transition: transform 0.3s ease;\\n        }\\n        .btn:hover {\\n            transform: translateY(-2px);\\n        }\\n        .footer {\\n            background: #2c3e50;\\n            color: white;\\n            text-align: center;\\n            padding: 30px;\\n        }\\n        .highlight {\\n            background: linear-gradient(45deg, #ffeaa7, #fab1a0);\\n            padding: 20px;\\n            border-radius: 15px;\\n            margin: 20px 0;\\n            text-align: center;\\n        }\\n        .stars {\\n            text-align: center;\\n            font-size: 40px;\\n            margin: 20px 0;\\n        }\\n    </style>\\n</head>\\n<body>\\n    <div class=\\\"container\\\">\\n        <div class=\\\"header\\\">\\n            <div class=\\\"logo\\\">D</div>\\n            <h1>¡Tu Web Mejorada está Lista! 🚀</h1>\\n        </div>\\n        \\n        <div class=\\\"content\\\">\\n            <div class=\\\"success-icon\\\">✨</div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>¡Hola {{$node[\\\"4. Webhook Encuesta Mejora\\\"].json.body.nombre}}!</h2>\\n                <p>¡Perfecto! Hemos implementado todas las mejoras que solicitaste. Tu web ahora está aún mejor y más profesional.</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>🎨 Mejoras Implementadas:</h2>\\n                <ul>\\n                    <li>Diseño optimizado y modernizado</li>\\n                    <li>Nuevas secciones añadidas</li>\\n                    <li>Funcionalidades mejoradas</li>\\n                    <li>Experiencia de usuario mejorada</li>\\n                    <li>Código optimizado y limpio</li>\\n                </ul>\\n            </div>\\n            \\n            <div class=\\\"highlight\\\">\\n                <h3>🎁 ¡Tu Web Final está Lista!</h3>\\n                <p>Descarga tu web mejorada y súbela a tu hosting. ¡Está lista para impresionar a tus visitantes!</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>📁 Archivo Incluido:</h2>\\n                <p>Tu web mejorada viene en un archivo HTML completo y funcional, listo para usar.</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>📞 ¿Necesitas Ayuda?</h2>\\n                <p>Si tienes alguna pregunta sobre tu web mejorada o necesitas ayuda para subirla:</p>\\n                <p><strong>Email:</strong> alberto@desarroyo.tech</p>\\n            </div>\\n            \\n            <div class=\\\"stars\\\">⭐⭐⭐⭐⭐</div>\\n            \\n            <div style=\\\"text-align: center; margin: 30px 0;\\\">\\n                <p><strong>¡Gracias por confiar en DesArroyo.tech!</strong></p>\\n                <p>Esperamos que tu nueva web supere todas tus expectativas.</p>\\n            </div>\\n        </div>\\n        \\n        <div class=\\\"footer\\\">\\n            <p><strong>DesArroyo.tech</strong></p>\\n            <p>Creando experiencias web únicas</p>\\n        </div>\\n    </div>\\n</body>\\n</html>",
+          "attachments": [
+            {
+              "content": "={{$node[\\\"7. AI Agent (Genera Web v2)\\\"].json.output}}",
+              "fileName": "web-mejorada-{{$node[\\\"4. Webhook Encuesta Mejora\\\"].json.body.nombre}}.html"
+            }
+          ]
+        },
+        "name": "10. Email Entrega Final (v2)",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          1320,
+          400
+        ],
+        "id": "985946be-46e8-4abd-9c7a-731756afdb95",
+        "credentials": {
+          "smtp": {
+            "id": "KOtb6EXo6jYslEYY",
+            "name": "Zoho Mail Alberto"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 3,
+          "unit": "days"
+        },
+        "name": "11. Esperar 3 Días",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1.1,
+        "position": [
+          1540,
+          400
+        ],
+        "id": "ba6a4a89-075b-41ac-ad38-00337d56c830"
+      },
+      {
+        "parameters": {
+          "fromEmail": "alberto@desarroyo.tech",
+          "toEmail": "={{$node[\\\"4. Webhook Encuesta Mejora\\\"].json.body.email}}",
+          "subject": "⭐ ¿Qué te ha parecido la experiencia?",
+          "html": "<!DOCTYPE html>\\n<html>\\n<head>\\n    <meta charset=\\\"UTF-8\\\">\\n    <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\\n    <title>Tu Opinión - DesArroyo.tech</title>\\n    <style>\\n        body {\\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\\n            margin: 0;\\n            padding: 0;\\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\\n            color: #333;\\n        }\\n        .container {\\n            max-width: 600px;\\n            margin: 0 auto;\\n            background: white;\\n            border-radius: 20px;\\n            overflow: hidden;\\n            box-shadow: 0 20px 40px rgba(0,0,0,0.1);\\n        }\\n        .header {\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);\\n            padding: 40px 30px;\\n            text-align: center;\\n            position: relative;\\n        }\\n        .logo {\\n            width: 80px;\\n            height: 80px;\\n            margin: 0 auto 20px;\\n            background: rgba(255,255,255,0.2);\\n            border-radius: 50%;\\n            display: flex;\\n            align-items: center;\\n            justify-content: center;\\n            font-size: 24px;\\n            font-weight: bold;\\n            color: white;\\n        }\\n        .header h1 {\\n            color: white;\\n            margin: 0;\\n            font-size: 28px;\\n            font-weight: 300;\\n        }\\n        .content {\\n            padding: 40px 30px;\\n        }\\n        .stars {\\n            text-align: center;\\n            font-size: 50px;\\n            margin: 20px 0;\\n        }\\n        .section {\\n            margin-bottom: 30px;\\n            padding: 25px;\\n            border-radius: 15px;\\n            background: #f8f9fa;\\n            border-left: 5px solid #4ecdc4;\\n        }\\n        .section h2 {\\n            color: #2c3e50;\\n            margin-top: 0;\\n            font-size: 22px;\\n        }\\n        .btn {\\n            display: inline-block;\\n            padding: 15px 30px;\\n            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);\\n            color: white;\\n            text-decoration: none;\\n            border-radius: 50px;\\n            font-weight: bold;\\n            margin: 10px 5px;\\n            transition: transform 0.3s ease;\\n        }\\n        .btn:hover {\\n            transform: translateY(-2px);\\n        }\\n        .footer {\\n            background: #2c3e50;\\n            color: white;\\n            text-align: center;\\n            padding: 30px;\\n        }\\n        .highlight {\\n            background: linear-gradient(45deg, #ffeaa7, #fab1a0);\\n            padding: 20px;\\n            border-radius: 15px;\\n            margin: 20px 0;\\n            text-align: center;\\n        }\\n    </style>\\n</head>\\n<body>\\n    <div class=\\\"container\\\">\\n        <div class=\\\"header\\\">\\n            <div class=\\\"logo\\\">D</div>\\n            <h1>¿Qué te ha parecido? ⭐</h1>\\n        </div>\\n        \\n        <div class=\\\"content\\\">\\n            <div class=\\\"stars\\\">⭐</div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>¡Hola {{$node[\\\"4. Webhook Encuesta Mejora\\\"].json.body.nombre}}!</h2>\\n                <p>Han pasado unos días desde que recibiste tu web mejorada. ¡Esperamos que estés muy contento con el resultado!</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>🌟 Tu opinión es muy importante</h2>\\n                <p>Nos encantaría saber qué te ha parecido la experiencia completa:</p>\\n                <ul>\\n                    <li>¿Te gustó el proceso de creación?</li>\\n                    <li>¿Estás satisfecho con tu web final?</li>\\n                    <li>¿Recomendarías DesArroyo.tech?</li>\\n                </ul>\\n            </div>\\n            \\n            <div class=\\\"highlight\\\">\\n                <h3>📝 Comparte tu experiencia</h3>\\n                <p>Tu testimonio nos ayuda a mejorar y a que más personas conozcan nuestro servicio.</p>\\n            </div>\\n            \\n            <div style=\\\"text-align: center; margin: 30px 0;\\\">\\n                <a href=\\\"mailto:alberto@desarroyo.tech?subject=Testimonio DesArroyo.tech&body=Hola Alberto,%0D%0A%0D%0AMi experiencia con DesArroyo.tech ha sido...\\\" class=\\\"btn\\\">\\n                    ✍️ Escribir Testimonio\\n                </a>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>🎁 Bonus por tu tiempo</h2>\\n                <p>Como agradecimiento, si nos dejas un testimonio, te regalamos un <strong>descuento del 20%</strong> en tu próximo proyecto web.</p>\\n            </div>\\n            \\n            <div class=\\\"section\\\">\\n                <h2>📞 ¿Necesitas algo más?</h2>\\n                <p>Si necesitas ayuda con tu web o tienes algún proyecto nuevo en mente:</p>\\n                <p><strong>Email:</strong> alberto@desarroyo.tech</p>\\n            </div>\\n        </div>\\n        \\n        <div class=\\\"footer\\\">\\n            <p><strong>DesArroyo.tech</strong></p>\\n            <p>Creando experiencias web únicas</p>\\n        </div>\\n    </div>\\n</body>\\n</html>",
+          "options": {}
+        },
+        "name": "12. Email Solicitud Testimonio",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 1,
+        "position": [
+          1760,
+          400
+        ],
+        "id": "f6g7h8i9-j0k1-l2m3-n4o5-p6q7r8s9t0u2",
+        "credentials": {
+          "smtp": {
+            "id": "KOtb6EXo6jYslEYY",
+            "name": "Zoho Mail Alberto"
+          }
+        }
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "1. Webhook Pago Confirmado": {"main": [[{"node": "2. Parsear Datos de Stripe", "type": "main", "index": 0}]]},
+      "2. Parsear Datos de Stripe": {"main": [[{"node": "3. Email Entrega v1 + Encuesta Mejora", "type": "main", "index": 0}]]},
+      "4. Webhook Encuesta Mejora": {"main": [[{"node": "5. Obtener HTML Original", "type": "main", "index": 0}]]},
+      "5. Obtener HTML Original": {"main": [[{"node": "6. Crear Prompt Mejora", "type": "main", "index": 0}]]},
+      "6. Crear Prompt Mejora": {"main": [[{"node": "7. AI Agent (Genera Web v2)", "type": "main", "index": 0}]]},
+      "7. AI Agent (Genera Web v2)": {"main": [[{"node": "8. Enviar a Telegram para Aprobación Final", "type": "main", "index": 0}]]},
+      "8. Enviar a Telegram para Aprobación Final": {"main": [[{"node": "9. Esperar Aprobación Final", "type": "main", "index": 0}]]},
+      "9. Esperar Aprobación Final": {"main": [[{"node": "10. Email Entrega Final (v2)", "type": "main", "index": 0}]]},
+      "10. Email Entrega Final (v2)": {"main": [[{"node": "11. Esperar 3 Días", "type": "main", "index": 0}]]},
+      "11. Esperar 3 Días": {"main": [[{"node": "12. Email Solicitud Testimonio", "type": "main", "index": 0}]]}
+    },
+    "active": false,
+    "settings": {"executionOrder": "v1"},
+    "id": "mI3ZvXmgjtuWFoEo",
+    "tags": []
+  }
+  
