@@ -273,6 +273,22 @@
             padding: 0 2rem;
         }
 
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-left a {
+            color: #eafcff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-left a:hover {
+            color: #00fff7;
+        }
+
         .footer-links {
             margin-top: 1rem;
         }
@@ -288,30 +304,41 @@
             color: #00fff7;
         }
 
+        .footer-right {
+            span {
+                color: #eafcff;
+            }
+        }
+
         /* Estilos del Chatbot mejorados */
         #chat-button {
             position: fixed;
             bottom: 2rem;
             right: 2rem;
             background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
-            color: white;
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(0, 255, 247, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem;
             z-index: 1000;
             transition: all 0.3s ease;
+            padding: 3px;
+            box-sizing: border-box;
+            font-size: 0;
         }
 
         #chat-button:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 25px rgba(162, 89, 255, 0.5);
+        }
+
+        #chat-button img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         #chat-widget {
@@ -549,7 +576,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-left">
-                <span>Developed by DesArroyo.Tech</span>
+                <a href="index.html">Developed by DesArroyo.Tech</a>
             </div>
             <div class="footer-center">
                 <div class="footer-links">
@@ -565,14 +592,17 @@
     </footer>
 
     <!-- Elementos del Chatbot -->
-    <button id="chat-button" aria-label="Abrir chat de ayuda">🤖</button>
-    <div id="chat-widget">
-        <div class="chat-header">Aura - Tu Asistente</div>
-        <div class="chat-body" id="chat-body">
-            <!-- El saludo inicial y las preguntas se añadirán con JS -->
+    <button id="chat-button" aria-label="Abrir chat de ayuda"><img src="img/aura_avatar.png" alt="Aura - Asistente Virtual" /></button>
+    <div id="chat-widget" class="chat-widget">
+        <div class="chat-header">
+            <h2>Aura - Tu Asistente</h2>
+            <div id="limit-display" class="limit-display">Cargando...</div>
         </div>
-        <div class="chat-footer">
-            <input type="text" id="chat-input" placeholder="Escribe tu pregunta...">
+        <div id="chat-body" class="chat-body">
+            <!-- Los mensajes del chat se añadirán aquí -->
+        </div>
+        <div class="chat-input-area">
+            <textarea id="chat-input" placeholder="Escribe tu mensaje aquí..." rows="1"></textarea>
         </div>
     </div>
 
@@ -581,12 +611,14 @@
     <script>
         // Parallax fondo neón
         const parallaxBg = document.getElementById('parallax-bg');
-        document.addEventListener('mousemove', function(e) {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            parallaxBg.style.background = `radial-gradient(ellipse at ${60 + x*20}% ${40 + y*20}%, #00fff733 0%, transparent 70%),`
-                + `radial-gradient(ellipse at ${20 + x*30}% ${80 - y*20}%, #a259ff33 0%, transparent 70%), #10131a`;
-        });
+        if (parallaxBg) {
+            document.addEventListener('mousemove', function(e) {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                parallaxBg.style.background = `radial-gradient(ellipse at ${60 + x*20}% ${40 + y*20}%, #00fff733 0%, transparent 70%),`
+                    + `radial-gradient(ellipse at ${20 + x*30}% ${80 - y*20}%, #a259ff33 0%, transparent 70%), #10131a`;
+            });
+        }
 
         // Animaciones de entrada
         const observerOptions = {
@@ -724,85 +756,6 @@
                 resultContent.textContent = `Error al generar el JSON: ${error.message}`;
             }
         });
-
-        // --- Lógica del Chatbot ---
-        const chatButton = document.getElementById('chat-button');
-        const chatWidget = document.getElementById('chat-widget');
-        const chatBody = document.getElementById('chat-body');
-        const chatInput = document.getElementById('chat-input');
-
-        const quickReplies = [
-            '¿Cómo instalo el flujo en n8n?',
-            '¿Cuánto cuesta una web personalizada?',
-            '¿Qué otros servicios ofrecen?',
-            '¿Puedo pedir una automatización a medida?',
-            'Dame ejemplos de "superpoderes"'
-        ];
-
-        function addMessage(message, className, isHTML = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${className}`;
-            if (isHTML) {
-                messageDiv.innerHTML = message;
-            } else {
-                messageDiv.textContent = message;
-            }
-            chatBody.appendChild(messageDiv);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        function addQuickReplies() {
-            const repliesContainer = document.createElement('div');
-            repliesContainer.className = 'quick-replies';
-            
-            quickReplies.forEach(replyText => {
-                const replyBtn = document.createElement('button');
-                replyBtn.className = 'quick-reply-btn';
-                replyBtn.textContent = replyText;
-                replyBtn.onclick = () => {
-                    handleUserInput(replyText);
-                    // Opcional: eliminar botones tras el uso
-                    const allReplies = document.querySelectorAll('.quick-replies');
-                    allReplies.forEach(r => r.remove());
-                };
-                repliesContainer.appendChild(replyBtn);
-            });
-            chatBody.appendChild(repliesContainer);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-        
-        function initializeChat() {
-            addMessage("¡Hola! Soy Aura, tu asistente personal de DesArroyo.Tech. ¿En qué puedo ayudarte?", 'bot-message', true);
-            addQuickReplies();
-        }
-
-        function handleUserInput(userInput) {
-            addMessage(userInput, 'user-message');
-            
-            // Simular una pequeña espera para la respuesta del bot
-            setTimeout(() => {
-                const botResponse = getBotAnswer(userInput);
-                addMessage(botResponse, 'bot-message', true);
-            }, 500);
-        }
-
-        chatButton.addEventListener('click', () => {
-            chatWidget.classList.toggle('open');
-        });
-
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-                // Eliminar botones de sugerencia si el usuario escribe
-                const allReplies = document.querySelectorAll('.quick-replies');
-                allReplies.forEach(r => r.remove());
-                
-                handleUserInput(chatInput.value);
-                chatInput.value = '';
-            }
-        });
-
-        // Iniciar el chat
-        initializeChat();
     </script>
 </body>
 </html> 

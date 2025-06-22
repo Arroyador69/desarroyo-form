@@ -125,7 +125,7 @@ app.get('/api/query-limit', (req, res) => {
     res.json(limitInfo);
 });
 
-// Endpoint para crear sesión de pago con Stripe
+// Endpoint para crear sesión de pago con Stripe (actualizado a suscripción)
 app.post('/api/create-payment-session', async (req, res) => {
     try {
         const session = await stripeClient.checkout.sessions.create({
@@ -135,15 +135,18 @@ app.post('/api/create-payment-session', async (req, res) => {
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: 'Acceso Premium Aura - DesArroyo.Tech',
-                            description: 'Consultas ilimitadas con Aura + Acceso al grupo de Telegram exclusivo',
+                            name: 'Suscripción DesArroyo.Tech Hub',
+                            description: 'Acceso completo a la comunidad y herramientas de DesArroyo.Tech.',
                         },
                         unit_amount: 999, // 9.99€ en céntimos
+                        recurring: {
+                            interval: 'month', // Cobro mensual
+                        },
                     },
                     quantity: 1,
                 },
             ],
-            mode: 'payment',
+            mode: 'subscription', // Cambiado a modo suscripción
             success_url: `${req.headers.origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${req.headers.origin}/cancel.html`,
             metadata: {
@@ -173,7 +176,7 @@ app.post('/api/confirm-payment', async (req, res) => {
             res.json({ 
                 success: true, 
                 message: '¡Pago confirmado! Ya tienes acceso premium a Aura.',
-                telegramLink: 'https://t.me/desarroyo_tech_premium' // Tu grupo de Telegram
+                telegramLink: 'https://t.me/+rAtJXuHGH8o4NzRk' // Enlace actualizado
             });
         } else {
             res.status(400).json({ error: 'Pago no completado' });
@@ -230,7 +233,7 @@ app.post('/api/chat', async (req, res) => {
         
         if (!limitInfo.canQuery) {
             return res.json({
-                response: `🚫 Has alcanzado el límite de ${CONSULTAS_GRATUITAS} consultas gratuitas.\n\n💎 **¡Desbloquea Aura Premium!**\n\n✅ Consultas ilimitadas\n✅ Acceso al grupo de Telegram exclusivo\n✅ Contenido premium sobre tech y automatizaciones\n✅ Soporte prioritario\n\n💳 **Solo 9.99€** - ¡Pago único!\n\nHaz clic en "Desbloquear Premium" para continuar.`,
+                response: `🚫 **Has alcanzado el límite de consultas gratuitas.**\n\n💎 **Únete a DesArroyo.Tech Hub por 9,99€/mes y obtén:**\n\n✅ **Chatbot Ilimitado:** Habla con Aura siempre que quieras.\n✅ **Acceso Anticipado:** Prueba nuevos productos y herramientas antes que nadie.\n✅ **Descuentos Exclusivos:** Ofertas especiales en todos nuestros servicios.\n✅ **Comunidad Privada:** Acceso al grupo de Telegram para networking y soporte.\n\n👇 **Haz clic para unirte ahora.**`,
                 success: false,
                 limitReached: true,
                 remainingQueries: 0,

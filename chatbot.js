@@ -56,6 +56,7 @@ let userLimitInfo = {
     isPremium: false,
     totalQueries: 0
 };
+let chatBody; // Variable global para el cuerpo del chat
 
 // Función para cargar el límite de consultas del usuario
 async function loadUserLimit() {
@@ -201,7 +202,7 @@ async function getBotAnswer(userInput) {
 function showPaymentButton() {
     const paymentButton = document.createElement('button');
     paymentButton.className = 'payment-btn';
-    paymentButton.innerHTML = '💳 Desbloquear Premium - 9.99€';
+    paymentButton.innerHTML = '💎 Unirme a DesArroyo.Tech Hub - 9,99€/mes';
     paymentButton.onclick = createPaymentSession;
     
     const chatBody = document.getElementById('chat-body');
@@ -247,32 +248,31 @@ function getFallbackResponse(userInput) {
 }
 
 // Función para manejar la entrada del usuario (actualizada)
-function handleUserInput(userInput) {
+async function handleUserInput(userInput) {
     addMessage(userInput, 'user-message');
     
-    // Mostrar indicador de escritura
+    // Mostrar indicador de "Pensando..."
     const typingIndicator = document.createElement('div');
     typingIndicator.className = 'chat-message bot-message typing-indicator';
-    typingIndicator.innerHTML = 'Aura está escribiendo... <span class="dots">...</span>';
+    typingIndicator.innerHTML = 'Pensando... <div class="loader"></div>';
     chatBody.appendChild(typingIndicator);
     chatBody.scrollTop = chatBody.scrollHeight;
     
-    // Simular una pequeña espera para la respuesta del bot
-    setTimeout(async () => {
-        // Remover indicador de escritura
-        typingIndicator.remove();
-        
-        // Obtener respuesta inteligente
-        const botResponse = await getBotAnswer(userInput);
-        addMessage(botResponse, 'bot-message', true);
-        
-        // Añadir botones de sugerencia después de la respuesta (solo si no es premium)
-        if (!userLimitInfo.isPremium) {
-            setTimeout(() => {
-                addQuickReplies();
-            }, 500);
-        }
-    }, 1000);
+    // Obtener la respuesta de la IA (sin temporizador)
+    const botResponse = await getBotAnswer(userInput);
+    
+    // Quitar el indicador de "Pensando..."
+    typingIndicator.remove();
+    
+    // Mostrar la respuesta del bot
+    addMessage(botResponse, 'bot-message', true);
+    
+    // Añadir botones de sugerencia (si no es premium)
+    if (!userLimitInfo.isPremium) {
+        setTimeout(() => {
+            addQuickReplies();
+        }, 500);
+    }
 }
 
 // Función para añadir mensajes al chat (mantener la existente)
@@ -318,12 +318,16 @@ function addQuickReplies() {
 }
 
 // Función para inicializar el chat (actualizada)
-function initializeChat() {
+async function initializeChat() {
     // Cargar límite de usuario al inicializar
-    loadUserLimit();
+    await loadUserLimit();
     
     addMessage("¡Hola! Soy Aura, tu asistente personal de DesArroyo.Tech. ¿En qué puedo ayudarte?", 'bot-message', true);
-    addQuickReplies();
+    
+    // Mostrar opciones rápidas solo a usuarios no premium
+    if (!userLimitInfo.isPremium) {
+        addQuickReplies();
+    }
 }
 
 // Verificar si hay pago exitoso en la URL
@@ -347,7 +351,110 @@ window.chatbot = {
     createPaymentSession
 };
 
-// Inicializar cuando el DOM esté listo
+// --- INICIALIZACIÓN DEL CHATBOT Y MANEJO DE EVENTOS ---
 document.addEventListener('DOMContentLoaded', () => {
-    checkForSuccessfulPayment();
+    const chatButton = document.getElementById('chat-button');
+    const chatWidget = document.getElementById('chat-widget');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    chatBody = document.getElementById('chat-body');
+
+    console.log('🔍 Verificando elementos del chatbot...');
+    console.log('Elementos encontrados:', {
+        chatButton: !!chatButton,
+        chatWidget: !!chatWidget,
+        chatInput: !!chatInput,
+        sendButton: !!sendButton,
+        chatBody: !!chatBody
+    });
+
+    if (chatButton && chatWidget && chatInput && sendButton && chatBody) {
+        console.log('✅ Todos los elementos encontrados, inicializando chatbot...');
+
+        // 1. Abrir y cerrar el widget
+        chatButton.addEventListener('click', async () => {
+            console.log('🔄 Abriendo/cerrando chat...');
+            chatWidget.classList.toggle('open');
+            
+            if (chatWidget.classList.contains('open') && chatBody.children.length === 0) {
+                console.log('🚀 Inicializando chat por primera vez...');
+                await initializeChat();
+            }
+            
+            if (chatWidget.classList.contains('open')) {
+                setTimeout(() => {
+                    chatInput.focus();
+                    console.log('📝 Input enfocado');
+                }, 300);
+            }
+        });
+
+        // 2. Función para enviar mensaje
+        async function sendMessage() {
+            console.log('Función sendMessage ejecutada');
+            const message = chatInput.value.trim();
+            console.log('Mensaje a enviar:', message);
+            
+            if (message !== '') {
+                const allReplies = document.querySelectorAll('.quick-replies');
+                allReplies.forEach(r => r.remove());
+                
+                await handleUserInput(message);
+                chatInput.value = '';
+                chatInput.style.height = 'auto'; // Resetear altura
+                
+                // Actualizar estado del botón
+                sendButton.style.opacity = '0.5';
+                sendButton.style.cursor = 'default';
+                
+                console.log('✅ Mensaje enviado correctamente');
+            } else {
+                console.log('❌ Mensaje vacío, no se envía');
+            }
+        }
+
+        // 3. Enviar mensaje con la tecla Enter
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                console.log('Enter presionado');
+                sendMessage();
+            }
+        });
+
+        // 4. Enviar mensaje con el botón
+        console.log('🧪 Añadiendo test directo al botón...');
+        sendButton.onclick = function(e) {
+            e.preventDefault();
+            console.log('🧪 Test directo: Botón clickeado!');
+            sendMessage();
+        };
+
+        // 5. Auto-resize del textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        // 6. Habilitar/deshabilitar botón según contenido
+        chatInput.addEventListener('input', function() {
+            const hasContent = this.value.trim() !== '';
+            sendButton.style.opacity = hasContent ? '1' : '0.5';
+            sendButton.style.cursor = hasContent ? 'pointer' : 'default';
+        });
+
+        // 7. Verificar pago exitoso
+        checkForSuccessfulPayment();
+
+        console.log('🎉 Chatbot inicializado correctamente');
+
+    } else {
+        console.error('❌ Elementos faltantes del chatbot:', {
+            chatButton: !chatButton,
+            chatWidget: !chatWidget,
+            chatInput: !chatInput,
+            sendButton: !sendButton,
+            chatBody: !chatBody
+        });
+    }
 }); 
