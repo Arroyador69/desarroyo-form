@@ -142,4 +142,96 @@ ISC License - Desarrollado por Alberto Arroyo para DesArroyo.Tech
 
 ---
 
+## ⚙️ Gestión y Mantenimiento
+
+### Cómo Cambiar el Precio de la Web
+
+El precio de la web se configura directamente en el flujo de n8n que crea el enlace de pago de Stripe.
+
+1.  **Abre el Flujo 1 en n8n**: Carga el workflow desde el archivo `1.1_desarroyo_form.json`.
+2.  **Localiza el Nodo de Pago**: Busca el nodo llamado `8 HTTP Request`. Este es el que se comunica con la API de Stripe.
+3.  **Edita los Parámetros del Body**:
+    *   Dentro del nodo, ve a la sección "Body Parameters".
+    *   Busca el parámetro llamado `line_items[0][price_data][unit_amount]`.
+4.  **Cambia el Valor**:
+    *   El precio debe estar en **céntimos**. Por ejemplo:
+        *   Para **99€**, el valor debe ser `9900`.
+        *   Para **149€**, el valor debe ser `14900`.
+        *   Para **49.50€**, el valor debe ser `4950`.
+5.  **Guarda el Flujo**: Una vez cambiado el valor, guarda los cambios en tu workflow de n8n.
+
+¡Y listo! El próximo cliente que rellene el formulario recibirá un enlace de pago con el nuevo precio.
+
+---
+
+### Cómo Implementar Múltiples Opciones de Precios (Ej: Básico, Estándar, Premium)
+
+Si en el futuro deseas ofrecer varios planes, el sistema se puede adaptar. Esto requiere modificar tanto la página web como el flujo de n8n.
+
+#### Paso 1: Modificar la Página Web (`index.html`)
+
+Deberás añadir un campo en el formulario para que el cliente seleccione su plan. La forma más sencilla es con `radio buttons`.
+
+**Ejemplo de código para añadir en `index.html`:**
+
+```html
+<!-- Añade esta sección antes del botón de enviar -->
+<h4>Selecciona tu Plan:</h4>
+<div class="plan-selector">
+  <label>
+    <input type="radio" name="plan" value="basico" checked>
+    <strong>Plan Básico (49€)</strong> - Web sencilla y funcional.
+  </label>
+  <label>
+    <input type="radio" name="plan" value="estandar">
+    <strong>Plan Estándar (99€)</strong> - Diseño avanzado y más secciones.
+  </label>
+  <label>
+    <input type="radio" name="plan" value="premium">
+    <strong>Plan Premium (199€)</strong> - Funcionalidades extra y soporte prioritario.
+  </label>
+</div>
+```
+
+Este código enviará un campo `plan` con el valor `basico`, `estandar` o `premium` junto con el resto de los datos del formulario.
+
+#### Paso 2: Modificar el Flujo 1 de n8n
+
+El cambio principal es usar un nodo **Switch** para establecer el precio según el plan elegido.
+
+**Diagrama del flujo modificado:**
+`Webhook -> Switch (evalúa plan) -> Set Price (ruta para cada plan) -> HTTP Request`
+
+**Pasos en n8n:**
+
+1.  **Webhook**: No necesita cambios. Ya recibirá el campo `plan` del formulario.
+
+2.  **Añadir un Nodo `Switch`**: Colócalo justo después del nodo `2. Generar Prompt`.
+    *   **Propiedad a Evaluar**: `{{$json.body.plan}}`
+    *   **Rutas de Salida**:
+        *   **Ruta 0**: `basico`
+        *   **Ruta 1**: `estandar`
+        *   **Ruta 2**: `premium`
+
+3.  **Añadir Nodos `Set` para cada ruta**:
+    *   **En la ruta "basico"**: Añade un nodo `Set` para crear una variable `precio`.
+        *   Nombre: `precio`, Valor: `4900`
+    *   **En la ruta "estandar"**: Añade otro nodo `Set`.
+        *   Nombre: `precio`, Valor: `9900`
+    *   **En la ruta "premium"**: Añade un tercer nodo `Set`.
+        *   Nombre: `precio`, Valor: `19900`
+
+4.  **Conectar los Nodos `Set` al Nodo `8 HTTP Request`**: Los tres nodos `Set` deben conectarse al nodo que crea el pago en Stripe.
+
+5.  **Modificar el Nodo `8 HTTP Request`**:
+    *   Busca el parámetro `line_items[0][price_data][unit_amount]`.
+    *   Cambia el valor fijo (ej: `9900`) por la variable que acabas de crear: `{{$json.precio}}`.
+    *   De esta forma, el precio que se envía a Stripe será dinámico según la elección del cliente.
+
+6.  **Guarda el Flujo**: ¡No olvides guardar los cambios!
+
+Con estos pasos, tu sistema estará preparado para manejar múltiples planes de precios de forma totalmente automática.
+
+---
+
 **"Crea, automatiza, comparte… y vuelve a la playa a celebrar"** 🏖️
