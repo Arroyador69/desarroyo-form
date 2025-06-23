@@ -878,6 +878,120 @@
             height: 60px;
         }
     }
+
+    .send-button:disabled:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 255, 247, 0.3);
+    }
+
+    /* Estilos de la sección de Precios */
+    .precios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+      align-items: stretch;
+    }
+
+    .plan-card {
+      background: #181c26;
+      border: 1px solid #00cfff;
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 20px #00cfff33;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px #00cfff55;
+    }
+
+    .plan-card.popular {
+      border-color: #a259ff;
+      transform: scale(1.05);
+      box-shadow: 0 0 40px #a259ff55;
+      position: relative;
+    }
+    
+    .popular-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #a259ff, #00cfff);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      box-shadow: 0 5px 15px #a259ff88;
+    }
+
+    .plan-header h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #00fff7;
+    }
+    
+    .plan-header .precio {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    
+    .plan-header .precio span {
+      font-size: 4.5rem;
+    }
+
+    .plan-header .subtitulo {
+      color: #eafcff;
+      opacity: 0.8;
+      margin-bottom: 2rem;
+      min-height: 40px;
+    }
+
+    .caracteristicas {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto 2.5rem;
+      text-align: left;
+      flex-grow: 1;
+    }
+
+    .caracteristicas li {
+      margin-bottom: 1rem;
+      color: #eafcff;
+    }
+
+    .extras-opcionales {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: #181c26;
+      border: 1px solid #00fff7;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00fff733;
+    }
+
+    .extras-opcionales h4 {
+      color: #00fff7;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .extras-opcionales ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -886,7 +1000,7 @@
   <nav class="menu" role="navigation" aria-label="Menú principal">
     <ul>
       <li><a href="#inicio" aria-label="Ir a sección Inicio">Inicio</a></li>
-      <li><a href="#servicios" aria-label="Ir a sección Servicios">Servicios</a></li>
+      <li><a href="#precios" aria-label="Ir a la sección de precios">Planes y Precios</a></li>
       <li><a href="#automatizaciones" aria-label="Ir a sección Automatizaciones">Automatizaciones</a></li>
       <li><a href="blog.html" aria-label="Ir al blog de desarrollo web">Blog</a></li>
       <li><a href="#testimonios" aria-label="Ir a sección Testimonios">Testimonios</a></li>
@@ -966,6 +1080,79 @@
       
       <p><strong>Email para contacto directo:</strong> <a href="mailto:alberto@desarroyo.tech" style="color: #00fff7;">alberto@desarroyo.tech</a></p>
       <p><em>¿Necesitas un presupuesto personalizado? ¡Consúltanos sin compromiso!</em></p>
+    </div>
+  </section>
+
+  <!-- Sección de Precios -->
+  <section id="precios" class="fade-in-section">
+    <div class="section-content">
+      <h2>Planes a tu Medida</h2>
+      <div class="neon-bar"></div>
+      <p>Elige el plan que mejor se adapte a tu proyecto. Todos nuestros planes están diseñados para ofrecerte la máxima calidad y rendimiento.</p>
+
+      <div class="precios-grid">
+        <!-- Plan Rápida -->
+        <div class="plan-card">
+          <div class="plan-header">
+            <h3>🟢 Rápida</h3>
+            <div class="precio"><span>149</span>€</div>
+            <p class="subtitulo">Ideal para portfolios y landing pages</p>
+          </div>
+          <ul class="caracteristicas">
+            <li>✓ 1 página profesional</li>
+            <li>✓ Diseño personalizado</li>
+            <li>✓ 100% Responsive</li>
+            <li>✓ Botón de WhatsApp o email</li>
+            <li>✓ Entrega en 72 horas</li>
+          </ul>
+          <a href="index_conectado_n8n.html?plan=rapida" class="btn">Seleccionar Plan</a>
+        </div>
+
+        <!-- Plan Escalable -->
+        <div class="plan-card popular">
+          <div class="popular-badge">MÁS POPULAR</div>
+          <div class="plan-header">
+            <h3>🟡 Escalable</h3>
+            <div class="precio"><span>449</span>€</div>
+            <p class="subtitulo">Perfecto para negocios en crecimiento</p>
+          </div>
+          <ul class="caracteristicas">
+            <li>✓ Hasta 5 páginas</li>
+            <li>✓ Diseño adaptado a tu estilo</li>
+            <li>✓ Formulario de contacto funcional</li>
+            <li>✓ Animaciones suaves</li>
+            <li>✓ SEO Básico incluido</li>
+          </ul>
+          <a href="index_conectado_n8n.html?plan=escalable" class="btn">Seleccionar Plan</a>
+        </div>
+
+        <!-- Plan Pro Digital -->
+        <div class="plan-card">
+          <div class="plan-header">
+            <h3>🔴 Pro Digital</h3>
+            <div class="precio"><span>999</span>€</div>
+            <p class="subtitulo">La solución completa para tu negocio</p>
+          </div>
+          <ul class="caracteristicas">
+            <li>✓ Hasta 10 páginas modulares</li>
+            <li>✓ Animaciones y componentes interactivos</li>
+            <li>✓ Dashboard simple de gestión</li>
+            <li>✓ Integración con n8n, Airtable, etc.</li>
+            <li>✓ Soporte técnico prioritario (30 días)</li>
+          </ul>
+          <a href="index_conectado_n8n.html?plan=pro" class="btn">Seleccionar Plan</a>
+        </div>
+      </div>
+
+      <div class="extras-opcionales">
+        <h4>Extras Opcionales (para todos los planes)</h4>
+        <ul>
+          <li>🪪 Dominio personalizado: <strong>+15€/año</strong></li>
+          <li>💽 Hosting 1 año: <strong>+39€</strong></li>
+          <li>🧰 Mantenimiento mensual: <strong>desde +9€/mes</strong></li>
+          <li>⚙️ Automatización avanzada (n8n, GPT): <strong>desde +90€</strong></li>
+        </ul>
+      </div>
     </div>
   </section>
 
