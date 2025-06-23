@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://desarroyo.tech/sitemap.xml
+
+# Optimización para SEO
+Disallow: /venv/
+Disallow: /node_modules/
+Disallow: /package-lock.json
+Disallow: /requirements.txt
+
+# Permitir acceso a recursos importantes
+Allow: /img/
+Allow: /bloques_html/
+Allow: /chatbot.js
+Allow: /style.css
+Allow: /server.js 
