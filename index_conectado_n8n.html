@@ -481,6 +481,36 @@
     <p>Solo cuando estés satisfecho y decidas seguir adelante, realizarás el pago y recibirás tu web <strong>desarrollada con puro HTML</strong> lista para usar.</p>
 
     <form id="encuesta" style="max-width:800px; margin:0 auto; padding:2rem;">
+      <!-- Selección de Plan -->
+      <div class="neon-important" style="margin-bottom:2rem;">
+        <strong>Selecciona tu plan ideal:</strong><br>
+        <label style="display:block; margin:1rem 0 0.5rem;">
+          <input type="radio" name="plan" value="rapida" required id="plan-rapida"> 🟢 Rápida (149 €) — 1 página, diseño profesional, entrega en 72 h
+        </label>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="radio" name="plan" value="escalable" id="plan-escalable"> 🟡 Escalable (449 €) — Hasta 5 páginas, animaciones, SEO básico
+        </label>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="radio" name="plan" value="pro" id="plan-pro"> 🔴 Pro Digital (999 €) — Hasta 10 páginas, dashboard, integración avanzada
+        </label>
+      </div>
+      <!-- Extras Opcionales -->
+      <div class="neon-important" style="margin-bottom:2rem;">
+        <strong>Extras opcionales:</strong><br>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="checkbox" name="extras" value="dominio"> 🪪 Dominio personalizado (+15 €/año)
+        </label>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="checkbox" name="extras" value="hosting"> 💽 Hosting 1 año (+39 €)
+        </label>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="checkbox" name="extras" value="mantenimiento"> 🧰 Mantenimiento mensual (desde +9 €/mes)
+        </label>
+        <label style="display:block; margin:0.5rem 0;">
+          <input type="checkbox" name="extras" value="automatizacion"> ⚙️ Automatización avanzada (desde +90 €)
+        </label>
+      </div>
+
       <span class="neon-important">
         💡 <strong>Importante:</strong> Todo el proceso es inteligente y serás acompañado en cada paso.<br><br>
         Cada sección incluye ejemplos, referencias visuales y explicaciones claras. Al finalizar, nuestro equipo generará tu diseño ideal de forma interna.<br><br>
@@ -1195,15 +1225,13 @@
       for (let [key, value] of formData.entries()) {
         // Remover los corchetes de los nombres de los campos array
         const cleanKey = key.replace('[]', '');
-        
-        if (key.endsWith('[]')) {
-          // Si es un campo array, crear el array si no existe
-          if (!data[cleanKey]) {
-            data[cleanKey] = [];
-          }
+        if (key === 'extras') {
+          if (!data.extras) data.extras = [];
+          data.extras.push(value);
+        } else if (key.endsWith('[]')) {
+          if (!data[cleanKey]) data[cleanKey] = [];
           data[cleanKey].push(value);
         } else {
-          // Si es un campo normal, asignar el valor directamente
           data[cleanKey] = value;
         }
       }
@@ -1437,6 +1465,15 @@
 
     // Mostrar banner al cargar la página
     document.addEventListener('DOMContentLoaded', showCookieBanner);
+
+    // Preselección de plan por query string
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      const plan = params.get('plan');
+      if (plan === 'rapida') document.getElementById('plan-rapida').checked = true;
+      if (plan === 'escalable') document.getElementById('plan-escalable').checked = true;
+      if (plan === 'pro') document.getElementById('plan-pro').checked = true;
+    });
   </script>
 
   <!-- Banner de Cookies -->
