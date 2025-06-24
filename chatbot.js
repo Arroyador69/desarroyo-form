@@ -1,73 +1,91 @@
-// DesArroyo.Tech - Chatbot "Aura"
-// Este archivo contendrá toda la lógica para nuestro chatbot de ayuda.
+// DesArroyo.Tech - Chatbot "Aura" - Versión Mejorada
+// Chatbot inteligente con mejor manejo de errores y respuestas más naturales
 
-// 1. Base de Conocimiento (Knowledge Base)
-// Aquí definimos las preguntas y respuestas que el chatbot conocerá.
-// Usamos "palabras clave" para que sea más flexible.
-
+// 1. Base de Conocimiento Mejorada
 const knowledgeBase = [
     {
-        keywords: ["hola", "saludos", "buenas"],
-        answer: "¡Hola! Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con tus dudas sobre automatizaciones, desarrollo web y cómo dar vida a tus ideas. ¿En qué puedo ayudarte?"
+        keywords: ["hola", "saludos", "buenas", "hey", "hi"],
+        answer: "¡Hola! 👋 Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con automatizaciones, desarrollo web y dar vida a tus ideas digitales. ¿En qué puedo ayudarte hoy?"
     },
     {
-        keywords: ["n8n", "que es"],
-        answer: "n8n es una herramienta de automatización de flujos de trabajo de código abierto. Te permite conectar diferentes aplicaciones y servicios para que trabajen juntos sin necesidad de escribir código. ¡Es como tener superpoderes para tus tareas diarias!"
+        keywords: ["n8n", "que es", "qué es"],
+        answer: "🤖 <strong>n8n</strong> es una herramienta de automatización de flujos de trabajo de código abierto. Te permite conectar diferentes aplicaciones y servicios para que trabajen juntos automáticamente, sin necesidad de escribir código. ¡Es como tener superpoderes para tus tareas diarias! 🚀"
     },
     {
-        keywords: ["instalo", "importar", "flujo", "json"],
-        answer: "Es muy fácil. Para instalar tu flujo, ve a tu panel de n8n, haz clic en 'Add workflow' y luego en 'Import from file'. Selecciona el archivo .json que generaste aquí y ¡listo para configurar!"
+        keywords: ["instalo", "importar", "flujo", "json", "como instalar"],
+        answer: "📥 <strong>Para instalar tu flujo:</strong><br>1. Ve a tu panel de n8n<br>2. Haz clic en 'Add workflow'<br>3. Selecciona 'Import from file'<br>4. Sube el archivo .json que generaste aquí<br>5. ¡Listo para configurar! ⚙️"
     },
     {
-        keywords: ["credenciales", "conectar", "api", "clave"],
-        answer: "Las credenciales son las 'llaves' que permiten a n8n acceder a tus apps (como Gmail o Telegram). En cada nodo de n8n, verás un campo 'Credential'. Haz clic en 'Create New' y sigue los pasos para conectar tu cuenta."
+        keywords: ["credenciales", "conectar", "api", "clave", "configurar"],
+        answer: "🔑 <strong>Las credenciales</strong> son las 'llaves' que permiten a n8n acceder a tus apps. En cada nodo de n8n, verás un campo 'Credential'. Haz clic en 'Create New' y sigue los pasos para conectar tu cuenta. ¡Es muy intuitivo! 💡"
     },
     {
-        keywords: ["cuanto", "cuesta", "tiempo", "web", "personalizada"],
-        answer: "Una web 100% personalizada es un proyecto único. El coste y tiempo dependen de la complejidad, pero para darte una idea, una web estática como la que se describe en la página de inicio puede estar lista en 48 horas a un precio muy competitivo. Para proyectos más grandes (con Astro, bases de datos, etc.), lo mejor es que nos escribas a <strong>alberto@desarroyo.tech</strong> para darte un presupuesto a medida. ¡Nos encanta escuchar nuevas ideas!"
+        keywords: ["cuanto", "cuesta", "tiempo", "web", "personalizada", "precio"],
+        answer: "💰 <strong>Precios y tiempos:</strong><br>• Webs HTML: desde 149€ (48h)<br>• Webs con Astro: desde 449€ (1 semana)<br>• Automatizaciones: desde 90€<br>• Proyectos personalizados: presupuesto a medida<br><br>📧 Escribe a <strong>alberto@desarroyo.tech</strong> para un presupuesto personalizado. ¡Nos encantan los retos! 🎯"
     },
     {
-        keywords: ["servicios", "ofrecen"],
-        answer: "Ofrecemos un abanico de soluciones: webs HTML ultrarrápidas, webs full-stack con Astro, bots para WhatsApp/Telegram, automatizaciones con IA, soluciones para check-in de alojamientos turísticos ¡y mucho más! Puedes ver la lista completa en la sección '¿Qué ofrecemos?' de la página de inicio."
+        keywords: ["servicios", "ofrecen", "que hacen"],
+        answer: "🛠️ <strong>Nuestros servicios:</strong><br>• 🌐 Webs HTML ultrarrápidas<br>• ⚡ Webs full-stack con Astro<br>• 📱 Apps móviles híbridas<br>• 🤖 Bots de WhatsApp/Telegram<br>• 🔄 Automatizaciones con IA<br>• 🏨 Check-in automático para alojamientos<br>• 📊 Dashboards y CRMs<br><br>¡Todo con tecnología de vanguardia! 🚀"
     },
     {
-        keywords: ["quien", "detras", "alberto"],
-        answer: "Detrás de DesArroyo.Tech está <strong>Alberto Arroyo</strong>, un actor, escritor y artesano del código que fusiona su pasión por la narrativa con la tecnología para crear soluciones con alma. Puedes conocerle mejor en la sección 'Detrás del código' de la página de inicio."
+        keywords: ["quien", "detras", "alberto", "equipo"],
+        answer: "👨‍💻 <strong>Alberto Arroyo</strong> es actor, escritor y artesano del código. Fusiona su pasión por la narrativa con la tecnología para crear soluciones con alma. Ha publicado 4 libros para intérpretes y ahora canaliza esa creatividad en DesArroyo.Tech. ¡Conoce más en la sección 'Detrás del código'! 📚"
     },
     {
-        keywords: ["otra", "automatizacion", "no esta", "generador"],
-        answer: "¡Por supuesto! El generador es un punto de partida. Si tienes una necesidad de automatización más compleja o específica, contáctanos en <strong>alberto@desarroyo.tech</strong>. Nos encantan los retos y crear soluciones a medida."
+        keywords: ["otra", "automatizacion", "no esta", "generador", "personalizada"],
+        answer: "🎯 ¡Por supuesto! El generador es solo el punto de partida. Si tienes una necesidad específica o más compleja, contáctanos en <strong>alberto@desarroyo.tech</strong>. Nos encantan los retos y crear soluciones a medida. ¡Cada proyecto es único! ✨"
     },
     {
-        keywords: ["superpoderes", "ejemplos", "ideas"],
-        answer: "¡Claro! Aquí tienes algunos 'superpoderes' que puedes conseguir con n8n: <br>1. <strong>Sincronización automática:</strong> Guarda los archivos adjuntos de tus emails de Gmail directamente en Google Drive. <br>2. <strong>Notificador inteligente:</strong> Recibe un mensaje en Telegram cada vez que alguien complete tu formulario de Typeform. <br>3. <strong>Reportes automáticos:</strong> Crea un resumen diario de las ventas de Stripe y envíalo a una hoja de Google Sheets."
+        keywords: ["superpoderes", "ejemplos", "ideas", "casos de uso"],
+        answer: "🦸‍♂️ <strong>Superpoderes con n8n:</strong><br>1. 📧 <strong>Sincronización automática:</strong> Guarda adjuntos de Gmail en Google Drive<br>2. 📱 <strong>Notificador inteligente:</strong> Telegram cuando alguien completa tu Typeform<br>3. 📊 <strong>Reportes automáticos:</strong> Resumen diario de ventas de Stripe a Google Sheets<br>4. 🤖 <strong>Chatbot personalizado:</strong> Atención al cliente 24/7<br>5. 📈 <strong>Análisis de datos:</strong> Procesamiento automático de información<br><br>¡Las posibilidades son infinitas! 🌟"
     },
     {
-        keywords: ["gracias", "adios", "chau"],
-        answer: "¡De nada! Si tienes más preguntas, no dudes en consultarme. ¡Felices automatizaciones!"
+        keywords: ["gracias", "adios", "chau", "bye", "hasta luego"],
+        answer: "¡De nada! 😊 Ha sido un placer ayudarte. Si tienes más preguntas o quieres empezar un proyecto, no dudes en contactarnos. ¡Felices automatizaciones! 🚀✨"
+    },
+    {
+        keywords: ["error", "problema", "no funciona", "fallo"],
+        answer: "🔧 <strong>Si tienes algún problema:</strong><br>1. Revisa que las credenciales estén bien configuradas<br>2. Verifica que los servicios estén conectados<br>3. Revisa los logs de n8n para errores específicos<br>4. Si persiste, escríbenos a <strong>alberto@desarroyo.tech</strong><br><br>¡Estamos aquí para ayudarte! 💪"
+    },
+    {
+        keywords: ["web", "pagina", "sitio", "html"],
+        answer: "🌐 <strong>Nuestras webs:</strong><br>• ⚡ <strong>Ultrarrápidas</strong> - Carga en menos de 2 segundos<br>• 📱 <strong>100% Responsive</strong> - Perfectas en móvil y desktop<br>• 🔍 <strong>SEO Optimizado</strong> - Posicionamiento en Google incluido<br>• 🎨 <strong>Diseño personalizado</strong> - Único para tu negocio<br>• 🚀 <strong>Hosting incluido</strong> - Sin costes ocultos<br><br>¡Desde 149€ y listas en 48 horas! ⏰"
     }
 ];
 
-// 2. Lógica del Chatbot
-
-// Variables globales para el estado del usuario
+// 2. Configuración del Chatbot
 let userLimitInfo = {
     remainingQueries: 10,
     isPremium: false,
     totalQueries: 0
 };
-let chatBody; // Variable global para el cuerpo del chat
+
+let chatBody;
+let isProcessing = false;
+let retryCount = 0;
+const maxRetries = 3;
+
+// 3. Funciones Mejoradas
 
 // Función para cargar el límite de consultas del usuario
 async function loadUserLimit() {
     try {
-        const response = await fetch('/api/query-limit');
+        const response = await fetch('/api/query-limit', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            timeout: 5000
+        });
+        
         if (response.ok) {
             userLimitInfo = await response.json();
             updateLimitDisplay();
         }
     } catch (error) {
-        console.error('Error cargando límite de usuario:', error);
+        console.log('Usando límite por defecto:', error.message);
+        // Usar límite por defecto si no hay conexión
+        updateLimitDisplay();
     }
 }
 
@@ -143,20 +161,30 @@ async function confirmPayment(sessionId) {
     }
 }
 
-// Función para obtener respuestas del chatbot con DeepSeek
+// Función mejorada para obtener respuestas del chatbot
 async function getBotAnswer(userInput) {
+    if (isProcessing) {
+        return "⏳ Estoy procesando tu mensaje anterior. Dame un momento...";
+    }
+
+    isProcessing = true;
+    
     try {
-        // Determinar el contexto basado en la pregunta
-        let context = 'general';
-        const lowerInput = userInput.toLowerCase();
-        
-        if (lowerInput.includes('precio') || lowerInput.includes('cuesta') || lowerInput.includes('coste')) {
-            context = 'precios';
-        } else if (lowerInput.includes('n8n') || lowerInput.includes('flujo') || lowerInput.includes('automatización') || lowerInput.includes('instalar')) {
-            context = 'tecnico';
+        // Primero intentar con la base de conocimiento local
+        const localAnswer = findLocalAnswer(userInput);
+        if (localAnswer) {
+            isProcessing = false;
+            return localAnswer;
         }
 
-        // Llamada al servidor
+        // Si no hay respuesta local y no es premium, verificar límite
+        if (!userLimitInfo.isPremium && userLimitInfo.remainingQueries <= 0) {
+            isProcessing = false;
+            showPaymentButton();
+            return "❌ Has alcanzado tu límite de consultas gratuitas. ¡Actualiza a Premium para consultas ilimitadas! 💎";
+        }
+
+        // Intentar con IA externa
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -164,37 +192,92 @@ async function getBotAnswer(userInput) {
             },
             body: JSON.stringify({
                 message: userInput,
-                context: context
-            })
+                context: determineContext(userInput)
+            }),
+            timeout: 10000
         });
 
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-
-        const data = await response.json();
-        
-        // Actualizar información del usuario
-        if (data.success) {
-            userLimitInfo.remainingQueries = data.remainingQueries;
-            userLimitInfo.isPremium = data.isPremium;
-            userLimitInfo.totalQueries = data.totalQueries;
-            updateLimitDisplay();
-            return data.response;
-        } else {
-            // Si hay error o límite alcanzado
-            if (data.limitReached) {
-                // Mostrar botón de pago
-                setTimeout(() => {
-                    showPaymentButton();
-                }, 1000);
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success) {
+                userLimitInfo.remainingQueries = data.remainingQueries;
+                userLimitInfo.isPremium = data.isPremium;
+                userLimitInfo.totalQueries = data.totalQueries;
+                updateLimitDisplay();
+                retryCount = 0;
+                isProcessing = false;
+                return data.response;
+            } else {
+                throw new Error(data.error || 'Error en la respuesta');
             }
-            return data.response || getFallbackResponse(userInput);
+        } else {
+            throw new Error(`HTTP ${response.status}`);
         }
 
     } catch (error) {
-        console.error('Error al obtener respuesta del chatbot:', error);
-        return getFallbackResponse(userInput);
+        console.error('Error al obtener respuesta:', error);
+        retryCount++;
+        
+        if (retryCount < maxRetries) {
+            // Reintentar
+            setTimeout(() => {
+                isProcessing = false;
+            }, 2000);
+            return `🔄 Reintentando... (${retryCount}/${maxRetries})`;
+        } else {
+            // Usar respuesta de fallback
+            retryCount = 0;
+            isProcessing = false;
+            return getFallbackResponse(userInput);
+        }
+    }
+}
+
+// Función para encontrar respuestas en la base de conocimiento local
+function findLocalAnswer(userInput) {
+    const lowerInput = userInput.toLowerCase();
+    
+    for (const item of knowledgeBase) {
+        for (const keyword of item.keywords) {
+            if (lowerInput.includes(keyword)) {
+                return item.answer;
+            }
+        }
+    }
+    
+    return null;
+}
+
+// Función para determinar el contexto de la pregunta
+function determineContext(userInput) {
+    const lowerInput = userInput.toLowerCase();
+    
+    if (lowerInput.includes('precio') || lowerInput.includes('cuesta') || lowerInput.includes('coste')) {
+        return 'precios';
+    } else if (lowerInput.includes('n8n') || lowerInput.includes('flujo') || lowerInput.includes('automatización')) {
+        return 'tecnico';
+    } else if (lowerInput.includes('web') || lowerInput.includes('pagina') || lowerInput.includes('sitio')) {
+        return 'web';
+    } else if (lowerInput.includes('error') || lowerInput.includes('problema') || lowerInput.includes('fallo')) {
+        return 'soporte';
+    }
+    
+    return 'general';
+}
+
+// Función de fallback mejorada
+function getFallbackResponse(userInput) {
+    const lowerInput = userInput.toLowerCase();
+    
+    if (lowerInput.includes('hola') || lowerInput.includes('saludos')) {
+        return "¡Hola! 👋 Soy Aura, tu asistente de DesArroyo.Tech. ¿En qué puedo ayudarte hoy?";
+    } else if (lowerInput.includes('web') || lowerInput.includes('pagina')) {
+        return "🌐 <strong>Nuestras webs:</strong> Desde 149€, listas en 48 horas, 100% responsive y SEO optimizado. ¡Escribe a alberto@desarroyo.tech para más info!";
+    } else if (lowerInput.includes('n8n') || lowerInput.includes('automatizacion')) {
+        return "🤖 <strong>n8n</strong> es una herramienta de automatización que conecta apps sin código. ¡Perfecta para automatizar tareas!";
+    } else {
+        return "🤔 Interesante pregunta. Para darte la mejor respuesta, escríbenos a <strong>alberto@desarroyo.tech</strong>. ¡Estamos aquí para ayudarte! 💪";
     }
 }
 
@@ -208,43 +291,6 @@ function showPaymentButton() {
     const chatBody = document.getElementById('chat-body');
     chatBody.appendChild(paymentButton);
     chatBody.scrollTop = chatBody.scrollHeight;
-}
-
-// Respuestas de fallback (mantener las existentes como respaldo)
-function getFallbackResponse(userInput) {
-    const lowerInput = userInput.toLowerCase();
-    
-    // Respuestas específicas para preguntas comunes
-    if (lowerInput.includes('precio') || lowerInput.includes('cuesta') || lowerInput.includes('coste')) {
-        return "Los precios varían según la complejidad del proyecto. Para una cotización personalizada, contacta con alberto@desarroyo.tech. ¡Cada proyecto es único! 💰";
-    }
-    
-    if (lowerInput.includes('n8n') || lowerInput.includes('flujo') || lowerInput.includes('automatización')) {
-        return "Para automatizaciones con n8n, primero genera tu flujo con nuestra herramienta, luego sigue los pasos de instalación. Si necesitas ayuda específica, contacta con alberto@desarroyo.tech 🔧";
-    }
-    
-    if (lowerInput.includes('web') || lowerInput.includes('sitio')) {
-        return "Creamos webs HTML personalizadas en 48h. Responde nuestra encuesta inteligente y tendrás tu web lista en tiempo récord! 🌐";
-    }
-    
-    if (lowerInput.includes('tiempo') || lowerInput.includes('días') || lowerInput.includes('entrega')) {
-        return "Webs HTML: 48h. Automatizaciones: 1-3 días. Apps móviles: 1-2 semanas. ¡Siempre más rápido de lo esperado! ⚡";
-    }
-    
-    if (lowerInput.includes('contacto') || lowerInput.includes('email') || lowerInput.includes('hablar')) {
-        return "¡Perfecto! Escribe a alberto@desarroyo.tech para cualquier consulta. Te responderemos en menos de 24h 📧";
-    }
-    
-    if (lowerInput.includes('servicios') || lowerInput.includes('ofrecen') || lowerInput.includes('hacen')) {
-        return "Ofrecemos: webs HTML, automatizaciones n8n, apps móviles, bots de WhatsApp/Telegram, IoT, y mucho más. ¡Somos tu taller digital completo! 🛠️";
-    }
-    
-    if (lowerInput.includes('superpoderes') || lowerInput.includes('ejemplos')) {
-        return "Ejemplos de 'superpoderes': automatizar reservas de Airbnb, bots que responden consultas 24/7, apps que funcionan offline, sensores que alertan por Telegram... ¡La tecnología al servicio de tu vida! 🦸‍♂️";
-    }
-    
-    // Respuesta genérica
-    return "¡Hola! Soy Aura, tu asistente de DesArroyo.Tech. Puedo ayudarte con webs, automatizaciones, apps móviles y más. ¿En qué puedo asistirte? 🤖";
 }
 
 // Función para manejar la entrada del usuario (actualizada)

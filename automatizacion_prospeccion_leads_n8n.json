@@ -1,0 +1,777 @@
+{
+  "name": "Sistema de Prospección Automatizada - DesArroyo Tech",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "trigger-cron",
+      "name": "Trigger - Ejecutar cada 6 horas",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.scrapingbee.com/api/v1/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "{{ $env.SCRAPINGBEE_API_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://www.google.com/search?q=restaurantes+[CIUDAD]+sin+pagina+web"
+            },
+            {
+              "name": "render_js",
+              "value": "false"
+            },
+            {
+              "name": "extract_rules",
+              "value": "{\"businesses\":{\"selector\":\".g\",\"type\":\"list\",\"output\":{\"name\":\".LC20lb\",\"address\":\".LwV2X\",\"phone\":\".LwV2X\",\"website\":\"a[href*='http']\"}}}}"
+            }
+          ]
+        }
+      },
+      "id": "scraper-google",
+      "name": "Scraper - Google Búsqueda",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.scrapingbee.com/api/v1/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "{{ $env.SCRAPINGBEE_API_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://www.paginasamarillas.es/buscar/[SECTOR]/[CIUDAD]"
+            },
+            {
+              "name": "render_js",
+              "value": "false"
+            },
+            {
+              "name": "extract_rules",
+              "value": "{\"businesses\":{\"selector\":\".listing-item\",\"type\":\"list\",\"output\":{\"name\":\".business-name\",\"address\":\".address\",\"phone\":\".phone\",\"website\":\".website\"}}}}"
+            }
+          ]
+        }
+      },
+      "id": "scraper-paginas-amarillas",
+      "name": "Scraper - Páginas Amarillas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.scrapingbee.com/api/v1/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "{{ $env.SCRAPINGBEE_API_KEY }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://www.linkedin.com/search/results/companies/?keywords=[SECTOR]&location=[CIUDAD]"
+            },
+            {
+              "name": "render_js",
+              "value": "false"
+            },
+            {
+              "name": "extract_rules",
+              "value": "{\"companies\":{\"selector\":\".search-result\",\"type\":\"list\",\"output\":{\"name\":\".company-name\",\"industry\":\".industry\",\"size\":\".company-size\",\"website\":\".website\"}}}}"
+            }
+          ]
+        }
+      },
+      "id": "scraper-linkedin",
+      "name": "Scraper - LinkedIn",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 700]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combine",
+        "options": {}
+      },
+      "id": "merge-sources",
+      "name": "Merge - Combinar Fuentes",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [680, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtrar y limpiar datos de leads\nconst leads = $input.all();\nconst filteredLeads = [];\n\nfor (const item of leads) {\n  const business = item.json;\n  \n  // Verificar si tiene datos básicos\n  if (business.name && business.phone) {\n    \n    // Filtrar por sectores con potencial\n    const highValueSectors = [\n      'restaurante', 'café', 'bar', 'pizzería', 'comida',\n      'peluquería', 'barbería', 'estética', 'belleza',\n      'dentista', 'médico', 'fisioterapeuta', 'clínica',\n      'abogado', 'notario', 'asesor', 'consultor',\n      'tienda', 'comercio', 'negocio', 'empresa',\n      'hotel', 'hostal', 'alojamiento',\n      'gimnasio', 'fitness', 'deporte',\n      'autoescuela', 'taller', 'mecánico'\n    ];\n    \n    const sectorMatch = highValueSectors.some(sector => \n      business.name.toLowerCase().includes(sector) ||\n      (business.industry && business.industry.toLowerCase().includes(sector))\n    );\n    \n    if (sectorMatch) {\n      // Limpiar y formatear datos\n      const cleanLead = {\n        name: business.name.trim(),\n        phone: business.phone.replace(/[^0-9+]/g, ''),\n        address: business.address || '',\n        website: business.website || '',\n        industry: business.industry || '',\n        source: item.source || 'unknown',\n        score: 0,\n        status: 'new',\n        timestamp: new Date().toISOString()\n      };\n      \n      // Calcular score inicial\n      if (!cleanLead.website || cleanLead.website === '') {\n        cleanLead.score += 30; // Sin web = alta prioridad\n      }\n      \n      if (cleanLead.phone && cleanLead.phone.length > 8) {\n        cleanLead.score += 20; // Tiene teléfono válido\n      }\n      \n      if (cleanLead.address && cleanLead.address.length > 10) {\n        cleanLead.score += 15; // Tiene dirección\n      }\n      \n      // Score por sector\n      if (['restaurante', 'peluquería', 'dentista', 'abogado'].some(s => \n        cleanLead.name.toLowerCase().includes(s))) {\n        cleanLead.score += 25; // Sectores de alto valor\n      }\n      \n      filteredLeads.push(cleanLead);\n    }\n  }\n}\n\n// Eliminar duplicados por teléfono\nconst uniqueLeads = [];\nconst seenPhones = new Set();\n\nfor (const lead of filteredLeads) {\n  if (!seenPhones.has(lead.phone)) {\n    seenPhones.add(lead.phone);\n    uniqueLeads.push(lead);\n  }\n}\n\n// Ordenar por score\nuniqueLeads.sort((a, b) => b.score - a.score);\n\nreturn uniqueLeads.map(lead => ({ json: lead }));"
+      },
+      "id": "filter-leads",
+      "name": "Filter - Filtrar y Calificar Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.OPENAI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4"
+            },
+            {
+              "name": "messages",
+              "value": "=[\n  {\n    \"role\": \"system\",\n    \"content\": \"Eres un asistente de ventas experto en desarrollo web. Tu objetivo es generar interés en servicios de páginas web profesionales. Sé amigable, profesional y enfocado en los beneficios para el negocio.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Genera un mensaje de WhatsApp personalizado para contactar a {{ $json.name }} que es un negocio de {{ $json.industry || 'servicios' }}. El mensaje debe ser corto, directo y generar interés en una página web profesional. Incluye una pregunta que invite a la respuesta.\"\n  }\n]"
+            },
+            {
+              "name": "max_tokens",
+              "value": "200"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        }
+      },
+      "id": "ai-message-generator",
+      "name": "AI - Generar Mensaje Personalizado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{ $env.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic {{ $env.TWILIO_AUTH_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:{{ $env.TWILIO_WHATSAPP_NUMBER }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $json.phone }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $('AI - Generar Mensaje Personalizado').item.json.choices[0].message.content }}"
+            }
+          ]
+        }
+      },
+      "id": "twilio-whatsapp",
+      "name": "Twilio - Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1340, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "{{ $env.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=🚀 **NUEVO LEAD CONTACTADO**\n\n📋 **Negocio:** {{ $json.name }}\n📞 **Teléfono:** {{ $json.phone }}\n🏢 **Sector:** {{ $json.industry || 'No especificado' }}\n📍 **Dirección:** {{ $json.address || 'No especificada' }}\n⭐ **Score:** {{ $json.score }}/100\n📊 **Fuente:** {{ $json.source }}\n\n✅ Mensaje enviado vía WhatsApp\n⏰ {{ new Date().toLocaleString('es-ES') }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "telegram-notification",
+      "name": "Telegram - Notificar Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1560, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.OPENAI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-4"
+            },
+            {
+              "name": "messages",
+              "value": "=[\n  {\n    \"role\": \"system\",\n    \"content\": \"Eres un asistente de ventas experto en desarrollo web. Analiza la respuesta del cliente y determina la mejor acción a seguir. Si el cliente muestra interés, ofrece la encuesta de evaluación. Si no, intenta generar más interés.\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"El cliente {{ $json.customer_name }} respondió: '{{ $json.message }}'. ¿Cuál es la mejor respuesta? Opciones: 1) Enviar encuesta de evaluación, 2) Generar más interés, 3) Programar llamada, 4) Agradecer y cerrar.\"\n  }\n]"
+            },
+            {
+              "name": "max_tokens",
+              "value": "150"
+            },
+            {
+              "name": "temperature",
+              "value": "0.7"
+            }
+          ]
+        }
+      },
+      "id": "ai-response-analyzer",
+      "name": "AI - Analizar Respuesta Cliente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1780, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.choices[0].message.content.toLowerCase() }}",
+              "rightValue": "encuesta",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-interested",
+      "name": "IF - Cliente Interesado",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{ $env.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic {{ $env.TWILIO_AUTH_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:{{ $env.TWILIO_WHATSAPP_NUMBER }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $('Webhook - Respuesta Cliente').item.json.phone }}"
+            },
+            {
+              "name": "Body",
+              "value": "¡Perfecto! 🎉 Para poder ofrecerte la mejor solución para tu negocio, necesito que completes esta breve encuesta:\n\n🔗 {{ $env.WEBSITE_URL }}/encuesta-evaluacion\n\nEs súper rápida (2 minutos) y me ayudará a entender exactamente lo que necesitas. ¿Te parece bien?"
+            }
+          ]
+        }
+      },
+      "id": "send-survey",
+      "name": "Twilio - Enviar Encuesta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2220, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "{{ $env.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=🎯 **LEAD CALIENTE - ENCUESTA ENVIADA**\n\n📋 **Cliente:** {{ $('Webhook - Respuesta Cliente').item.json.customer_name }}\n📞 **Teléfono:** {{ $('Webhook - Respuesta Cliente').item.json.phone }}\n💬 **Respuesta:** {{ $('Webhook - Respuesta Cliente').item.json.message }}\n\n✅ Encuesta enviada\n⏰ {{ new Date().toLocaleString('es-ES') }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "telegram-hot-lead",
+      "name": "Telegram - Lead Caliente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2440, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{ $env.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic {{ $env.TWILIO_AUTH_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:{{ $env.TWILIO_WHATSAPP_NUMBER }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $('Webhook - Respuesta Cliente').item.json.phone }}"
+            },
+            {
+              "name": "Body",
+              "value": "=Entiendo perfectamente. {{ $('AI - Analizar Respuesta Cliente').item.json.choices[0].message.content }}\n\n¿Te gustaría que te cuente más sobre cómo una web profesional puede ayudar a tu negocio a conseguir más clientes?"
+            }
+          ]
+        }
+      },
+      "id": "follow-up-message",
+      "name": "Twilio - Mensaje de Seguimiento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2220, 600]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-respuesta-cliente",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-respuesta-cliente",
+      "name": "Webhook - Respuesta Cliente",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [1780, 700],
+      "webhookId": "respuesta-cliente"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-encuesta-completada",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-encuesta",
+      "name": "Webhook - Encuesta Completada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [2440, 700],
+      "webhookId": "encuesta-completada"
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "{{ $env.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=🎉 **¡ENCUESTA COMPLETADA!**\n\n📋 **Cliente:** {{ $json.customer_name }}\n📞 **Teléfono:** {{ $json.phone }}\n💼 **Sector:** {{ $json.business_type }}\n💰 **Presupuesto:** {{ $json.budget }}\n⏰ **Urgencia:** {{ $json.urgency }}\n\n📊 **Detalles del proyecto:**\n{{ $json.project_details }}\n\n🚀 **¡LEAD LISTO PARA VENTA!**\n⏰ {{ new Date().toLocaleString('es-ES') }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "telegram-survey-completed",
+      "name": "Telegram - Encuesta Completada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2660, 700]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts/{{ $env.TWILIO_ACCOUNT_SID }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic {{ $env.TWILIO_AUTH_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:{{ $env.TWILIO_WHATSAPP_NUMBER }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $json.phone }}"
+            },
+            {
+              "name": "Body",
+              "value": "¡Excelente! 🎉 He recibido tu encuesta y veo que tienes un proyecto muy interesante.\n\nTe voy a contactar en los próximos 30 minutos para revisar todos los detalles y hacerte una propuesta personalizada.\n\n¿Te parece bien si te llamo al {{ $json.phone }}?"
+            }
+          ]
+        }
+      },
+      "id": "confirm-call",
+      "name": "Twilio - Confirmar Llamada",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2880, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generar reporte diario de métricas\nconst today = new Date().toISOString().split('T')[0];\n\n// Aquí normalmente consultarías una base de datos\n// Por ahora simulamos datos\nconst reportData = {\n  date: today,\n  totalLeadsFound: 45,\n  leadsContacted: 23,\n  responsesReceived: 8,\n  surveysSent: 5,\n  surveysCompleted: 2,\n  hotLeads: 3,\n  conversionRate: '8.7%',\n  topSectors: ['Restaurantes', 'Peluquerías', 'Dentistas'],\n  bestSources: ['Google', 'Páginas Amarillas', 'LinkedIn']\n};\n\nreturn [{ json: reportData }];"
+      },
+      "id": "generate-daily-report",
+      "name": "Code - Generar Reporte Diario",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3100, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "{{ $env.TELEGRAM_CHAT_ID }}"
+            },
+            {
+              "name": "text",
+              "value": "=📊 **REPORTE DIARIO - PROSPECCIÓN AUTOMATIZADA**\n\n📅 **Fecha:** {{ $json.date }}\n\n🔍 **Leads Encontrados:** {{ $json.totalLeadsFound }}\n📞 **Leads Contactados:** {{ $json.leadsContacted }}\n💬 **Respuestas Recibidas:** {{ $json.responsesReceived }}\n📋 **Encuestas Enviadas:** {{ $json.surveysSent }}\n✅ **Encuestas Completadas:** {{ $json.surveysCompleted }}\n🔥 **Leads Calientes:** {{ $json.hotLeads }}\n📈 **Tasa Conversión:** {{ $json.conversionRate }}\n\n🏆 **Mejores Sectores:**\n{{ $json.topSectors.join(', ') }}\n\n📊 **Mejores Fuentes:**\n{{ $json.bestSources.join(', ') }}\n\n⏰ {{ new Date().toLocaleString('es-ES') }}"
+            },
+            {
+              "name": "parse_mode",
+              "value": "Markdown"
+            }
+          ]
+        }
+      },
+      "id": "telegram-daily-report",
+      "name": "Telegram - Reporte Diario",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [3320, 500]
+    }
+  ],
+  "connections": {
+    "Trigger - Ejecutar cada 6 horas": {
+      "main": [
+        [
+          {
+            "node": "Scraper - Google Búsqueda",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scraper - Páginas Amarillas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scraper - LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper - Google Búsqueda": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combinar Fuentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper - Páginas Amarillas": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combinar Fuentes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Scraper - LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combinar Fuentes",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge - Combinar Fuentes": {
+      "main": [
+        [
+          {
+            "node": "Filter - Filtrar y Calificar Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - Filtrar y Calificar Leads": {
+      "main": [
+        [
+          {
+            "node": "AI - Generar Mensaje Personalizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generar Mensaje Personalizado": {
+      "main": [
+        [
+          {
+            "node": "Twilio - Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio - Enviar WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Notificar Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Respuesta Cliente": {
+      "main": [
+        [
+          {
+            "node": "AI - Analizar Respuesta Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Analizar Respuesta Cliente": {
+      "main": [
+        [
+          {
+            "node": "IF - Cliente Interesado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Cliente Interesado": {
+      "main": [
+        [
+          {
+            "node": "Twilio - Enviar Encuesta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Twilio - Mensaje de Seguimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio - Enviar Encuesta": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Lead Caliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Encuesta Completada": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Encuesta Completada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Encuesta Completada": {
+      "main": [
+        [
+          {
+            "node": "Twilio - Confirmar Llamada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generar Reporte Diario": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Reporte Diario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "prospeccion-leads",
+      "name": "Prospección Leads"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+} 
