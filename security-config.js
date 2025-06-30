@@ -107,4 +107,128 @@ class SecurityConfig {
     }
 }
 
-module.exports = SecurityConfig; 
+// 🔐 Configuración de Seguridad para DesArroyo.tech CRM
+// Este archivo contiene configuraciones de seguridad para el sistema
+
+const securityConfig = {
+    // Configuración de autenticación
+    auth: {
+        // Contraseña del admin (cambiar en producción)
+        adminPassword: process.env.ADMIN_PASSWORD || 'admin123',
+        
+        // Secret para JWT tokens
+        jwtSecret: process.env.JWT_SECRET || 'desarroyo-secret-key-2024',
+        
+        // Tiempo de expiración del token (24 horas)
+        tokenExpiration: '24h',
+        
+        // Intentos máximos de login
+        maxLoginAttempts: 5,
+        
+        // Tiempo de bloqueo tras intentos fallidos (30 minutos)
+        lockoutTime: 30 * 60 * 1000
+    },
+
+    // IPs con acceso premium (tu IP y otras autorizadas)
+    authorizedIPs: [
+        '5.224.13.147', // Tu IP actual
+        '127.0.0.1',    // Localhost para desarrollo
+        '::1'           // Localhost IPv6
+    ],
+
+    // Configuración de CORS
+    cors: {
+        origin: [
+            'https://desarroyo.tech',
+            'https://www.desarroyo.tech',
+            'http://localhost:3000' // Para desarrollo
+        ],
+        credentials: true
+    },
+
+    // Configuración de rate limiting
+    rateLimit: {
+        windowMs: 15 * 60 * 1000, // 15 minutos
+        max: 100 // máximo 100 requests por ventana
+    },
+
+    // Configuración de sesiones
+    session: {
+        secret: process.env.SESSION_SECRET || 'desarroyo-session-secret',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            maxAge: 24 * 60 * 60 * 1000 // 24 horas
+        }
+    },
+
+    // Configuración de logs
+    logging: {
+        enabled: true,
+        level: 'info',
+        file: './logs/security.log'
+    },
+
+    // Configuración de backup
+    backup: {
+        enabled: true,
+        frequency: 'daily', // daily, weekly, monthly
+        retention: 30, // días
+        path: './backups/'
+    }
+};
+
+// Función para verificar IP autorizada
+function isAuthorizedIP(ip) {
+    return securityConfig.authorizedIPs.includes(ip);
+}
+
+// Función para generar contraseña segura
+function generateSecurePassword(length = 12) {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+}
+
+// Función para validar contraseña
+function validatePassword(password) {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar;
+}
+
+// Función para registrar intentos de acceso
+function logAccessAttempt(ip, success, username = null) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+        timestamp,
+        ip,
+        success,
+        username,
+        userAgent: 'CRM Access'
+    };
+    
+    console.log(`🔐 Access Log: ${JSON.stringify(logEntry)}`);
+    
+    // Aquí podrías guardar en base de datos o archivo
+    if (securityConfig.logging.enabled) {
+        // Implementar logging a archivo
+    }
+}
+
+module.exports = {
+    securityConfig,
+    isAuthorizedIP,
+    generateSecurePassword,
+    validatePassword,
+    logAccessAttempt
+}; 
