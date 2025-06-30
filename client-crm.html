@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Cliente - DesArroyo.Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="clientCRMData()" x-init="init()">
+    <!-- Loading Screen -->
+    <div x-show="loading" class="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+            <p class="text-gray-600">Cargando tu panel...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-rocket text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-xl font-semibold text-gray-900" x-text="clientInfo.name"></h1>
+                        <p class="text-sm text-gray-500" x-text="clientInfo.project_name"></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button @click="notificationsOpen = !notificationsOpen" class="relative p-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span x-show="notifications.length > 0" class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" x-text="notifications.length"></span>
+                        </button>
+                        
+                        <!-- Notifications Dropdown -->
+                        <div x-show="notificationsOpen" @click.away="notificationsOpen = false" 
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold mb-3">Notificaciones</h3>
+                                <div class="space-y-3 max-h-64 overflow-y-auto">
+                                    <template x-for="notification in notifications" :key="notification.id">
+                                        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                            <i :class="notification.icon" class="text-blue-500 mt-1"></i>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium" x-text="notification.title"></p>
+                                                <p class="text-xs text-gray-600" x-text="notification.message"></p>
+                                                <p class="text-xs text-gray-400 mt-1" x-text="notification.time"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32x32" alt="Cliente" class="w-8 h-8 rounded-full">
+                        <span class="text-gray-700 font-medium" x-text="clientInfo.name"></span>
+                        <button @click="logout()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8">
+                <a href="#" @click="activeTab = 'overview'" 
+                   :class="activeTab === 'overview' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                   class="border-b-2 py-4 px-1 text-sm font-medium transition-colors">
+                    <i class="fas fa-chart-line mr-2"></i>Visión General
+                </a>
+                
+                <a href="#" @click="activeTab = 'leads'" 
+                   :class="activeTab === 'leads' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                   class="border-b-2 py-4 px-1 text-sm font-medium transition-colors">
+                    <i class="fas fa-users mr-2"></i>Leads
+                    <span class="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full" x-text="leads.length"></span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'automations'" 
+                   :class="activeTab === 'automations' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                   class="border-b-2 py-4 px-1 text-sm font-medium transition-colors">
+                    <i class="fas fa-robot mr-2"></i>Automatizaciones
+                </a>
+                
+                <a href="#" @click="activeTab = 'settings'" 
+                   :class="activeTab === 'settings' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                   class="border-b-2 py-4 px-1 text-sm font-medium transition-colors">
+                    <i class="fas fa-cog mr-2"></i>Configuración
+                </a>
+                
+                <a href="#" @click="activeTab = 'support'" 
+                   :class="activeTab === 'support' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                   class="border-b-2 py-4 px-1 text-sm font-medium transition-colors">
+                    <i class="fas fa-headset mr-2"></i>Soporte
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Overview Tab -->
+        <div x-show="activeTab === 'overview'" class="space-y-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <i class="fas fa-users text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Leads</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="leads.length"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Conversiones</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="conversions"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-robot text-yellow-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Automatizaciones</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="automations.length"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-purple-100 rounded-lg">
+                            <i class="fas fa-eye text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Visitas Web</p>
+                            <p class="text-2xl font-bold text-gray-900" x-text="webVisits"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Actividad Reciente</h3>
+                    <div class="space-y-4">
+                        <template x-for="activity in recentActivity" :key="activity.id">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm" x-text="activity.description"></p>
+                                    <p class="text-xs text-gray-500" x-text="activity.time"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Leads Recientes</h3>
+                    <div class="space-y-4">
+                        <template x-for="lead in recentLeads" :key="lead.id">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://via.placeholder.com/40x40" :alt="lead.name" class="w-10 h-10 rounded-full">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium" x-text="lead.name"></p>
+                                    <p class="text-xs text-gray-500" x-text="lead.email"></p>
+                                </div>
+                                <span :class="getLeadStatusClass(lead.status)" 
+                                      class="px-2 py-1 text-xs rounded-full" x-text="lead.status"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div x-show="activeTab === 'leads'" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold">Gestión de Leads</h2>
+                <button @click="showAddLeadModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    <i class="fas fa-plus mr-2"></i>Nuevo Lead
+                </button>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div class="p-6 border-b">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1">
+                            <input type="text" placeholder="Buscar leads..." 
+                                   x-model="leadSearch"
+                                   class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select x-model="leadStatusFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Todos los estados</option>
+                            <option value="new">Nuevo</option>
+                            <option value="contacted">Contactado</option>
+                            <option value="qualified">Calificado</option>
+                            <option value="converted">Convertido</option>
+                            <option value="lost">Perdido</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="lead in filteredLeads" :key="lead.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://via.placeholder.com/40x40" :alt="lead.name" class="w-10 h-10 rounded-full">
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900" x-text="lead.name"></div>
+                                                <div class="text-sm text-gray-500" x-text="lead.company"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900" x-text="lead.email"></div>
+                                        <div class="text-sm text-gray-500" x-text="lead.phone"></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span :class="getLeadStatusClass(lead.status)" 
+                                              class="px-2 py-1 text-xs font-medium rounded-full" 
+                                              x-text="lead.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatDate(lead.created_at)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <button @click="viewLead(lead.id)" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button @click="editLead(lead.id)" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button @click="deleteLead(lead.id)" class="text-red-600 hover:text-red-900">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automations Tab -->
+        <div x-show="activeTab === 'automations'" class="space-y-6">
+            <h2 class="text-2xl font-bold">Automatizaciones</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="automation in automations" :key="automation.id">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-robot text-2xl text-blue-600 mr-3"></i>
+                                <h3 class="text-lg font-semibold" x-text="automation.name"></h3>
+                            </div>
+                            <span :class="automation.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" 
+                                  class="px-2 py-1 text-xs font-medium rounded-full" 
+                                  x-text="automation.active ? 'Activo' : 'Inactivo'"></span>
+                        </div>
+                        <p class="text-gray-600 mb-4" x-text="automation.description"></p>
+                        <div class="space-y-2 mb-4">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Ejecuciones:</span>
+                                <span x-text="automation.executions"></span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500">Última ejecución:</span>
+                                <span x-text="automation.last_execution || 'Nunca'"></span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <button @click="toggleAutomation(automation.id)" 
+                                    :class="automation.active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
+                                    class="text-sm">
+                                <i :class="automation.active ? 'fas fa-pause' : 'fas fa-play'" class="mr-1"></i>
+                                <span x-text="automation.active ? 'Pausar' : 'Activar'"></span>
+                            </button>
+                            <button @click="viewAutomation(automation.id)" class="text-blue-600 hover:text-blue-900 text-sm">
+                                <i class="fas fa-eye mr-1"></i>Ver
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div x-show="activeTab === 'settings'" class="space-y-6">
+            <h2 class="text-2xl font-bold">Configuración</h2>
+            <div class="bg-white p-6 rounded-lg shadow-sm border">
+                <h3 class="text-lg font-semibold mb-4">Información del Proyecto</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
+                        <input type="text" x-model="clientInfo.project_name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dominio</label>
+                        <input type="text" x-model="clientInfo.domain" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email de Contacto</label>
+                        <input type="email" x-model="clientInfo.email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Tab -->
+        <div x-show="activeTab === 'support'" class="space-y-6">
+            <h2 class="text-2xl font-bold">Soporte</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Contactar Soporte</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                            <i class="fas fa-envelope text-blue-600"></i>
+                            <div>
+                                <p class="font-medium">Email</p>
+                                <a href="mailto:alberto@desarroyo.tech" class="text-blue-600 hover:text-blue-800">alberto@desarroyo.tech</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                            <i class="fab fa-whatsapp text-green-600"></i>
+                            <div>
+                                <p class="font-medium">WhatsApp</p>
+                                <a href="https://wa.me/34600000000" class="text-green-600 hover:text-green-800">+34 600 000 000</a>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                            <i class="fab fa-telegram text-purple-600"></i>
+                            <div>
+                                <p class="font-medium">Telegram</p>
+                                <a href="https://t.me/desarroyotech" class="text-purple-600 hover:text-purple-800">@desarroyotech</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Estado del Servicio</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <span>Web Principal</span>
+                            </div>
+                            <span class="text-green-600 font-medium">Operativo</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <span>Automatizaciones</span>
+                            </div>
+                            <span class="text-green-600 font-medium">Operativo</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <span>Base de Datos</span>
+                            </div>
+                            <span class="text-green-600 font-medium">Operativo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Lead Modal -->
+    <div x-show="showAddLeadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">Nuevo Lead</h3>
+            <form @submit.prevent="addLead()">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                        <input type="text" x-model="newLead.name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" x-model="newLead.email" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                        <input type="tel" x-model="newLead.phone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Empresa</label>
+                        <input type="text" x-model="newLead.company" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notas</label>
+                        <textarea x-model="newLead.notes" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" @click="showAddLeadModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Crear Lead
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function clientCRMData() {
+            return {
+                // State
+                loading: true,
+                activeTab: 'overview',
+                notificationsOpen: false,
+                showAddLeadModal: false,
+                
+                // Data
+                clientInfo: {},
+                leads: [],
+                automations: [],
+                recentActivity: [],
+                recentLeads: [],
+                notifications: [],
+                
+                // Stats
+                conversions: 0,
+                webVisits: 0,
+                
+                // Filters
+                leadSearch: '',
+                leadStatusFilter: '',
+                
+                // New lead form
+                newLead: {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    company: '',
+                    notes: ''
+                },
+                
+                // Computed
+                get filteredLeads() {
+                    let filtered = this.leads;
+                    
+                    if (this.leadSearch) {
+                        filtered = filtered.filter(lead => 
+                            lead.name.toLowerCase().includes(this.leadSearch.toLowerCase()) ||
+                            lead.email.toLowerCase().includes(this.leadSearch.toLowerCase()) ||
+                            lead.company.toLowerCase().includes(this.leadSearch.toLowerCase())
+                        );
+                    }
+                    
+                    if (this.leadStatusFilter) {
+                        filtered = filtered.filter(lead => lead.status === this.leadStatusFilter);
+                    }
+                    
+                    return filtered;
+                },
+                
+                // Methods
+                async init() {
+                    // Obtener client_id de la URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    this.clientId = urlParams.get('client_id');
+                    
+                    if (!this.clientId) {
+                        alert('Error: No se ha especificado el ID del cliente');
+                        window.location.href = '/';
+                        return;
+                    }
+                    
+                    await this.loadClientInfo();
+                    await this.loadData();
+                    this.loading = false;
+                },
+                
+                async loadClientInfo() {
+                    try {
+                        const response = await fetch(`/api/client/${this.clientId}/info`);
+                        if (!response.ok) {
+                            throw new Error('Error cargando información del cliente');
+                        }
+                        this.clientInfo = await response.json();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        // Fallback a datos simulados
+                        this.clientInfo = {
+                            name: 'Cliente Demo',
+                            email: 'cliente@ejemplo.com',
+                            project_name: 'Proyecto Demo',
+                            domain: 'ejemplo.com'
+                        };
+                    }
+                },
+                
+                async loadData() {
+                    try {
+                        // Cargar leads
+                        const leadsResponse = await fetch(`/api/client/${this.clientId}/leads`);
+                        if (leadsResponse.ok) {
+                            this.leads = await leadsResponse.json();
+                        }
+                        
+                        // Cargar automatizaciones
+                        const automationsResponse = await fetch(`/api/client/${this.clientId}/automations`);
+                        if (automationsResponse.ok) {
+                            this.automations = await automationsResponse.json();
+                        }
+                        
+                        // Cargar estadísticas
+                        const statsResponse = await fetch(`/api/client/${this.clientId}/stats`);
+                        if (statsResponse.ok) {
+                            const stats = await statsResponse.json();
+                            this.conversions = stats.converted_leads;
+                            this.webVisits = Math.floor(Math.random() * 200) + 100; // Simulado por ahora
+                        }
+                        
+                        // Preparar datos derivados
+                        this.recentLeads = this.leads.slice(0, 5);
+                        
+                        // Simular actividad reciente
+                        this.recentActivity = [
+                            {
+                                id: 1,
+                                description: `Panel cargado para ${this.clientInfo.project_name}`,
+                                time: 'Ahora'
+                            }
+                        ];
+                        
+                        if (this.leads.length > 0) {
+                            this.recentActivity.unshift({
+                                id: 2,
+                                description: `Último lead: ${this.leads[0].name}`,
+                                time: this.formatRelativeTime(this.leads[0].created_at)
+                            });
+                        }
+                        
+                        // Simular notificaciones
+                        this.notifications = [];
+                        if (this.leads.length > 0) {
+                            this.notifications.push({
+                                id: 1,
+                                title: 'Leads Disponibles',
+                                message: `Tienes ${this.leads.length} leads para revisar`,
+                                time: 'Ahora',
+                                icon: 'fas fa-users'
+                            });
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error cargando datos:', error);
+                        // Fallback a datos simulados
+                        this.loadSimulatedData();
+                    }
+                },
+                
+                loadSimulatedData() {
+                    this.leads = [
+                        {
+                            id: 1,
+                            name: 'María García',
+                            email: 'maria@ejemplo.com',
+                            phone: '+34 600 000 001',
+                            company: 'Restaurante García',
+                            status: 'new',
+                            created_at: new Date().toISOString()
+                        }
+                    ];
+                    
+                    this.recentLeads = this.leads.slice(0, 5);
+                    this.conversions = 2;
+                    this.webVisits = 156;
+                    
+                    this.automations = [
+                        {
+                            id: 1,
+                            name: 'Email de Bienvenida',
+                            description: 'Envío automático de email de bienvenida a nuevos leads',
+                            active: true,
+                            executions: 45,
+                            last_execution: 'Hace 2 horas'
+                        }
+                    ];
+                    
+                    this.recentActivity = [
+                        {
+                            id: 1,
+                            description: 'Nuevo lead registrado: María García',
+                            time: 'Hace 2 horas'
+                        }
+                    ];
+                    
+                    this.notifications = [
+                        {
+                            id: 1,
+                            title: 'Nuevo Lead',
+                            message: 'María García se ha registrado',
+                            time: 'Hace 2 horas',
+                            icon: 'fas fa-user-plus'
+                        }
+                    ];
+                },
+                
+                async addLead() {
+                    try {
+                        const response = await fetch(`/api/client/${this.clientId}/leads`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                name: this.newLead.name,
+                                email: this.newLead.email,
+                                phone: this.newLead.phone,
+                                company: this.newLead.company,
+                                notes: this.newLead.notes,
+                                source: 'manual'
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            
+                            // Añadir el nuevo lead a la lista
+                            const newLead = {
+                                id: result.id,
+                                ...this.newLead,
+                                status: 'new',
+                                created_at: new Date().toISOString()
+                            };
+                            
+                            this.leads.unshift(newLead);
+                            
+                            // Limpiar formulario
+                            this.newLead = {
+                                name: '',
+                                email: '',
+                                phone: '',
+                                company: '',
+                                notes: ''
+                            };
+                            this.showAddLeadModal = false;
+                            
+                            // Actualizar estadísticas
+                            await this.loadData();
+                        } else {
+                            const error = await response.json();
+                            alert(`Error: ${error.error}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al crear el lead');
+                    }
+                },
+                
+                async deleteLead(id) {
+                    if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
+                        try {
+                            const response = await fetch(`/api/client/${this.clientId}/leads/${id}`, {
+                                method: 'DELETE'
+                            });
+                            
+                            if (response.ok) {
+                                this.leads = this.leads.filter(l => l.id !== id);
+                                await this.loadData(); // Recargar estadísticas
+                            } else {
+                                const error = await response.json();
+                                alert(`Error: ${error.error}`);
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error al eliminar el lead');
+                        }
+                    }
+                },
+                
+                getLeadStatusClass(status) {
+                    const classes = {
+                        'new': 'bg-blue-100 text-blue-800',
+                        'contacted': 'bg-yellow-100 text-yellow-800',
+                        'qualified': 'bg-orange-100 text-orange-800',
+                        'converted': 'bg-green-100 text-green-800',
+                        'lost': 'bg-red-100 text-red-800'
+                    };
+                    return classes[status] || 'bg-gray-100 text-gray-800';
+                },
+                
+                formatDate(dateString) {
+                    if (!dateString) return '';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                },
+                
+                viewLead(id) {
+                    console.log('Ver lead:', id);
+                },
+                
+                editLead(id) {
+                    console.log('Editar lead:', id);
+                },
+                
+                async toggleAutomation(id) {
+                    try {
+                        const automation = this.automations.find(a => a.id === id);
+                        if (!automation) return;
+                        
+                        const response = await fetch(`/api/client/${this.clientId}/automations/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                active: !automation.active
+                            })
+                        });
+                        
+                        if (response.ok) {
+                            automation.active = !automation.active;
+                        } else {
+                            const error = await response.json();
+                            alert(`Error: ${error.error}`);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al actualizar la automatización');
+                    }
+                },
+                
+                viewAutomation(id) {
+                    console.log('Ver automatización:', id);
+                },
+                
+                formatRelativeTime(dateString) {
+                    if (!dateString) return '';
+                    
+                    const date = new Date(dateString);
+                    const now = new Date();
+                    const diffMs = now - date;
+                    const diffMins = Math.floor(diffMs / 60000);
+                    const diffHours = Math.floor(diffMs / 3600000);
+                    const diffDays = Math.floor(diffMs / 86400000);
+                    
+                    if (diffMins < 1) return 'Ahora';
+                    if (diffMins < 60) return `Hace ${diffMins} min`;
+                    if (diffHours < 24) return `Hace ${diffHours} horas`;
+                    if (diffDays < 7) return `Hace ${diffDays} días`;
+                    
+                    return date.toLocaleDateString('es-ES');
+                },
+                
+                logout() {
+                    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                        window.location.href = '/';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - DesArroyo.Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition { transition: all 0.3s ease; }
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="dashboardData()">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 sidebar-transition" 
+         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+        <div class="flex items-center justify-between h-16 px-6 bg-blue-950">
+            <div class="flex items-center">
+                <i class="fas fa-rocket text-white text-xl mr-3"></i>
+                <span class="text-white font-bold text-lg">DesArroyo.Tech</span>
+            </div>
+            <button @click="sidebarOpen = false" class="text-white lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="mt-6 px-4">
+            <div class="space-y-2">
+                <a href="#" @click="activeTab = 'overview'" 
+                   :class="activeTab === 'overview' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-chart-line mr-3"></i>
+                    <span>Visión General</span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'clients'" 
+                   :class="activeTab === 'clients' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-users mr-3"></i>
+                    <span>Clientes</span>
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full" x-text="clients.length"></span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'projects'" 
+                   :class="activeTab === 'projects' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-project-diagram mr-3"></i>
+                    <span>Proyectos</span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'analytics'" 
+                   :class="activeTab === 'analytics' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-chart-bar mr-3"></i>
+                    <span>Analíticas</span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'automations'" 
+                   :class="activeTab === 'automations' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-robot mr-3"></i>
+                    <span>Automatizaciones</span>
+                </a>
+                
+                <a href="#" @click="activeTab = 'settings'" 
+                   :class="activeTab === 'settings' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span>Configuración</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="flex items-center justify-between h-16 px-6">
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = true" class="text-gray-500 lg:hidden mr-4">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-900" x-text="getTabTitle()"></h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button @click="notificationsOpen = !notificationsOpen" class="relative p-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" x-text="notifications.length"></span>
+                        </button>
+                        
+                        <!-- Notifications Dropdown -->
+                        <div x-show="notificationsOpen" @click.away="notificationsOpen = false" 
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold mb-3">Notificaciones</h3>
+                                <div class="space-y-3 max-h-64 overflow-y-auto">
+                                    <template x-for="notification in notifications" :key="notification.id">
+                                        <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                            <i :class="notification.icon" class="text-blue-500 mt-1"></i>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium" x-text="notification.title"></p>
+                                                <p class="text-xs text-gray-600" x-text="notification.message"></p>
+                                                <p class="text-xs text-gray-400 mt-1" x-text="notification.time"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <img src="https://via.placeholder.com/32x32" alt="Admin" class="w-8 h-8 rounded-full">
+                        <span class="text-gray-700 font-medium">Alberto Arroyo</span>
+                        <button @click="logout()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="p-6">
+            <!-- Overview Tab -->
+            <div x-show="activeTab === 'overview'" class="space-y-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-lg">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Clientes</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="clients.length"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-lg">
+                                <i class="fas fa-project-diagram text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Proyectos Activos</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="projects.filter(p => p.status === 'active').length"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-yellow-100 rounded-lg">
+                                <i class="fas fa-euro-sign text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Ingresos Mensuales</p>
+                                <p class="text-2xl font-bold text-gray-900">€<span x-text="monthlyRevenue"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-lg">
+                                <i class="fas fa-robot text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Automatizaciones</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="automations.length"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Actividad Reciente</h3>
+                        <div class="space-y-4">
+                            <template x-for="activity in recentActivity" :key="activity.id">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                    <div class="flex-1">
+                                        <p class="text-sm" x-text="activity.description"></p>
+                                        <p class="text-xs text-gray-500" x-text="activity.time"></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Clientes Recientes</h3>
+                        <div class="space-y-4">
+                            <template x-for="client in recentClients" :key="client.id">
+                                <div class="flex items-center space-x-3">
+                                    <img :src="client.avatar" :alt="client.name" class="w-10 h-10 rounded-full">
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium" x-text="client.name"></p>
+                                        <p class="text-xs text-gray-500" x-text="client.project"></p>
+                                    </div>
+                                    <span :class="client.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" 
+                                          class="px-2 py-1 text-xs rounded-full" x-text="client.status"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div x-show="activeTab === 'clients'" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">Gestión de Clientes</h2>
+                    <button @click="showAddClientModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>Nuevo Cliente
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="p-6 border-b">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-1">
+                                <input type="text" placeholder="Buscar clientes..." 
+                                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <select class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>Todos los estados</option>
+                                <option>Activo</option>
+                                <option>Inactivo</option>
+                                <option>Pendiente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Actividad</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="client in clients" :key="client.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <img :src="client.avatar" :alt="client.name" class="w-10 h-10 rounded-full">
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900" x-text="client.name"></div>
+                                                    <div class="text-sm text-gray-500" x-text="client.email"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" x-text="client.project"></div>
+                                            <div class="text-sm text-gray-500" x-text="client.domain"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span :class="getStatusClass(client.status)" 
+                                                  class="px-2 py-1 text-xs font-medium rounded-full" 
+                                                  x-text="client.status"></span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="client.lastActivity"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <button @click="viewClient(client.id)" class="text-blue-600 hover:text-blue-900">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button @click="editClient(client.id)" class="text-green-600 hover:text-green-900">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button @click="deleteClient(client.id)" class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div x-show="activeTab === 'projects'" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">Proyectos</h2>
+                    <button @click="showAddProjectModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>Nuevo Proyecto
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="project in projects" :key="project.id">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold" x-text="project.name"></h3>
+                                <span :class="getStatusClass(project.status)" 
+                                      class="px-2 py-1 text-xs font-medium rounded-full" 
+                                      x-text="project.status"></span>
+                            </div>
+                            <p class="text-gray-600 mb-4" x-text="project.description"></p>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Cliente:</span>
+                                    <span x-text="project.client"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Dominio:</span>
+                                    <span x-text="project.domain"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Progreso:</span>
+                                    <span x-text="project.progress + '%'"></span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" :style="`width: ${project.progress}%`"></div>
+                            </div>
+                            <div class="flex justify-between mt-4">
+                                <button @click="viewProject(project.id)" class="text-blue-600 hover:text-blue-900 text-sm">
+                                    <i class="fas fa-eye mr-1"></i>Ver
+                                </button>
+                                <button @click="editProject(project.id)" class="text-green-600 hover:text-green-900 text-sm">
+                                    <i class="fas fa-edit mr-1"></i>Editar
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div x-show="activeTab === 'analytics'" class="space-y-6">
+                <h2 class="text-2xl font-bold">Analíticas</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Ingresos Mensuales</h3>
+                        <canvas id="revenueChart" width="400" height="200"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 class="text-lg font-semibold mb-4">Nuevos Clientes</h3>
+                        <canvas id="clientsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automations Tab -->
+            <div x-show="activeTab === 'automations'" class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">Automatizaciones</h2>
+                    <button @click="showAddAutomationModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>Nueva Automatización
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="automation in automations" :key="automation.id">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i :class="automation.icon" class="text-2xl text-blue-600 mr-3"></i>
+                                    <h3 class="text-lg font-semibold" x-text="automation.name"></h3>
+                                </div>
+                                <span :class="automation.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" 
+                                      class="px-2 py-1 text-xs font-medium rounded-full" 
+                                      x-text="automation.active ? 'Activo' : 'Inactivo'"></span>
+                            </div>
+                            <p class="text-gray-600 mb-4" x-text="automation.description"></p>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Cliente:</span>
+                                    <span x-text="automation.client"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-500">Ejecuciones:</span>
+                                    <span x-text="automation.executions"></span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between">
+                                <button @click="toggleAutomation(automation.id)" 
+                                        :class="automation.active ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'"
+                                        class="text-sm">
+                                    <i :class="automation.active ? 'fas fa-pause' : 'fas fa-play'" class="mr-1"></i>
+                                    <span x-text="automation.active ? 'Pausar' : 'Activar'"></span>
+                                </button>
+                                <button @click="viewAutomation(automation.id)" class="text-blue-600 hover:text-blue-900 text-sm">
+                                    <i class="fas fa-eye mr-1"></i>Ver
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div x-show="activeTab === 'settings'" class="space-y-6">
+                <h2 class="text-2xl font-bold">Configuración</h2>
+                <div class="bg-white p-6 rounded-lg shadow-sm border">
+                    <h3 class="text-lg font-semibold mb-4">Configuración General</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Empresa</label>
+                            <input type="text" value="DesArroyo.Tech" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email de Contacto</label>
+                            <input type="email" value="alberto@desarroyo.tech" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dominio Principal</label>
+                            <input type="text" value="desarroyo.tech" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Client Modal -->
+    <div x-show="showAddClientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">Nuevo Cliente</h3>
+            <form @submit.prevent="addClient()">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                        <input type="text" x-model="newClient.name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" x-model="newClient.email" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Proyecto</label>
+                        <input type="text" x-model="newClient.project" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dominio</label>
+                        <input type="text" x-model="newClient.domain" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" @click="showAddClientModal = false" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Crear Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function dashboardData() {
+            return {
+                sidebarOpen: false,
+                activeTab: 'overview',
+                notificationsOpen: false,
+                showAddClientModal: false,
+                showAddProjectModal: false,
+                showAddAutomationModal: false,
+                
+                // Data
+                clients: [
+                    {
+                        id: 1,
+                        name: 'Juan Pérez',
+                        email: 'juan@ejemplo.com',
+                        project: 'Web de Restaurante',
+                        domain: 'restaurantejuan.com',
+                        status: 'active',
+                        lastActivity: 'Hace 2 horas',
+                        avatar: 'https://via.placeholder.com/40x40'
+                    },
+                    {
+                        id: 2,
+                        name: 'María García',
+                        email: 'maria@ejemplo.com',
+                        project: 'E-commerce',
+                        domain: 'tiendamaria.com',
+                        status: 'pending',
+                        lastActivity: 'Hace 1 día',
+                        avatar: 'https://via.placeholder.com/40x40'
+                    }
+                ],
+                
+                projects: [
+                    {
+                        id: 1,
+                        name: 'Web de Restaurante',
+                        description: 'Sitio web completo para restaurante con reservas online',
+                        client: 'Juan Pérez',
+                        domain: 'restaurantejuan.com',
+                        status: 'active',
+                        progress: 85
+                    },
+                    {
+                        id: 2,
+                        name: 'E-commerce',
+                        description: 'Tienda online con pasarela de pagos',
+                        client: 'María García',
+                        domain: 'tiendamaria.com',
+                        status: 'pending',
+                        progress: 45
+                    }
+                ],
+                
+                automations: [
+                    {
+                        id: 1,
+                        name: 'Email de Bienvenida',
+                        description: 'Envío automático de email de bienvenida a nuevos clientes',
+                        client: 'Juan Pérez',
+                        active: true,
+                        executions: 156,
+                        icon: 'fas fa-envelope'
+                    },
+                    {
+                        id: 2,
+                        name: 'Notificaciones WhatsApp',
+                        description: 'Notificaciones automáticas por WhatsApp para reservas',
+                        client: 'María García',
+                        active: false,
+                        executions: 23,
+                        icon: 'fab fa-whatsapp'
+                    }
+                ],
+                
+                recentActivity: [
+                    {
+                        id: 1,
+                        description: 'Nuevo cliente registrado: Juan Pérez',
+                        time: 'Hace 2 horas'
+                    },
+                    {
+                        id: 2,
+                        description: 'Proyecto "E-commerce" actualizado al 45%',
+                        time: 'Hace 1 día'
+                    },
+                    {
+                        id: 3,
+                        description: 'Automatización "Email de Bienvenida" ejecutada 156 veces',
+                        time: 'Hace 2 días'
+                    }
+                ],
+                
+                recentClients: [
+                    {
+                        id: 1,
+                        name: 'Juan Pérez',
+                        project: 'Web de Restaurante',
+                        status: 'active',
+                        avatar: 'https://via.placeholder.com/40x40'
+                    },
+                    {
+                        id: 2,
+                        name: 'María García',
+                        project: 'E-commerce',
+                        status: 'pending',
+                        avatar: 'https://via.placeholder.com/40x40'
+                    }
+                ],
+                
+                notifications: [
+                    {
+                        id: 1,
+                        title: 'Nuevo Cliente',
+                        message: 'Juan Pérez se ha registrado',
+                        time: 'Hace 2 horas',
+                        icon: 'fas fa-user-plus'
+                    },
+                    {
+                        id: 2,
+                        title: 'Pago Recibido',
+                        message: 'Pago de €299 recibido de María García',
+                        time: 'Hace 1 día',
+                        icon: 'fas fa-euro-sign'
+                    }
+                ],
+                
+                newClient: {
+                    name: '',
+                    email: '',
+                    project: '',
+                    domain: ''
+                },
+                
+                monthlyRevenue: 2499,
+                
+                // Methods
+                getTabTitle() {
+                    const titles = {
+                        'overview': 'Visión General',
+                        'clients': 'Gestión de Clientes',
+                        'projects': 'Proyectos',
+                        'analytics': 'Analíticas',
+                        'automations': 'Automatizaciones',
+                        'settings': 'Configuración'
+                    };
+                    return titles[this.activeTab] || 'Dashboard';
+                },
+                
+                getStatusClass(status) {
+                    const classes = {
+                        'active': 'bg-green-100 text-green-800',
+                        'pending': 'bg-yellow-100 text-yellow-800',
+                        'inactive': 'bg-gray-100 text-gray-800'
+                    };
+                    return classes[status] || 'bg-gray-100 text-gray-800';
+                },
+                
+                addClient() {
+                    const client = {
+                        id: this.clients.length + 1,
+                        ...this.newClient,
+                        status: 'pending',
+                        lastActivity: 'Ahora',
+                        avatar: 'https://via.placeholder.com/40x40'
+                    };
+                    this.clients.push(client);
+                    this.newClient = { name: '', email: '', project: '', domain: '' };
+                    this.showAddClientModal = false;
+                },
+                
+                viewClient(id) {
+                    console.log('Ver cliente:', id);
+                },
+                
+                editClient(id) {
+                    console.log('Editar cliente:', id);
+                },
+                
+                deleteClient(id) {
+                    if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
+                        this.clients = this.clients.filter(c => c.id !== id);
+                    }
+                },
+                
+                viewProject(id) {
+                    console.log('Ver proyecto:', id);
+                },
+                
+                editProject(id) {
+                    console.log('Editar proyecto:', id);
+                },
+                
+                toggleAutomation(id) {
+                    const automation = this.automations.find(a => a.id === id);
+                    if (automation) {
+                        automation.active = !automation.active;
+                    }
+                },
+                
+                viewAutomation(id) {
+                    console.log('Ver automatización:', id);
+                },
+                
+                logout() {
+                    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                        window.location.href = '/';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
