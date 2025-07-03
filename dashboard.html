@@ -14,9 +14,21 @@
     </style>
 </head>
 <body class="bg-gray-50" x-data="dashboardData()">
-    <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 sidebar-transition lg:translate-x-0" 
-         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+    <!-- Loading Screen -->
+    <div x-show="!authenticated" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Verificando acceso...</h2>
+            <p class="text-gray-500">Por favor espera un momento</p>
+        </div>
+    </div>
+    <!-- Dashboard Content (Solo visible cuando está autenticado) -->
+    <div x-show="authenticated" style="display: none;">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 sidebar-transition lg:translate-x-0" 
+             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         <div class="flex items-center justify-between h-16 px-6 bg-blue-950">
             <div class="flex items-center">
                 <i class="fas fa-rocket text-white text-xl mr-3"></i>
@@ -431,6 +443,9 @@
             </div>
         </main>
     </div>
+    
+    <!-- Cerrar div de autenticación -->
+    </div>
 
     <!-- Add Client Modal -->
     <div x-show="showAddClientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -467,15 +482,61 @@
         </div>
     </div>
 
+    <!-- Edit Client Modal -->
+    <div x-show="showEditClientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold mb-4">Editar Cliente</h3>
+            <form @submit.prevent="updateClient()">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                        <input type="text" x-model="editingClient.name" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" x-model="editingClient.email" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Proyecto</label>
+                        <input type="text" x-model="editingClient.project" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dominio</label>
+                        <input type="text" x-model="editingClient.domain" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                        <select x-model="editingClient.status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="active">Activo</option>
+                            <option value="pending">Pendiente</option>
+                            <option value="inactive">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" @click="showEditClientModal = false; editingClient = null" class="px-4 py-2 text-gray-600 hover:text-gray-800">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Actualizar Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         function dashboardData() {
             return {
                 sidebarOpen: window.innerWidth >= 1024, // Abierto por defecto en pantallas grandes (lg)
                 activeTab: 'overview',
+                authenticated: false,
                 notificationsOpen: false,
                 showAddClientModal: false,
+                showEditClientModal: false,
                 showAddProjectModal: false,
                 showAddAutomationModal: false,
+                editingClient: null,
                 
                 // Data
                 clients: [
@@ -606,6 +667,9 @@
                 
                 // Initialize
                 init() {
+                    // Verificar autenticación al cargar
+                    this.checkAuth();
+                    
                     // Escuchar cambios en el tamaño de ventana
                     window.addEventListener('resize', () => {
                         if (window.innerWidth >= 1024) {
@@ -613,6 +677,41 @@
                         } else {
                             this.sidebarOpen = false; // Ocultar sidebar en pantallas pequeñas
                         }
+                    });
+                },
+                
+                // Verificar autenticación
+                checkAuth() {
+                    const token = localStorage.getItem('dashboard_token');
+                    const user = localStorage.getItem('dashboard_user');
+                    
+                    if (!token || !user) {
+                        // No hay token, redirigir a login
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                    
+                    // Verificar si el token es válido haciendo una petición a la API
+                    fetch('/api/dashboard/overview', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Token inválido');
+                        }
+                        this.authenticated = true;
+                        // Cargar datos del dashboard una vez autenticado
+                        this.loadDashboardData();
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error('Error de autenticación:', error);
+                        // Token inválido, limpiar y redirigir
+                        localStorage.removeItem('dashboard_token');
+                        localStorage.removeItem('dashboard_user');
+                        window.location.href = '/login.html';
                     });
                 },
                 
@@ -638,30 +737,139 @@
                     return classes[status] || 'bg-gray-100 text-gray-800';
                 },
                 
-                addClient() {
-                    const client = {
-                        id: this.clients.length + 1,
-                        ...this.newClient,
-                        status: 'pending',
-                        lastActivity: 'Ahora',
-                        avatar: 'https://via.placeholder.com/40x40'
-                    };
-                    this.clients.push(client);
-                    this.newClient = { name: '', email: '', project: '', domain: '' };
-                    this.showAddClientModal = false;
+                async addClient() {
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+                    
+                    try {
+                        const response = await fetch('/api/dashboard/clients', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                name: this.newClient.name,
+                                email: this.newClient.email,
+                                project_name: this.newClient.project,
+                                domain: this.newClient.domain
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Añadir cliente a la lista local
+                            const newClient = {
+                                id: data.id,
+                                name: this.newClient.name,
+                                email: this.newClient.email,
+                                project: this.newClient.project,
+                                domain: this.newClient.domain,
+                                status: 'pending',
+                                lastActivity: 'Ahora',
+                                avatar: 'https://via.placeholder.com/40x40'
+                            };
+                            this.clients.push(newClient);
+                            
+                            // Limpiar formulario y cerrar modal
+                            this.newClient = { name: '', email: '', project: '', domain: '' };
+                            this.showAddClientModal = false;
+                            
+                            alert('Cliente creado exitosamente');
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error creando cliente:', error);
+                        alert('Error de conexión');
+                    }
                 },
                 
                 viewClient(id) {
-                    console.log('Ver cliente:', id);
+                    const client = this.clients.find(c => c.id === id);
+                    if (client) {
+                        alert(`Cliente: ${client.name}\nEmail: ${client.email}\nProyecto: ${client.project}\nDominio: ${client.domain}\nEstado: ${client.status}`);
+                    }
                 },
                 
                 editClient(id) {
-                    console.log('Editar cliente:', id);
+                    const client = this.clients.find(c => c.id === id);
+                    if (client) {
+                        this.editingClient = { ...client };
+                        this.showEditClientModal = true;
+                    }
                 },
                 
-                deleteClient(id) {
-                    if (confirm('¿Estás seguro de que quieres eliminar este cliente?')) {
-                        this.clients = this.clients.filter(c => c.id !== id);
+                async updateClient() {
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token || !this.editingClient) return;
+                    
+                    try {
+                        const response = await fetch(`/api/dashboard/clients/${this.editingClient.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                name: this.editingClient.name,
+                                email: this.editingClient.email,
+                                project_name: this.editingClient.project,
+                                domain: this.editingClient.domain,
+                                status: this.editingClient.status
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Actualizar cliente en la lista local
+                            const index = this.clients.findIndex(c => c.id === this.editingClient.id);
+                            if (index !== -1) {
+                                this.clients[index] = { ...this.editingClient };
+                            }
+                            
+                            // Cerrar modal
+                            this.showEditClientModal = false;
+                            this.editingClient = null;
+                            
+                            alert('Cliente actualizado exitosamente');
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error actualizando cliente:', error);
+                        alert('Error de conexión');
+                    }
+                },
+                
+                async deleteClient(id) {
+                    if (!confirm('¿Estás seguro de que quieres eliminar este cliente?')) return;
+                    
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+                    
+                    try {
+                        const response = await fetch(`/api/dashboard/clients/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            // Remover cliente de la lista local
+                            this.clients = this.clients.filter(c => c.id !== id);
+                            alert('Cliente eliminado exitosamente');
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error eliminando cliente:', error);
+                        alert('Error de conexión');
                     }
                 },
                 
@@ -684,9 +892,42 @@
                     console.log('Ver automatización:', id);
                 },
                 
+                async loadDashboardData() {
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+                    
+                    try {
+                        // Cargar clientes reales
+                        const clientsResponse = await fetch('/api/dashboard/clients', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        
+                        if (clientsResponse.ok) {
+                            const clientsData = await clientsResponse.json();
+                            this.clients = clientsData.map(client => ({
+                                id: client.id,
+                                name: client.name,
+                                email: client.email,
+                                project: client.project_name || client.project,
+                                domain: client.domain,
+                                status: client.status,
+                                lastActivity: new Date(client.updated_at).toLocaleDateString(),
+                                avatar: 'https://via.placeholder.com/40x40'
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('Error cargando datos del dashboard:', error);
+                    }
+                },
+                
                 logout() {
                     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-                        window.location.href = '/';
+                        // Limpiar tokens del localStorage
+                        localStorage.removeItem('dashboard_token');
+                        localStorage.removeItem('dashboard_user');
+                        
+                        // Redirigir al login
+                        window.location.href = '/login.html';
                     }
                 }
             }

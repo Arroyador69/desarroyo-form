@@ -255,9 +255,22 @@ IMPORTANTE: Si el usuario pregunta sobre precios específicos o proyectos comple
 
 // ===== RUTAS DEL DASHBOARD =====
 
-// Ruta del dashboard
+// Ruta del dashboard - PROTEGIDA
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard.html'));
+    // Redirigir al login si no hay token en las cookies/headers
+    const token = req.headers.authorization || req.query.token;
+    
+    if (!token) {
+        return res.redirect('/login.html');
+    }
+    
+    // Verificar token
+    jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET || 'desarroyo-secret-key', (err, user) => {
+        if (err) {
+            return res.redirect('/login.html');
+        }
+        res.sendFile(path.join(__dirname, 'dashboard.html'));
+    });
 });
 
 // Ruta del login
