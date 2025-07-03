@@ -15,8 +15,8 @@
 </head>
 <body class="bg-gray-50" x-data="dashboardData()">
     <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 sidebar-transition" 
-         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-900 to-blue-800 sidebar-transition lg:translate-x-0" 
+         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
         <div class="flex items-center justify-between h-16 px-6 bg-blue-950">
             <div class="flex items-center">
                 <i class="fas fa-rocket text-white text-xl mr-3"></i>
@@ -470,7 +470,7 @@
     <script>
         function dashboardData() {
             return {
-                sidebarOpen: false,
+                sidebarOpen: window.innerWidth >= 1024, // Abierto por defecto en pantallas grandes (lg)
                 activeTab: 'overview',
                 notificationsOpen: false,
                 showAddClientModal: false,
@@ -603,6 +603,18 @@
                 },
                 
                 monthlyRevenue: 2499,
+                
+                // Initialize
+                init() {
+                    // Escuchar cambios en el tamaño de ventana
+                    window.addEventListener('resize', () => {
+                        if (window.innerWidth >= 1024) {
+                            this.sidebarOpen = true; // Mostrar sidebar en pantallas grandes
+                        } else {
+                            this.sidebarOpen = false; // Ocultar sidebar en pantallas pequeñas
+                        }
+                    });
+                },
                 
                 // Methods
                 getTabTitle() {
