@@ -65,6 +65,9 @@ let isProcessing = false;
 let retryCount = 0;
 const maxRetries = 3;
 
+// Variable para controlar si es la primera interacción
+let isFirstInteraction = true;
+
 // 3. Funciones Mejoradas
 
 // Función para cargar el límite de consultas del usuario
@@ -313,12 +316,11 @@ async function handleUserInput(userInput) {
     // Mostrar la respuesta del bot
     addMessage(botResponse, 'bot-message', true);
     
-    // Añadir botones de sugerencia (si no es premium)
-    if (!userLimitInfo.isPremium) {
-        setTimeout(() => {
-            addQuickReplies();
-        }, 500);
-    }
+    // Marcar que ya no es la primera interacción
+    isFirstInteraction = false;
+    
+    // NO añadir botones de sugerencia después de la primera interacción
+    // (las opciones rápidas solo aparecen al abrir el chat por primera vez)
 }
 
 // Función para añadir mensajes al chat (mantener la existente)
@@ -370,8 +372,8 @@ async function initializeChat() {
     
     addMessage("¡Hola! Soy Aura, tu asistente personal de DesArroyo.Tech. ¿En qué puedo ayudarte?", 'bot-message', true);
     
-    // Mostrar opciones rápidas solo a usuarios no premium
-    if (!userLimitInfo.isPremium) {
+    // Mostrar opciones rápidas solo la primera vez que se abre el chat
+    if (isFirstInteraction) {
         addQuickReplies();
     }
 }
@@ -424,6 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (chatWidget.classList.contains('open') && chatBody.children.length === 0) {
                 console.log('🚀 Inicializando chat por primera vez...');
+                // Resetear la variable para mostrar opciones al abrir el chat
+                isFirstInteraction = true;
                 await initializeChat();
             }
             
