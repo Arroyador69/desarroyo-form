@@ -1,4 +1,12 @@
+# Dependencias existentes
+express
+bcryptjs
+jsonwebtoken
+cors
+helmet
+
+# Nuevas dependencias para scraping gratuito
 requests==2.31.0
 beautifulsoup4==4.12.2
-selenium==4.18.1
-webdriver-manager==4.0.1 
+lxml==4.9.3
+selenium==4.15.0 
