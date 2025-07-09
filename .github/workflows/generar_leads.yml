@@ -91,3 +91,4 @@ jobs:
         echo "🎉 Sistema de leads ejecutado correctamente"
         echo "⏰ Fecha: $(date)"
         echo "🎯 Próxima ejecución en 6 horas" 
+        echo "🚀 SISTEMA ACTUALIZADO CON NUEVOS PRECIOS Y VALIDACIÓN" 
