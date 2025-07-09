@@ -21,18 +21,23 @@
       }
     }
   ],
+  "functions": {
+    "scripts/webhook_respuestas.py": {
+      "runtime": "python3.11"
+    }
+  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "src": "/webhook/whatsapp",
+      "dest": "/scripts/webhook_respuestas.py"
     },
     {
-      "src": "/dashboard",
-      "dest": "/server.js"
+      "src": "/webhook/encuesta", 
+      "dest": "/scripts/webhook_respuestas.py"
     },
     {
-      "src": "/login.html",
-      "dest": "/login.html"
+      "src": "/health",
+      "dest": "/scripts/webhook_respuestas.py"
     },
     {
       "src": "/(.*)",
@@ -40,7 +45,14 @@
     }
   ],
   "env": {
-    "ADMIN_PASSWORD": "DesArroyo2024!",
-    "JWT_SECRET": "DesArroyo-JWT-Secret-Key-2024-Ultra-Secure"
+    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
+    "TWILIO_AUTH_TOKEN": "@twilio_auth_token", 
+    "TWILIO_WHATSAPP_NUMBER": "@twilio_whatsapp_number",
+    "DEEPSEEK_API_KEY": "@deepseek_api_key",
+    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
+    "TELEGRAM_CHAT_ID": "@telegram_chat_id",
+    "WEBSITE_URL": "https://desarroyo.tech",
+    "BUSINESS_NAME": "DesArroyo Tech",
+    "YOUR_NAME": "Alberto"
   }
 } 
