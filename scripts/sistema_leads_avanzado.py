@@ -50,72 +50,150 @@ class SistemaLeadsAvanzado:
         self.plantillas_sector = self.cargar_plantillas_sector()
     
     def cargar_plantillas_sector(self):
-        """Plantillas personalizadas por sector para mayor conversión"""
+        """Plantillas profesionales orientadas a venta y conversión"""
         return {
             'restaurantes': {
-                'mensaje_inicial': """¡Hola! Soy {your_name} de {business_name} 👋
+                'mensaje_inicial': """Buenos días,
 
-He visto {restaurant_name} y me encanta el concepto. ¿Has pensado en tener una página web que muestre tu carta y permita reservas online?
+Soy {your_name} de {business_name}, especialistas en desarrollo web para restaurantes.
 
-Los restaurantes con web profesional consiguen 40% más reservas. ¿Te interesa saber cómo?""",
-                'beneficios': ['Reservas online 24/7', 'Carta digital actualizable', 'Pedidos a domicilio', 'Reseñas de clientes'],
-                'urgencia': 'Los clientes buscan restaurantes online antes de salir de casa',
-                'precio_ref': '299€'
+He analizado la presencia digital de {restaurant_name} y veo una gran oportunidad de crecimiento.
+
+✅ Creamos su web profesional en máximo 48 horas
+✅ Sistema de reservas online 24/7  
+✅ Carta digital y pedidos a domicilio
+✅ Aumentamos sus ventas hasta un 40%
+
+Los restaurantes con web profesional facturan significativamente más que la competencia.
+
+¿Le interesaría una propuesta personalizada? Le envío una breve encuesta (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Saludos cordiales,
+{your_name} - {business_name}""",
+                'beneficios': ['Reservas online 24/7', 'Carta digital actualizable', 'Pedidos a domicilio', 'Mayor facturación'],
+                'urgencia': 'Sus competidores ya están captando clientes online',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             },
             
             'peluquerias': {
-                'mensaje_inicial': """¡Hola! Soy {your_name} de {business_name} ✨
+                'mensaje_inicial': """Buenos días,
 
-Vi {salon_name} y me parece un salón estupendo. ¿Sabías que las peluquerías con página web consiguen 60% más citas?
+Soy {your_name} de {business_name}, especialistas en webs para salones de belleza.
 
-Te ayudo a crear una web donde tus clientes puedan ver trabajos, precios y reservar cita online. ¿Hablamos?""",
-                'beneficios': ['Reservas online', 'Galería de trabajos', 'Lista de precios', 'Recordatorios automáticos'],
-                'urgencia': 'Tus competidores ya están captando clientes online',
-                'precio_ref': '249€'
+He visto {salon_name} y detectamos una oportunidad de negocio importante.
+
+✅ Web profesional lista en máximo 48 horas
+✅ Sistema de reservas automático
+✅ Galería de trabajos que convence
+✅ Hasta 60% más citas confirmadas
+
+Las peluquerías con presencia digital profesional multiplican sus reservas.
+
+¿Le interesa conocer nuestra propuesta? Encuesta rápida (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Saludos,
+{your_name} - {business_name}""",
+                'beneficios': ['Reservas automáticas', 'Galería profesional', 'Más citas', 'Presencia digital'],
+                'urgencia': 'Sus clientes buscan peluquerías online antes de reservar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             },
             
             'dentistas': {
-                'mensaje_inicial': """¡Hola Dr/Dra! Soy {your_name} de {business_name} 🦷
+                'mensaje_inicial': """Estimado Dr./Dra.,
 
-He visto {clinic_name} y me preguntaba si habían considerado una página web profesional para captar más pacientes.
+Soy {your_name} de {business_name}, especialistas en desarrollo web para clínicas dentales.
 
-Las clínicas con web consiguen 3x más pacientes nuevos. ¿Le interesaría una propuesta personalizada?""",
-                'beneficios': ['Más pacientes nuevos', 'Citas online', 'Información de tratamientos', 'Confianza profesional'],
-                'urgencia': 'Los pacientes buscan dentistas de confianza online',
-                'precio_ref': '399€'
+He analizado la presencia online de {clinic_name} y veo potencial para captar más pacientes.
+
+✅ Web médica profesional en máximo 48 horas
+✅ Sistema de citas online integrado
+✅ Información completa de tratamientos  
+✅ Hasta 3x más pacientes nuevos al mes
+
+Las clínicas con web profesional generan más confianza y captan más pacientes que la competencia.
+
+¿Le interesaría una propuesta personalizada? Encuesta breve (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Atentamente,
+{your_name} - {business_name}""",
+                'beneficios': ['Más pacientes nuevos', 'Citas online', 'Confianza profesional', 'Información tratamientos'],
+                'urgencia': 'Los pacientes eligen dentistas que inspiran confianza online',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             },
             
             'abogados': {
-                'mensaje_inicial': """¡Hola! Soy {your_name} de {business_name} ⚖️
+                'mensaje_inicial': """Estimado/a Letrado/a,
 
-He visto {law_firm_name} y me preguntaba si habían pensado en una web profesional para captar más clientes.
+Soy {your_name} de {business_name}, especialistas en desarrollo web para despachos de abogados.
 
-Los despachos con presencia online consiguen 5x más consultas. ¿Le interesa una propuesta?""",
-                'beneficios': ['Más consultas', 'Credibilidad profesional', 'Especialidades claras', 'Contacto directo'],
-                'urgencia': 'Los clientes buscan abogados online antes de decidir',
-                'precio_ref': '499€'
+He analizado la presencia digital de {law_firm_name} y veo oportunidades importantes de captación.
+
+✅ Web jurídica profesional en máximo 48 horas
+✅ Especialidades claramente definidas
+✅ Formulario de contacto optimizado
+✅ Hasta 5x más consultas cualificadas
+
+Los despachos con presencia digital profesional captan más clientes de calidad.
+
+¿Le interesaría conocer nuestra propuesta? Encuesta rápida (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Saludos profesionales,
+{your_name} - {business_name}""",
+                'beneficios': ['Más consultas', 'Credibilidad jurídica', 'Especialidades claras', 'Captación profesional'],
+                'urgencia': 'Los clientes investigan abogados online antes de contactar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             },
             
             'hoteles': {
-                'mensaje_inicial': """¡Hola! Soy {your_name} de {business_name} 🏨
+                'mensaje_inicial': """Buenos días,
 
-Vi {hotel_name} y me parece un alojamiento fantástico. ¿Tienen página web propia para reservas directas?
+Soy {your_name} de {business_name}, especialistas en webs para hoteles independientes.
 
-Los hoteles con web propia ahorran 15-20% en comisiones de booking. ¿Hablamos de cómo conseguirlo?""",
-                'beneficios': ['Reservas sin comisiones', 'Mayor margen', 'Control total', 'Fidelización clientes'],
-                'urgencia': 'Cada reserva por Booking te cuesta 15-20% de comisión',
-                'precio_ref': '599€'
+He analizado {hotel_name} y veo una gran oportunidad para aumentar reservas directas.
+
+✅ Web hotelera profesional en máximo 48 horas
+✅ Sistema de reservas sin comisiones
+✅ Ahorro del 15-20% en costes de booking
+✅ Control total de sus reservas
+
+Los hoteles con web propia aumentan significativamente su rentabilidad.
+
+¿Le interesa conocer cómo? Encuesta personalizada (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Cordialmente,
+{your_name} - {business_name}""",
+                'beneficios': ['Reservas sin comisiones', 'Mayor rentabilidad', 'Control total', 'Más margen'],
+                'urgencia': 'Cada reserva por booking reduce su margen un 15-20%',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             },
             
             'gimnasios': {
-                'mensaje_inicial': """¡Hola! Soy {your_name} de {business_name} 💪
+                'mensaje_inicial': """Buenos días,
 
-He visto {gym_name} y me parece un gimnasio genial. ¿Habían pensado en una web para captar más socios?
+Soy {your_name} de {business_name}, especialistas en webs para centros deportivos.
 
-Los gimnasios con web consiguen 50% más inscripciones. ¿Te enseño cómo?""",
-                'beneficios': ['Más socios', 'Clases online', 'Reserva de clases', 'Planes y precios claros'],
-                'urgencia': 'La gente busca gimnasios online antes de apuntarse',
-                'precio_ref': '349€'
+He analizado {gym_name} y detectamos potencial para conseguir más socios.
+
+✅ Web deportiva profesional en máximo 48 horas
+✅ Sistema de inscripciones online
+✅ Reserva de clases automática
+✅ Hasta 50% más inscripciones
+
+Los gimnasios con presencia digital captan más socios que la competencia tradicional.
+
+¿Le interesa nuestra propuesta? Encuesta rápida (2 minutos):
+{website_url}/generador_automatizaciones.html
+
+Saludos deportivos,
+{your_name} - {business_name}""",
+                'beneficios': ['Más socios', 'Inscripciones online', 'Reservas automáticas', 'Gestión digital'],
+                'urgencia': 'Las personas buscan gimnasios online antes de apuntarse',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             }
         }
     

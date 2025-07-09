@@ -116,22 +116,32 @@ class ManejadorRespuestas:
                 'Content-Type': 'application/json'
             }
             
-            prompt_sistema = f"""Eres {self.your_name} de {self.business_name}, experto en desarrollo web.
+            prompt_sistema = f"""Eres {self.your_name} de {self.business_name}, experto en desarrollo web con 10 años de experiencia.
 
-CONTEXTO: Cliente respondió a nuestra propuesta de página web.
+CONTEXTO: Cliente respondió a nuestra propuesta de web profesional con entrega en 48 horas.
 SECTOR: {contexto.get('sector', 'general')}
 ESTADO CONVERSACIÓN: {contexto.get('estado', 'inicial')}
 
-REGLAS:
-1. Responde como humano, natural y cercano
-2. Si muestra interés → dirige hacia la encuesta de evaluación
-3. Si tiene dudas → resuelve y ofrece más info
-4. Si pregunta precio → menciona "desde 299€" y enfoca en valor
-5. Máximo 2-3 líneas
-6. SIEMPRE incluir una pregunta para continuar conversación
-7. Si está muy interesado → enviar link de encuesta
+TU PERSONALIDAD:
+- Profesional pero cercano
+- Enfocado en resultados y ROI
+- Experto técnico que habla claro
+- Orientado a soluciones
 
-OBJETIVO: Llevar al cliente a completar la encuesta de evaluación."""
+PRECIOS OFICIALES:
+🟢 Plan Rápida: 149€ (1 página, entrega 72h)
+🟡 Plan Escalable: 449€ (hasta 5 páginas, SEO)  
+🔴 Plan Pro Digital: 999€ (hasta 10 páginas, dashboard)
+
+ESTRATEGIA DE VENTA:
+1. Si muestra interés → INMEDIATAMENTE dirigir a encuesta
+2. Si pregunta precio → dar precio específico + destacar valor/ROI
+3. Si tiene objeciones → resolver con casos de éxito
+4. Si es indeciso → crear urgencia (competencia, oportunidades perdidas)
+5. SIEMPRE mencionar "entrega en máximo 48 horas"
+6. SIEMPRE acabar llevando hacia la encuesta
+
+OBJETIVO FINAL: Que complete la encuesta para cerrar venta."""
 
             data = {
                 'model': 'deepseek-chat' if self.deepseek_api_key else 'gpt-4o-mini',
@@ -161,21 +171,31 @@ OBJETIVO: Llevar al cliente a completar la encuesta de evaluación."""
         
         if interes == 'interesado':
             if 'precio' in mensaje_cliente.lower() or 'cuanto' in mensaje_cliente.lower():
-                return f"""¡Perfecto! Los precios van desde 299€ según las necesidades específicas de tu negocio.
+                return f"""Perfecto. Tenemos 3 planes adaptados a cada negocio:
 
-Para darte un presupuesto exacto, ¿podrías completar esta encuesta rápida? Solo 2 minutos:
-{self.website_url}/encuesta-evaluacion
+🟢 **Plan Rápida: 149€** 
+→ 1 página profesional, entrega 72h
 
-¿Te parece bien?"""
+🟡 **Plan Escalable: 449€**
+→ Hasta 5 páginas, animaciones, SEO básico
+
+🔴 **Plan Pro Digital: 999€** 
+→ Hasta 10 páginas, dashboard, integración avanzada
+
+ROI garantizado: Recuperas la inversión en 2-4 semanas con los nuevos clientes.
+
+¿Vemos cuál se adapta mejor a tu negocio?
+{self.website_url}/generador_automatizaciones.html"""
             
             else:
-                return f"""¡Genial que te interese! 🎉
+                return f"""¡Excelente decisión! 🎯
 
-Para ofrecerte la mejor solución, necesito conocer un poco más sobre tu negocio. ¿Puedes completar esta encuesta súper rápida?
+Nuestros clientes ven resultados desde la primera semana. Entrega garantizada en máximo 48 horas.
 
-{self.website_url}/encuesta-evaluacion
+Para hacer tu web perfecta, completa esta encuesta estratégica (2 minutos):
+{self.website_url}/generador_automatizaciones.html
 
-Solo 2 minutos y te hago una propuesta personalizada. ¿Vale?"""
+¿Empezamos ahora?"""
         
         elif interes == 'no_interesado':
             return f"""Lo entiendo perfectamente. 
@@ -185,11 +205,16 @@ Si en algún momento cambias de opinión o conoces a alguien que le pueda intere
 ¡Que tengas un gran día! 😊"""
         
         else:  # neutro o dudas
-            return f"""Entiendo que tengas dudas. Es normal.
+            return f"""Entiendo las dudas, es una decisión importante.
 
-Te explico: creamos páginas web que realmente consiguen más clientes. Nuestros clientes ven resultados desde el primer mes.
+Datos reales: nuestros clientes aumentan sus ventas 40-60% en los primeros 3 meses. Entrega garantizada en 48 horas máximo.
 
-¿Te gustaría ver algunos ejemplos de trabajos que hemos hecho en tu sector?"""
+Casos de éxito en tu sector: restaurantes pasan de 20 a 35 mesas/día, clínicas dentales 3x más citas...
+
+¿Vemos tu caso específico? Encuesta rápida (2 min):
+{self.website_url}/generador_automatizaciones.html
+
+¿Lo hacemos?"""
     
     def enviar_respuesta_whatsapp(self, to_phone, mensaje):
         """Envía respuesta por WhatsApp"""
