@@ -47,6 +47,7 @@ npm run crm                             # Reiniciar todo
 
 ### **🔧 Problemas de Acceso:**
 - 📄 **[INICIO_RAPIDO.md](INICIO_RAPIDO.md)** - Soluciones paso a paso
+- 📄 **[SOLUCION_ERROR_CONEXION.md](SOLUCION_ERROR_CONEXION.md)** - Error backend no responde
 
 ### **🌐 Deployment Online:**
 - 📄 **[DESPLIEGUE_ONLINE.md](DESPLIEGUE_ONLINE.md)** - Cómo ponerlo online
@@ -89,11 +90,17 @@ npm run crm
 
 ## 🆘 **SOLUCIONES RÁPIDAS**
 
-### **❌ No puedo entrar:**
+### **❌ No puedo entrar (local):**
 ```bash
 node scripts/reset-admin-password.js
 npm run crm
 ```
+
+### **❌ Error de conexión (online):**
+1. **Ve a**: https://vercel.com/dashboard
+2. **Verificar**: ¿Tienes proyecto "desarroyo-form"?
+3. **Si NO**: Importar repo desde GitHub
+4. **Si SÍ**: Settings → Domains → Añadir desarroyo.tech
 
 ### **❌ Puerto ocupado:**
 ```bash

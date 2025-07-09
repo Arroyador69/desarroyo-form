@@ -346,46 +346,77 @@ Genera un mensaje de WhatsApp personalizado, amigable y directo que:
         )
     
     def formatear_telefono_espanol(self, phone):
-        """Formatea número español correctamente"""
+        """Formatea número español con validación estricta (Error 63024)"""
+        import re
+        
+        # Limpiar número (solo dígitos)
         phone_clean = re.sub(r'[^\d]', '', phone)
         
-        if phone_clean.startswith('34'):
+        # Si ya tiene +34, validar y devolver limpio
+        if phone.startswith('+34') and len(phone_clean) == 11:
             return f"+{phone_clean}"
-        elif len(phone_clean) == 9 and phone_clean[0] in ['6', '7', '9']:
+        
+        # Si empieza con 34, añadir +
+        if phone_clean.startswith('34') and len(phone_clean) == 11:
+            return f"+{phone_clean}"
+        
+        # Si es móvil español (6,7,9) de 9 dígitos
+        if len(phone_clean) == 9 and phone_clean[0] in ['6', '7', '9']:
             return f"+34{phone_clean}"
-        elif phone.startswith('+'):
-            return phone
-        else:
-            return f"+34{phone_clean}"
+        
+        # Si no coincide con patrones españoles, rechazar
+        print(f"⚠️ Número no válido para España: {phone}")
+        return None
     
     def enviar_whatsapp_avanzado(self, lead, mensaje):
-        """Envío avanzado con mejor formato español"""
+        """Envío avanzado con validación anti-error 63024"""
         if not self.twilio_client:
             print(f"⚠️  WhatsApp no configurado")
             return False
         
+        # Formatear y validar número
+        phone_formatted = self.formatear_telefono_espanol(lead['phone'])
+        
+        if not phone_formatted:
+            print(f"❌ Número inválido para {lead['name']}: {lead['phone']} - SALTANDO")
+            return False
+        
         try:
-            phone_formatted = self.formatear_telefono_espanol(lead['phone'])
-            
             message = self.twilio_client.messages.create(
                 from_=f'whatsapp:{self.twilio_whatsapp}',
                 body=mensaje,
                 to=f'whatsapp:{phone_formatted}'
             )
             
-            print(f"✅ WhatsApp → {lead['name']}: {phone_formatted} (Score: {lead['score']})")
+            print(f"✅ WhatsApp → {lead['name']}: {phone_formatted} (Score: {lead['score']}) SID: {message.sid}")
             
             # Guardar conversación iniciada
             self.guardar_conversacion(lead['id'], 'mensaje_inicial_enviado', {
                 'phone': phone_formatted,
                 'sector': lead['sector'],
-                'mensaje': mensaje[:100]
+                'mensaje': mensaje[:100],
+                'twilio_sid': message.sid
             })
             
             return True
             
         except Exception as e:
-            print(f"❌ Error WhatsApp {lead['name']}: {e}")
+            print(f"❌ Error Twilio {lead['name']}: {e}")
+            # Log detallado para diagnóstico
+            print(f"   From: whatsapp:{self.twilio_whatsapp}")
+            print(f"   To: whatsapp:{phone_formatted}")
+            print(f"   Lead: {lead['name']} - {lead['phone']}")
+            
+            # Análisis específico del error
+            error_str = str(e)
+            if '63024' in error_str:
+                print(f"   🔍 ERROR 63024: Número no autorizado en WhatsApp Sandbox")
+                print(f"   💡 SOLUCIÓN: Añadir {phone_formatted} al sandbox de Twilio")
+            elif '20003' in error_str:
+                print(f"   🔍 ERROR 20003: Credenciales incorrectas")
+            elif '21408' in error_str:
+                print(f"   🔍 ERROR 21408: Sin permisos WhatsApp")
+            
             return False
     
     def notificar_telegram_avanzado(self, leads_contactados, ciudad, sector):
