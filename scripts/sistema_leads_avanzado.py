@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 import requests
 from twilio.rest import Client
 import telegram
-from scraper_gratis import ScraperGratis
+from .scraper_gratis import ScraperGratis
 from twilio.twiml.voice_response import VoiceResponse
 import argparse
 
@@ -2308,17 +2308,17 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             llamadas_a_hacer = min(max_llamadas_presupuesto, total_numeros_disponibles)
             
             # Logging detallado
-            self.log_llamadas(f"📊 PRESUPUESTO DIARIO: {config['presupuesto_diario_maximo']}€")
-            self.log_llamadas(f"💰 Costo por llamada: €{costo_llamada:.3f}")
-            self.log_llamadas(f"📱 Costo SMS (30% acepta): €{costo_sms_ponderado:.3f}")
-            self.log_llamadas(f"💡 Costo total por lead: €{costo_por_lead:.3f}")
-            self.log_llamadas(f"🎯 Llamadas máximas con 10€: {max_llamadas_presupuesto}")
-            self.log_llamadas(f"📞 Llamadas a realizar: {llamadas_a_hacer}")
+            print(f"📊 PRESUPUESTO DIARIO: {config['presupuesto_diario_maximo']}€")
+            print(f"💰 Costo por llamada: €{costo_llamada:.3f}")
+            print(f"📱 Costo SMS (30% acepta): €{costo_sms_ponderado:.3f}")
+            print(f"💡 Costo total por lead: €{costo_por_lead:.3f}")
+            print(f"🎯 Llamadas máximas con 10€: {max_llamadas_presupuesto}")
+            print(f"📞 Llamadas a realizar: {llamadas_a_hacer}")
             
             return llamadas_a_hacer
             
         except Exception as e:
-            self.log_llamadas(f"❌ Error calculando presupuesto: {e}")
+            print(f"❌ Error calculando presupuesto: {e}")
             return 10  # Valor por defecto conservador
 
 def main():
