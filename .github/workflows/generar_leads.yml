@@ -3,11 +3,11 @@ name: 📞 Sistema de LLAMADAS CONVERSACIONALES - DesArroyo Tech (Demostración 
 on:
   # ESTRATEGIA: SOLO LLAMADAS CONVERSACIONALES (Horario Comercial Español)
   schedule:
-    # HORARIO COMERCIAL ESPAÑOL (Lunes-Viernes)
-    - cron: '0 8,10,12 * * 1-5'    # 09:00, 11:00, 13:00 España (Mañana)
-    - cron: '0 15,17 * * 1-5'      # 16:00, 18:00 España (Tarde)
-    # WEEKEND - Volumen reducido
-    - cron: '0 11,16 * * 6,0'      # 12:00, 17:00 España (Sábado-Domingo)
+    # HORARIO COMERCIAL ESPAÑOL COMPLETO: Lunes-Viernes 9:00-14:00 y 16:00-20:00
+    - cron: '0 8,9,10,11,12,13 * * 1-5'    # 09:00-14:00 España (Mañana)
+    - cron: '0 15,16,17,18,19 * * 1-5'     # 16:00-20:00 España (Tarde)
+    # WEEKEND - Volumen reducido (Solo sábados-domingos)
+    - cron: '0 11,16 * * 6,0'              # 12:00, 17:00 España (Fin de semana)
   
   # Permitir ejecución manual
   workflow_dispatch:
