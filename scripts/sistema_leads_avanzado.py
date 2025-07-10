@@ -50,8 +50,8 @@ class SistemaLeadsAvanzado:
         self.plantillas_sector = self.cargar_plantillas_sector()
         
         # Configuración de canal de comunicación
-        self.canal_comunicacion = 'WHATSAPP'  # 'SMS', 'WHATSAPP', 'EMAIL'
-        # Ahora WhatsApp filtra solo móviles españoles - evita errores landline
+        self.canal_comunicacion = 'SMS'  # 'SMS', 'WHATSAPP', 'EMAIL'
+        # WhatsApp Sandbox requiere autorización - SMS funciona inmediatamente
     
     def cargar_plantillas_sector(self):
         """Plantillas profesionales orientadas a venta y conversión"""
