@@ -50,8 +50,8 @@ class SistemaLeadsAvanzado:
         self.plantillas_sector = self.cargar_plantillas_sector()
         
         # Configuración de canal de comunicación
-        self.canal_comunicacion = 'SMS'  # 'SMS', 'WHATSAPP', 'EMAIL'
-        # WHATSAPP requiere autorización previa en Sandbox - SMS funciona inmediatamente
+        self.canal_comunicacion = 'WHATSAPP'  # 'SMS', 'WHATSAPP', 'EMAIL'
+        # Ahora WhatsApp filtra solo móviles españoles - evita errores landline
     
     def cargar_plantillas_sector(self):
         """Plantillas profesionales orientadas a venta y conversión"""
@@ -266,6 +266,27 @@ Saludos deportivos,
             phone_clean.startswith('34') or
             (len(phone_clean) == 9 and phone_clean[0] in ['6', '7', '9'])
         )
+    
+    def es_telefono_movil_espanol(self, phone):
+        """Verifica si es un móvil español (solo para WhatsApp)"""
+        # Limpiar número
+        phone_clean = re.sub(r'[^\d+]', '', phone)
+        digits_only = re.sub(r'[^\d]', '', phone)
+        
+        # Números móviles españoles: 6xx, 7xx
+        if phone_clean.startswith('+34'):
+            if len(digits_only) == 11 and digits_only.startswith('34'):
+                # Solo móviles: 6xx, 7xx 
+                return digits_only[2] in ['6', '7']
+        
+        if digits_only.startswith('34') and len(digits_only) == 11:
+            return digits_only[2] in ['6', '7']
+        
+        if len(digits_only) == 9:
+            # Solo móviles españoles: 6xx, 7xx
+            return digits_only[0] in ['6', '7']
+        
+        return False
     
     def calcular_rating_avanzado(self, lead):
         """Sistema de rating avanzado para priorizar mejor"""
@@ -530,7 +551,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         return mensajes_sms.get(sector, mensajes_sms['restaurantes'])
     
     def formatear_telefono_espanol(self, phone):
-        """Formatea número español con validación estricta (Error 63024)"""
+        """Formatea número español con filtro para WhatsApp (solo móviles)"""
         import re
         
         # Limpiar número (solo dígitos y +)
@@ -539,32 +560,46 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         # Extraer solo dígitos
         digits_only = re.sub(r'[^\d]', '', phone)
         
+        # FILTRO ESPECIAL PARA WHATSAPP: Solo móviles (6xx, 7xx)
+        if self.canal_comunicacion == 'WHATSAPP':
+            if not self.es_telefono_movil_espanol(phone):
+                print(f"⚠️ WhatsApp requiere móvil - Saltando fijo: {phone}")
+                return None
+        
         # Si ya tiene +34 y es correcto, validar longitud
         if phone_clean.startswith('+34'):
             if len(digits_only) == 11 and digits_only.startswith('34'):
-                # Validar que el número móvil sea válido (6, 7, 9)
-                if digits_only[2] in ['6', '7', '9']:
-                    return phone_clean
-                # Validar que el número fijo sea válido (8, 9)
-                elif digits_only[2] in ['8', '9']:
-                    return phone_clean
+                # Para WhatsApp: solo móviles (6, 7)
+                # Para SMS: móviles y fijos (6, 7, 8, 9)
+                if self.canal_comunicacion == 'WHATSAPP':
+                    if digits_only[2] in ['6', '7']:
+                        return phone_clean
+                else:
+                    if digits_only[2] in ['6', '7', '8', '9']:
+                        return phone_clean
         
         # Si empieza con 34 pero sin +, añadir +
         if digits_only.startswith('34') and len(digits_only) == 11:
             mobile_digit = digits_only[2]
-            if mobile_digit in ['6', '7', '8', '9']:
-                return f"+{digits_only}"
+            if self.canal_comunicacion == 'WHATSAPP':
+                if mobile_digit in ['6', '7']:
+                    return f"+{digits_only}"
+            else:
+                if mobile_digit in ['6', '7', '8', '9']:
+                    return f"+{digits_only}"
         
-        # Si es número español de 9 dígitos (móviles: 6,7,9 | fijos: 8,9)
+        # Si es número español de 9 dígitos
         if len(digits_only) == 9:
             first_digit = digits_only[0]
-            if first_digit in ['6', '7']:  # Móviles
-                return f"+34{digits_only}"
-            elif first_digit in ['8', '9']:  # Fijos y algunos móviles
-                return f"+34{digits_only}"
+            if self.canal_comunicacion == 'WHATSAPP':
+                if first_digit in ['6', '7']:  # Solo móviles para WhatsApp
+                    return f"+34{digits_only}"
+            else:
+                if first_digit in ['6', '7', '8', '9']:  # Móviles y fijos para SMS
+                    return f"+34{digits_only}"
         
-        # Si no coincide con patrones españoles válidos, rechazar
-        print(f"⚠️ Número no válido para España: {phone} (dígitos: {digits_only})")
+        # Si no coincide con patrones válidos, rechazar
+        print(f"⚠️ Número no válido para {self.canal_comunicacion}: {phone} (dígitos: {digits_only})")
         return None
     
     def enviar_whatsapp_avanzado(self, lead, mensaje):
@@ -611,6 +646,9 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             if '63024' in error_str:
                 print(f"   🔍 ERROR 63024: Número no autorizado en WhatsApp Sandbox")
                 print(f"   💡 SOLUCIÓN: Añadir {phone_formatted} al sandbox de Twilio")
+            elif '21635' in error_str:
+                print(f"   🔍 ERROR 21635: No se puede enviar WhatsApp a número fijo")
+                print(f"   💡 SOLUCIÓN: Solo enviar a móviles (6xx, 7xx)")
             elif '20003' in error_str:
                 print(f"   🔍 ERROR 20003: Credenciales incorrectas")
             elif '21408' in error_str:
