@@ -258,6 +258,247 @@ Saludos deportivos,
                 'beneficios': ['Más socios', 'Inscripciones online', 'Reservas automáticas', 'Gestión digital'],
                 'urgencia': 'Las personas buscan gimnasios online antes de apuntarse',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            # === SERVICIOS DE SALUD Y BELLEZA ===
+            'centros_estetica': {
+                'mensaje_inicial': """Buenos días,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y detectamos una gran oportunidad para multiplicar citas.
+
+💆 **NUESTROS SERVICIOS PARA CENTROS DE ESTÉTICA:**
+✅ Web profesional + reservas online 24/7
+✅ Galería de tratamientos que convence
+✅ Sistema de citas automático
+✅ Hasta 70% más reservas confirmadas
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Más citas', 'Reservas automáticas', 'Galería profesional', 'Presencia digital'],
+                'urgencia': 'Los clientes buscan centros de estética online antes de reservar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            'psicologos': {
+                'mensaje_inicial': """Estimado/a profesional,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y veo una gran oportunidad para conseguir más pacientes.
+
+🧠 **NUESTROS SERVICIOS PARA PSICÓLOGOS:**
+✅ Web profesional + presencia online 24/7
+✅ Sistema de citas confidencial
+✅ Información clara de especialidades
+✅ Hasta 60% más consultas cualificadas
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Atentamente,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Más pacientes', 'Citas online', 'Credibilidad profesional', 'Especialidades claras'],
+                'urgencia': 'Los pacientes buscan psicólogos online antes de contactar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            'fisioterapeutas': {
+                'mensaje_inicial': """Estimado/a fisioterapeuta,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y detectamos potencial para más pacientes.
+
+🦴 **NUESTROS SERVICIOS PARA FISIOTERAPEUTAS:**
+✅ Web profesional + reservas online 24/7
+✅ Información clara de tratamientos
+✅ Sistema de citas automático
+✅ Hasta 50% más pacientes nuevos
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos profesionales,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Más pacientes', 'Reservas online', 'Información tratamientos', 'Credibilidad'],
+                'urgencia': 'Los pacientes buscan fisioterapeutas online antes de llamar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            # === ALIMENTACIÓN Y GASTRONOMÍA ===
+            'cafeterias': {
+                'mensaje_inicial': """Buenos días,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He visto {business_name_placeholder} y detectamos una gran oportunidad para aumentar ventas.
+
+☕ **NUESTROS SERVICIOS PARA CAFETERÍAS:**
+✅ Web profesional + presencia online 24/7
+✅ Carta digital actualizable
+✅ Sistema de pedidos online
+✅ Hasta 45% más ventas
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos cordiales,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Pedidos online', 'Carta digital', 'Más ventas', 'Presencia digital'],
+                'urgencia': 'Los clientes buscan cafeterías online antes de visitarlas',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            'panaderias': {
+                'mensaje_inicial': """Buenos días,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y veo potencial para multiplicar ventas.
+
+🥖 **NUESTROS SERVICIOS PARA PANADERÍAS:**
+✅ Web artesanal profesional + presencia online 24/7
+✅ Catálogo de productos actualizable
+✅ Sistema de encargos online
+✅ Hasta 60% más pedidos especiales
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Encargos online', 'Catálogo digital', 'Más pedidos', 'Presencia artesanal'],
+                'urgencia': 'Los clientes buscan panaderías artesanas online',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            # === SERVICIOS TÉCNICOS ===
+            'electricistas': {
+                'mensaje_inicial': """Buenos días,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y veo una gran oportunidad para conseguir más clientes.
+
+⚡ **NUESTROS SERVICIOS PARA ELECTRICISTAS:**
+✅ Web profesional + presencia online 24/7
+✅ Formulario de presupuestos
+✅ Galería de trabajos realizados
+✅ Hasta 70% más consultas
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos profesionales,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Más clientes', 'Presupuestos online', 'Galería trabajos', 'Credibilidad'],
+                'urgencia': 'Los clientes buscan electricistas online antes de contratar',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
+            },
+            
+            'fontaneros': {
+                'mensaje_inicial': """Buenos días,
+
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He analizado {business_name_placeholder} y detectamos potencial para más trabajos.
+
+🔧 **NUESTROS SERVICIOS PARA FONTANEROS:**
+✅ Web profesional + presencia online 24/7
+✅ Formulario de urgencias
+✅ Servicios claramente definidos
+✅ Hasta 65% más llamadas
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos,
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
+                'beneficios': ['Más trabajos', 'Urgencias online', 'Servicios claros', 'Mayor alcance'],
+                'urgencia': 'Los clientes buscan fontaneros online en urgencias',
+                'precio_ref': 'Desde 149€ - 3 planes disponibles'
             }
         }
     
@@ -1014,20 +1255,119 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         print(f"   ⏰ Hora: {datetime.now().strftime('%H:%M')}")
 
 def main():
-    """Función principal mejorada"""
+    """Función principal expandida - SISTEMA MASIVO"""
+    
+    # Lista completa de 41 ciudades españolas
+    CIUDADES_DISPONIBLES = [
+        'Álava', 'Albacete', 'Alicante', 'Asturias', 'Ávila', 'Badajoz', 
+        'Barcelona', 'Burgos', 'Cáceres', 'Cantabria', 'Castellón', 
+        'Ciudad Real', 'Cuenca', 'Girona', 'Guadalajara', 'Guipúzcoa', 
+        'Huesca', 'Illes Balears', 'La Coruña', 'La Rioja', 'Las Palmas', 
+        'León', 'Lleida', 'Lugo', 'Madrid', 'Navarra', 'Ourense', 
+        'Palencia', 'Pontevedra', 'Salamanca', 'Santa Cruz de Tenerife', 
+        'Segovia', 'Soria', 'Tarragona', 'Teruel', 'Toledo', 'Valencia', 
+        'Valladolid', 'Vizcaya', 'Zamora', 'Zaragoza',
+        # Aliases principales
+        'Palma', 'Sevilla', 'Málaga', 'Murcia', 'Bilbao', 'Vigo', 'Gijón', 'Córdoba'
+    ]
+    
+    # Lista completa de 60+ sectores disponibles
+    SECTORES_DISPONIBLES = [
+        # Salud y bienestar
+        'dentistas', 'peluquerias', 'centros_estetica', 'psicologos', 
+        'fisioterapeutas', 'nutricionistas', 'podologos', 'clinicas_veterinarias',
+        'opticas', 'masajistas',
+        
+        # Gastronomía 
+        'restaurantes', 'cafeterias', 'comida_para_llevar', 'panaderias',
+        'heladerias', 'food_trucks', 'tiendas_productos_locales', 
+        'empresas_catering', 'vinotecas',
+        
+        # Deporte y fitness
+        'gimnasios', 'entrenadores_personales', 'estudios_yoga_pilates',
+        'clases_baile', 'box_crossfit',
+        
+        # Servicios técnicos
+        'electricistas', 'fontaneros', 'cerrajeros', 'reformistas',
+        'carpinteros', 'pintores', 'jardineros', 'mecanicos',
+        'lavaderos_coche',
+        
+        # Servicios para mascotas
+        'peluqueria_canina', 'adiestradores', 'tiendas_mascotas',
+        'guarderias_residencias_caninas',
+        
+        # Educación
+        'academias_idiomas', 'escuelas_musica', 'autoescuelas',
+        'clases_particulares', 'academias_oposiciones', 'centros_montessori',
+        
+        # Servicios profesionales
+        'abogados', 'agencias_inmobiliarias', 'servicios_limpieza',
+        'mudanzas', 'decoradores_interiores', 'manitas_bricolaje',
+        'cuidadores_domicilio', 'servicios_ninera',
+        
+        # Servicios creativos
+        'fotografos_locales', 'videografos_bodas', 'floristerias',
+        'tiendas_regalos_personalizados', 'organizadores_eventos',
+        'artistas_artesanos',
+        
+        # Comercio local
+        'tiendas_barrio_productos_unicos', 'papelerias', 'ferreterias',
+        'estancos', 'tintorerías', 'copisterias', 'tiendas_segunda_mano',
+        
+        # Hostelería y turismo
+        'hoteles'
+    ]
+    
     if len(sys.argv) < 3:
+        print("🚀 SISTEMA MASIVO DE LEADS - DesArroyo Tech")
+        print("=" * 60)
         print("Uso: python3 sistema_leads_avanzado.py <ciudad> <sector>")
-        print("\nSectores disponibles:")
-        print("  - restaurantes")
-        print("  - peluquerias") 
-        print("  - dentistas")
-        print("  - abogados")
-        print("  - hoteles")
-        print("  - gimnasios")
+        print(f"\n📍 CIUDADES DISPONIBLES ({len(CIUDADES_DISPONIBLES)}):")
+        print("   Madrid, Barcelona, Valencia, Sevilla, Zaragoza, Málaga...")
+        print("   + 35 ciudades más de toda España")
+        
+        print(f"\n🏢 SECTORES DISPONIBLES ({len(SECTORES_DISPONIBLES)}):")
+        print("   💊 SALUD: dentistas, psicologos, fisioterapeutas, centros_estetica...")
+        print("   🍽️ GASTRONOMÍA: restaurantes, cafeterias, panaderias...")  
+        print("   💪 DEPORTE: gimnasios, entrenadores_personales...")
+        print("   🔧 TÉCNICOS: electricistas, fontaneros, cerrajeros...")
+        print("   🐕 MASCOTAS: peluqueria_canina, adiestradores...")
+        print("   📚 EDUCACIÓN: academias_idiomas, autoescuelas...")
+        print("   ⚖️ PROFESIONALES: abogados, agencias_inmobiliarias...")
+        print("   🎨 CREATIVOS: fotografos_locales, organizadores_eventos...")
+        print("   🏪 COMERCIO: tiendas_barrio, papelerias, ferreterias...")
+        
+        print("\n💡 EJEMPLOS:")
+        print("   python3 sistema_leads_avanzado.py Madrid dentistas")
+        print("   python3 sistema_leads_avanzado.py Barcelona restaurantes")
+        print("   python3 sistema_leads_avanzado.py Sevilla electricistas")
+        
+        print(f"\n📊 POTENCIAL TOTAL:")
+        print(f"   {len(CIUDADES_DISPONIBLES)} ciudades × {len(SECTORES_DISPONIBLES)} sectores = {len(CIUDADES_DISPONIBLES) * len(SECTORES_DISPONIBLES):,} combinaciones")
+        print(f"   Rotación inteligente cada 6 horas para cobertura completa")
+        
         sys.exit(1)
     
     ciudad = sys.argv[1]
     sector = sys.argv[2]
+    
+    # Validar ciudad y sector
+    if ciudad not in CIUDADES_DISPONIBLES:
+        print(f"❌ Ciudad '{ciudad}' no disponible")
+        print(f"💡 Ciudades válidas: {', '.join(CIUDADES_DISPONIBLES[:10])}...")
+        sys.exit(1)
+        
+    if sector not in SECTORES_DISPONIBLES:
+        print(f"❌ Sector '{sector}' no disponible")
+        print(f"💡 Sectores válidos: {', '.join(SECTORES_DISPONIBLES[:10])}...")
+        sys.exit(1)
+    
+    print(f"🚀 INICIANDO BÚSQUEDA MASIVA:")
+    print(f"   📍 Ciudad: {ciudad}")
+    print(f"   🏢 Sector: {sector}")
+    print(f"   📱 Canal: SMS (sin restricciones)")
+    print(f"   🎯 Objetivo: 25 números móviles españoles")
+    print("=" * 60)
     
     sistema = SistemaLeadsAvanzado()
     sistema.ejecutar_sector_ciudad(ciudad, sector)
