@@ -1570,26 +1570,76 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         response = VoiceResponse()
         
         if respuesta == '1':  # SÍ, está interesado
-            mensaje_envio = script['respuesta_si'].format(nombre_negocio=nombre_negocio)
+            # DETECCIÓN INTELIGENTE: ¿Es móvil o fijo?
+            es_movil = self.es_telefono_movil_espanol(telefono)
             
-            response.say(
-                mensaje_envio,
-                voice=self.voice_config['voice'],
-                language=self.voice_config['language']
-            )
-            
-            response.say(
-                "Gracias por su tiempo. Que tenga un buen día.",
-                voice=self.voice_config['voice'],
-                language=self.voice_config['language']
-            )
-            
-            response.hangup()
-            
-            # ENVIAR SMS INMEDIATAMENTE (registra automáticamente como exitosa)
-            self.enviar_sms_post_llamada_exitosa(telefono, nombre_negocio, sector, ciudad)
-            
-            return str(response)
+            if es_movil:
+                # ===== CASO MÓVIL: SMS DIRECTO =====
+                mensaje_envio = script['respuesta_si'].format(nombre_negocio=nombre_negocio)
+                
+                response.say(
+                    mensaje_envio,
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.say(
+                    "Gracias por su tiempo. Que tenga un buen día.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.hangup()
+                
+                # ENVIAR SMS AL MÓVIL INMEDIATAMENTE
+                self.enviar_sms_post_llamada_exitosa(telefono, nombre_negocio, sector, ciudad)
+                
+                return str(response)
+                
+            else:
+                # ===== CASO FIJO: PREGUNTAR POR MÓVIL =====
+                response.say(
+                    f"Perfecto, {nombre_negocio}. Le voy a enviar toda la información por SMS.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.pause(length=1)
+                
+                # Solicitar número de móvil
+                gather_movil = response.gather(
+                    num_digits=9,
+                    timeout=15,
+                    finish_on_key='#',
+                    action=f"{self.website_url}/api/webhook-movil-captura?telefono_fijo={telefono}&nombre={nombre_negocio}&sector={sector}&ciudad={ciudad}",
+                    method='POST'
+                )
+                
+                gather_movil.say(
+                    "¿Podría decirme un número de móvil donde enviarle la información? Puede ser el suyo o del responsable. Dígame los 9 dígitos y termine con almohadilla.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                # Si no proporciona móvil, alternativa
+                response.say(
+                    "No he recibido el número de móvil. No hay problema, puede contactarnos directamente por email en alberto@desarroyo.tech para recibir toda la información.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.say(
+                    "Gracias por su tiempo. Que tenga un buen día.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.hangup()
+                
+                # Registrar como exitosa aunque sea fijo sin móvil
+                self.enviar_sms_post_llamada_exitosa(telefono, nombre_negocio, sector, ciudad)
+                
+                return str(response)
             
         elif respuesta == '2':  # NO, no está interesado
             if intento >= 3:
@@ -1642,9 +1692,136 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             
             return str(response)
     
+    def manejar_captura_movil_fijo(self, movil_dictado, telefono_fijo, nombre_negocio, sector, ciudad):
+        """
+        Procesa el móvil dictado cuando llamamos a un número fijo y nos dan otro móvil
+        NUEVA FUNCIÓN: Optimiza conversiones de números fijos
+        """
+        response = VoiceResponse()
+        
+        # Limpiar y validar el móvil dictado
+        if movil_dictado and len(movil_dictado) >= 9:
+            # Tomar solo los primeros 9 dígitos
+            movil_limpio = movil_dictado[:9]
+            
+            # Validar que es móvil español (6xx o 7xx)
+            if movil_limpio.startswith('6') or movil_limpio.startswith('7'):
+                # Formatear móvil a E.164
+                movil_formateado = f"+34{movil_limpio}"
+                
+                # Confirmar móvil al cliente
+                response.say(
+                    f"Perfecto, he apuntado el {movil_limpio[:3]} {movil_limpio[3:6]} {movil_limpio[6:]}. Le envío la información ahora mismo.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.say(
+                    "Muchas gracias por su tiempo. Que tenga un buen día.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                
+                response.hangup()
+                
+                # Crear lead temporal con el móvil alternativo
+                lead_movil = {
+                    'name': nombre_negocio,
+                    'phone': movil_formateado,  # USAR EL MÓVIL DICTADO
+                    'sector': sector,
+                    'ciudad': ciudad,
+                    'score': 98,  # Máxima prioridad: fijo + móvil alternativo
+                    'telefono_fijo_original': telefono_fijo
+                }
+                
+                # Enviar SMS al móvil alternativo
+                mensaje_sms = self.generar_mensaje_sms_directo(lead_movil)
+                exito_sms = self.enviar_sms_automatico(lead_movil, mensaje_sms)
+                
+                if exito_sms:
+                    # Registrar conversión exitosa con móvil alternativo
+                    self.agregar_llamada_exitosa(telefono_fijo, nombre_negocio, sector, ciudad)
+                    
+                    # Actualizar con móvil alternativo
+                    telefono_fijo_formateado = self.formatear_telefono_espanol(telefono_fijo)
+                    if telefono_fijo_formateado in self.llamadas_exitosas:
+                        self.llamadas_exitosas[telefono_fijo_formateado]['movil_alternativo'] = movil_formateado
+                        self.llamadas_exitosas[telefono_fijo_formateado]['sms_enviado'] = True
+                        self.llamadas_exitosas[telefono_fijo_formateado]['tipo_numero'] = 'FIJO_CON_MOVIL'
+                        self.guardar_llamadas_exitosas()
+                    
+                    # Notificar conversión súper exitosa
+                    self.enviar_notificacion_telegram(
+                        f"🏆 CONVERSIÓN NÚMERO FIJO PERFECTA!\n\n"
+                        f"🏢 Negocio: {nombre_negocio}\n"
+                        f"☎️ Fijo llamado: {telefono_fijo}\n"
+                        f"📱 Móvil proporcionado: {movil_formateado}\n"
+                        f"🎯 Sector: {sector}\n"
+                        f"🏙️ Ciudad: {ciudad}\n"
+                        f"✅ Cliente dijo SÍ + proporcionó móvil\n"
+                        f"📱 SMS con encuesta: ENVIADO AL MÓVIL\n"
+                        f"📧 Email contacto: alberto@desarroyo.tech\n"
+                        f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+                        f"💰 Coste: ~0.19€ (llamada fijo + SMS móvil)\n"
+                        f"🎯 LEAD SÚPER CALIENTE\n"
+                        f"🏆 Estrategia fijo→móvil EXITOSA!\n"
+                        f"🚀 Sistema DesArroyo Tech optimizado!"
+                    )
+                    
+                    print(f"🏆 CONVERSIÓN FIJO→MÓVIL EXITOSA: {nombre_negocio} ({telefono_fijo} → {movil_formateado})")
+                    
+                else:
+                    print(f"⚠️ Móvil capturado pero SMS falló: {movil_formateado}")
+                
+                return str(response)
+                
+            else:
+                # Móvil no válido (no empieza por 6 o 7)
+                response.say(
+                    f"El número {movil_limpio} no parece ser un móvil válido. No hay problema, puede contactarnos por email en alberto@desarroyo.tech.",
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+        else:
+            # No se recibió móvil o es muy corto
+            response.say(
+                "No he podido capturar el número correctamente. No hay problema, puede contactarnos por email en alberto@desarroyo.tech para recibir toda la información.",
+                voice=self.voice_config['voice'],
+                language=self.voice_config['language']
+            )
+        
+        response.say(
+            "Gracias por su tiempo. Que tenga un buen día.",
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        response.hangup()
+        
+        # Registrar como llamada exitosa aunque no hayamos capturado móvil
+        self.agregar_llamada_exitosa(telefono_fijo, nombre_negocio, sector, ciudad)
+        
+        # Notificar conversión parcial
+        self.enviar_notificacion_telegram(
+            f"📞 CONVERSIÓN FIJO SIN MÓVIL\n\n"
+            f"🏢 Negocio: {nombre_negocio}\n"
+            f"☎️ Fijo: {telefono_fijo}\n"
+            f"🎯 Sector: {sector}\n"
+            f"🏙️ Ciudad: {ciudad}\n"
+            f"✅ Cliente dijo SÍ\n"
+            f"❌ No se capturó móvil válido\n"
+            f"📧 Referido a email: alberto@desarroyo.tech\n"
+            f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+            f"💰 Coste: ~0.12€ (solo llamada)\n"
+            f"📋 Seguimiento manual recomendado"
+        )
+        
+        return str(response)
+    
     def enviar_sms_post_llamada_exitosa(self, telefono, nombre_negocio, sector, ciudad):
         """
         Envía SMS automáticamente después de una llamada exitosa (SOLO cuando dijeron SÍ)
+        INTELIGENTE: Diferencia móviles vs fijos automáticamente
         """
         try:
             # Registrar como llamada exitosa
@@ -1659,38 +1836,79 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 'score': 95  # Alta prioridad tras aceptar llamada
             }
             
-            # Generar mensaje SMS personalizado (incluye email para contacto)
-            mensaje_sms = self.generar_mensaje_sms_directo(lead_temp)
+            # DETECCIÓN INTELIGENTE: ¿Móvil o Fijo?
+            es_movil = self.es_telefono_movil_espanol(telefono)
             
-            # Enviar SMS
-            exito_sms = self.enviar_sms_automatico(lead_temp, mensaje_sms)
+            if es_movil:
+                # ===== CASO MÓVIL: SMS AUTOMÁTICO =====
+                print(f"📱 Detectado móvil: {telefono} - Enviando SMS automático")
+                
+                # Generar mensaje SMS personalizado (incluye email para contacto)
+                mensaje_sms = self.generar_mensaje_sms_directo(lead_temp)
+                
+                # Enviar SMS
+                exito_sms = self.enviar_sms_automatico(lead_temp, mensaje_sms)
+                
+                if exito_sms:
+                    # Marcar SMS como enviado en llamadas exitosas
+                    telefono_formateado = self.formatear_telefono_espanol(telefono)
+                    if telefono_formateado in self.llamadas_exitosas:
+                        self.llamadas_exitosas[telefono_formateado]['sms_enviado'] = True
+                        self.llamadas_exitosas[telefono_formateado]['tipo_numero'] = 'MOVIL'
+                        self.guardar_llamadas_exitosas()
+                    
+                    print(f"✅ SMS post-llamada enviado a {nombre_negocio}")
+                    
+                    # Notificar éxito completo con demostración del sistema
+                    self.enviar_notificacion_telegram(
+                        f"🎉 CONVERSIÓN MÓVIL PERFECTA!\n\n"
+                        f"🏢 Negocio: {nombre_negocio}\n"
+                        f"📱 Móvil: {telefono}\n"
+                        f"🎯 Sector: {sector}\n"
+                        f"🏙️ Ciudad: {ciudad}\n"
+                        f"✅ Cliente dijo SÍ en llamada\n"
+                        f"📱 SMS con encuesta: ENVIADO AUTOMÁTICAMENTE\n"
+                        f"📧 Email para contacto: alberto@desarroyo.tech\n"
+                        f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+                        f"💰 Coste: ~0.19€ (llamada + SMS)\n"
+                        f"🎯 LEAD SÚPER CALIENTE\n"
+                        f"🚀 Flujo móvil completo - DesArroyo Tech!"
+                    )
+                else:
+                    print(f"⚠️ Llamada exitosa pero SMS falló para {nombre_negocio}")
             
-            if exito_sms:
-                # Marcar SMS como enviado en llamadas exitosas
+            else:
+                # ===== CASO FIJO: ESTRATEGIA ALTERNATIVA =====
+                print(f"🏢 Detectado número fijo: {telefono} - SMS no disponible")
+                
+                # Marcar como llamada exitosa sin SMS
                 telefono_formateado = self.formatear_telefono_espanol(telefono)
                 if telefono_formateado in self.llamadas_exitosas:
-                    self.llamadas_exitosas[telefono_formateado]['sms_enviado'] = True
+                    self.llamadas_exitosas[telefono_formateado]['sms_enviado'] = False
+                    self.llamadas_exitosas[telefono_formateado]['tipo_numero'] = 'FIJO'
+                    self.llamadas_exitosas[telefono_formateado]['estrategia'] = 'LLAMADA_SEGUIMIENTO'
                     self.guardar_llamadas_exitosas()
                 
-                print(f"✅ SMS post-llamada enviado a {nombre_negocio}")
-                
-                # Notificar éxito completo con demostración del sistema
+                # Notificar estrategia alternativa para fijos
                 self.enviar_notificacion_telegram(
-                    f"🎉 DEMOSTRACIÓN EXITOSA DEL SISTEMA!\n\n"
+                    f"📞 CONVERSIÓN NÚMERO FIJO\n\n"
                     f"🏢 Negocio: {nombre_negocio}\n"
-                    f"📞 Teléfono: {telefono}\n"
+                    f"☎️ Fijo: {telefono}\n"
                     f"🎯 Sector: {sector}\n"
                     f"🏙️ Ciudad: {ciudad}\n"
                     f"✅ Cliente dijo SÍ en llamada\n"
-                    f"📱 SMS con encuesta: ENVIADO AUTOMÁTICAMENTE\n"
-                    f"📧 Email para contacto: alberto@desarroyo.tech\n"
+                    f"❌ SMS no disponible (número fijo)\n"
+                    f"📧 Email contacto: alberto@desarroyo.tech\n"
                     f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
-                    f"💰 Coste: ~0.19€ (llamada + SMS)\n"
-                    f"🎯 LEAD SÚPER CALIENTE\n"
-                    f"🚀 Sistema DesArroyo Tech funcionando perfectamente!"
+                    f"💰 Coste: ~0.12€ (solo llamada)\n"
+                    f"📋 ESTRATEGIA ALTERNATIVA:\n"
+                    f"   🔄 Llamada de seguimiento en 2-3 días\n"
+                    f"   📧 Email directo con propuesta\n"
+                    f"   🎯 Lead caliente validado por llamada\n\n"
+                    f"🚀 Número fijo = negocio más establecido!"
                 )
-            else:
-                print(f"⚠️ Llamada exitosa pero SMS falló para {nombre_negocio}")
+                
+                print(f"📋 Programado seguimiento alternativo para {nombre_negocio}")
                 
         except Exception as e:
             print(f"❌ Error enviando SMS post-llamada: {str(e)}")

@@ -40,6 +40,8 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 return self.handle_llamada_webhook(request)
             elif path == '/api/webhook-llamada-respuesta':
                 return self.handle_llamada_respuesta_webhook(request)
+            elif path == '/api/webhook-movil-captura':
+                return self.handle_captura_movil_webhook(request)
             elif path == '/api/webhook-llamada-status':
                 return self.handle_llamada_status_webhook(request)
             else:
@@ -372,6 +374,126 @@ class WebhookHandler(BaseHTTPRequestHandler):
             
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+
+    def handle_captura_movil_webhook(self, request):
+        """
+        NUEVO: Maneja captura de móvil cuando llamamos a número fijo
+        Optimiza conversiones fijo→móvil para envío SMS
+        """
+        try:
+            # Parsear form data de Twilio
+            body = request.body.decode('utf-8')
+            form_data = urllib.parse.parse_qs(body)
+            
+            # Obtener datos
+            movil_dictado = form_data.get('Digits', [''])[0]
+            
+            # Obtener parámetros de la URL
+            query_params = urllib.parse.parse_qs(urllib.parse.urlparse(request.url).query)
+            telefono_fijo = query_params.get('telefono_fijo', [''])[0]
+            nombre_negocio = query_params.get('nombre', [''])[0]
+            sector = query_params.get('sector', ['default'])[0]
+            ciudad = query_params.get('ciudad', [''])[0]
+            
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            
+            # Limpiar y validar el móvil dictado
+            if movil_dictado and len(movil_dictado) >= 9:
+                # Tomar solo los primeros 9 dígitos
+                movil_limpio = movil_dictado[:9]
+                
+                # Validar que es móvil español (6xx o 7xx)
+                if movil_limpio.startswith('6') or movil_limpio.startswith('7'):
+                    # Formatear móvil a E.164
+                    movil_formateado = f"+34{movil_limpio}"
+                    
+                    # Confirmar móvil al cliente
+                    response.say(
+                        f"Perfecto, he apuntado el {movil_limpio[:3]} {movil_limpio[3:6]} {movil_limpio[6:]}. Le envío la información ahora mismo.",
+                        voice='Polly.Lucia',
+                        language='es-ES'
+                    )
+                    
+                    response.say(
+                        "Muchas gracias por su tiempo. Que tenga un buen día.",
+                        voice='Polly.Lucia',
+                        language='es-ES'
+                    )
+                    
+                    response.hangup()
+                    
+                    # Enviar SMS al móvil alternativo inmediatamente
+                    exito_sms = self.enviar_sms_movil_alternativo(movil_formateado, nombre_negocio, sector, ciudad)
+                    
+                    if exito_sms:
+                        # Registrar conversión exitosa
+                        self.registrar_llamada_exitosa(telefono_fijo, nombre_negocio, sector, ciudad)
+                        
+                        # Notificar conversión súper exitosa
+                        self.notificar_conversion_fijo_movil(telefono_fijo, movil_formateado, nombre_negocio, sector, ciudad)
+                        
+                        print(f"🏆 CONVERSIÓN FIJO→MÓVIL EXITOSA: {nombre_negocio} ({telefono_fijo} → {movil_formateado})")
+                    else:
+                        print(f"⚠️ Móvil capturado pero SMS falló: {movil_formateado}")
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/xml'},
+                        'body': str(response)
+                    }
+                    
+                else:
+                    # Móvil no válido (no empieza por 6 o 7)
+                    response.say(
+                        f"El número {movil_limpio} no parece ser un móvil válido. No hay problema, puede contactarnos por email en alberto@desarroyo.tech.",
+                        voice='Polly.Lucia',
+                        language='es-ES'
+                    )
+            else:
+                # No se recibió móvil o es muy corto
+                response.say(
+                    "No he podido capturar el número correctamente. No hay problema, puede contactarnos por email en alberto@desarroyo.tech para recibir toda la información.",
+                    voice='Polly.Lucia',
+                    language='es-ES'
+                )
+            
+            response.say(
+                "Gracias por su tiempo. Que tenga un buen día.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            response.hangup()
+            
+            # Registrar como llamada exitosa aunque no hayamos capturado móvil válido
+            self.registrar_llamada_exitosa(telefono_fijo, nombre_negocio, sector, ciudad)
+            
+            # Notificar conversión parcial
+            self.notificar_conversion_fijo_sin_movil(telefono_fijo, nombre_negocio, sector, ciudad)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+            
+        except Exception as e:
+            # En caso de error, devolver TwiML simple
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            response.say(
+                "Ha ocurrido un error técnico. Puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            response.hangup()
+            
+            return {
+                'statusCode': 500,
                 'headers': {'Content-Type': 'application/xml'},
                 'body': str(response)
             }
@@ -795,22 +917,22 @@ Casos reales: restaurantes +40% ventas, clínicas +3x citas...
             print(f"❌ Error añadiendo a lista negra: {str(e)}")
     
     def notificar_lista_negra(self, telefono, nombre_negocio, sector, ciudad, intentos):
-        """Notifica que un lead se añadió a lista negra"""
+        """Notifica nuevo número en lista negra"""
         if not self.telegram_token or not self.telegram_chat:
             return
             
         try:
-            texto = f"""🚫 **LEAD AÑADIDO A LISTA NEGRA**
+            texto = f"""🚫 **NÚMERO AÑADIDO A LISTA NEGRA**
 
 🏢 Negocio: {nombre_negocio}
 📞 Teléfono: {telefono}
 🎯 Sector: {sector}
 🏙️ Ciudad: {ciudad}
-❌ Respuesta: NO después de {intentos} intentos
-⏰ Hora: {datetime.now().strftime('%H:%M')}
+❌ Intentos fallidos: {intentos}
 
-🚫 NO se volverá a contactar este número
-💰 Coste total: ~{intentos * 0.12:.2f}€"""
+⚠️ **NO se volverá a contactar este número**
+
+⏰ {datetime.now().strftime('%d/%m/%Y %H:%M')}"""
 
             requests.post(
                 f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
@@ -822,7 +944,131 @@ Casos reales: restaurantes +40% ventas, clínicas +3x citas...
             )
             
         except Exception as e:
-            print(f"Error notificando lista negra: {e}")
+            print(f"Error Telegram lista negra: {e}")
+
+    def enviar_sms_movil_alternativo(self, movil_alternativo, nombre_negocio, sector, ciudad):
+        """
+        NUEVO: Envía SMS al móvil alternativo proporcionado tras llamada a fijo
+        """
+        try:
+            # Generar mensaje SMS personalizado para móvil alternativo
+            mensaje_sms = f"""Buenos días,
+
+Soy de DesArroyo Tech, acabamos de hablar por teléfono sobre {nombre_negocio}.
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{self.website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos cordiales,
+DesArroyo Tech
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀"""
+
+            # Formatear teléfono móvil
+            telefono_limpio = movil_alternativo.replace('+', '')
+            if not telefono_limpio.startswith('34'):
+                telefono_limpio = '34' + telefono_limpio
+            telefono_sms = '+' + telefono_limpio
+            
+            # Enviar SMS usando Twilio
+            if self.twilio_sid and self.twilio_token:
+                from twilio.rest import Client
+                client = Client(self.twilio_sid, self.twilio_token)
+                
+                message = client.messages.create(
+                    body=mensaje_sms,
+                    from_='+34910886507',  # Tu número Twilio
+                    to=telefono_sms
+                )
+                
+                print(f"✅ SMS móvil alternativo enviado: {message.sid}")
+                return True
+            
+        except Exception as e:
+            print(f"❌ Error enviando SMS móvil alternativo: {str(e)}")
+            return False
+
+    def notificar_conversion_fijo_movil(self, telefono_fijo, movil_alternativo, nombre_negocio, sector, ciudad):
+        """
+        NUEVO: Notifica conversión súper exitosa: fijo→móvil
+        """
+        if not self.telegram_token or not self.telegram_chat:
+            return
+            
+        try:
+            texto = f"""🏆 **¡CONVERSIÓN NÚMERO FIJO PERFECTA!**
+
+🏢 Negocio: {nombre_negocio}
+☎️ Fijo llamado: {telefono_fijo}
+📱 Móvil proporcionado: {movil_alternativo}
+🎯 Sector: {sector}
+🏙️ Ciudad: {ciudad}
+✅ Cliente dijo SÍ + proporcionó móvil
+📱 SMS con encuesta: **ENVIADO AL MÓVIL**
+📧 Email contacto: alberto@desarroyo.tech
+
+💰 Coste: ~0.19€ (llamada fijo + SMS móvil)
+🎯 **LEAD SÚPER CALIENTE**
+🏆 **Estrategia fijo→móvil EXITOSA!**
+🚀 **Sistema DesArroyo Tech optimizado!**
+
+⏰ {datetime.now().strftime('%d/%m/%Y %H:%M')}"""
+
+            requests.post(
+                f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
+                json={
+                    'chat_id': self.telegram_chat,
+                    'text': texto,
+                    'parse_mode': 'Markdown'
+                }
+            )
+            
+        except Exception as e:
+            print(f"Error Telegram conversión fijo-móvil: {e}")
+
+    def notificar_conversion_fijo_sin_movil(self, telefono_fijo, nombre_negocio, sector, ciudad):
+        """
+        NUEVO: Notifica conversión parcial: fijo sin móvil válido
+        """
+        if not self.telegram_token or not self.telegram_chat:
+            return
+            
+        try:
+            texto = f"""📞 **CONVERSIÓN FIJO SIN MÓVIL**
+
+🏢 Negocio: {nombre_negocio}
+☎️ Fijo: {telefono_fijo}
+🎯 Sector: {sector}
+🏙️ Ciudad: {ciudad}
+✅ Cliente dijo SÍ
+❌ No se capturó móvil válido
+📧 Referido a email: alberto@desarroyo.tech
+
+💰 Coste: ~0.12€ (solo llamada)
+📋 **Seguimiento manual recomendado**
+
+⏰ {datetime.now().strftime('%d/%m/%Y %H:%M')}"""
+
+            requests.post(
+                f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
+                json={
+                    'chat_id': self.telegram_chat,
+                    'text': texto,
+                    'parse_mode': 'Markdown'
+                }
+            )
+            
+        except Exception as e:
+            print(f"Error Telegram conversión fijo sin móvil: {e}")
 
 # Función principal para Vercel
 def handler(request, context):
