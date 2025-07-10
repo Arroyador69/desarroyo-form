@@ -1436,7 +1436,41 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             print(f"   ⏱️ Timeout: 30s (reducido para minimizar costes)")
             print(f"   💰 Coste esperado: €0.03-0.12 según respuesta")
             
+            # DIAGNÓSTICO: Verificar capacidades antes de llamar
+            print(f"🔍 DIAGNÓSTICO PRE-LLAMADA:")
+            
+            # Verificar número Twilio tiene capacidades de Voice
+            try:
+                phone_numbers = self.twilio_client.incoming_phone_numbers.list()
+                twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
+                
+                numero_encontrado = None
+                for number in phone_numbers:
+                    if number.phone_number == twilio_number:
+                        numero_encontrado = number
+                        break
+                
+                if numero_encontrado:
+                    capacidades = numero_encontrado.capabilities
+                    print(f"   ✅ Número encontrado: {twilio_number}")
+                    print(f"   🗣️  Voice: {'✅' if capacidades.get('voice') else '❌ NO HABILITADO'}")
+                    print(f"   💬 SMS: {'✅' if capacidades.get('sms') else '❌'}")
+                    
+                    if not capacidades.get('voice'):
+                        print(f"🚨 ERROR CRÍTICO: Tu número {twilio_number} NO tiene capacidad de VOICE")
+                        print(f"💡 SOLUCIÓN: Ve a Twilio Console → Phone Numbers → Habilita 'Voice'")
+                        print(f"💡 O compra un número nuevo con capacidad Voice + SMS")
+                        return False
+                else:
+                    print(f"❌ ERROR: Número {twilio_number} no encontrado en tu cuenta Twilio")
+                    return False
+                    
+            except Exception as diag_e:
+                print(f"⚠️  No se pudo verificar capacidades: {diag_e}")
+                print(f"⚠️  Intentando llamada de todas formas...")
+            
             # Realizar llamada OPTIMIZADA
+            print(f"🚀 INICIANDO LLAMADA...")
             call = self.twilio_client.calls.create(
                 to=telefono,
                 from_=os.getenv('TWILIO_PHONE_NUMBER'),
@@ -1456,9 +1490,10 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 caller_id=os.getenv('TWILIO_PHONE_NUMBER')
             )
             
-            print(f"📞 Llamada conversacional iniciada: {call.sid}")
+            print(f"✅ Llamada conversacional iniciada: {call.sid}")
             print(f"🎯 Negocio: {nombre_negocio} en {ciudad}")
             print(f"📋 Flujo: Presentación → Propuesta → Respuesta cliente → Acción")
+            print(f"👀 VER EN TWILIO: Console → Monitor → Logs → Calls → Filtro 'Programmable' → {call.sid}")
             
             # Guardar información de la llamada
             self.guardar_llamada_info(call.sid, telefono, nombre_negocio, sector, "Llamada conversacional", ciudad)
@@ -1466,9 +1501,25 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             return True
             
         except Exception as e:
-            print(f"❌ Error en llamada conversacional a {telefono}: {str(e)}")
+            print(f"❌ ERROR DETALLADO EN LLAMADA a {telefono}:")
+            print(f"   💥 Tipo de error: {type(e).__name__}")
+            print(f"   📝 Mensaje: {str(e)}")
+            
+            # Errores específicos de Twilio
+            if "20003" in str(e):
+                print(f"   🚨 ERROR 20003: Permisos insuficientes o cuenta sin verificar")
+            elif "21614" in str(e):
+                print(f"   🚨 ERROR 21614: Número de origen inválido o sin capacidad Voice")
+            elif "21217" in str(e):
+                print(f"   🚨 ERROR 21217: Número de destino inválido")
+            elif "authentication" in str(e).lower():
+                print(f"   🚨 ERROR AUTENTICACIÓN: Verifica TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN")
+            elif "voice" in str(e).lower():
+                print(f"   🚨 ERROR VOICE: Tu número probablemente no tiene capacidad de llamadas")
+                print(f"   💡 Ve a Twilio Console → Phone Numbers → Habilita 'Voice'")
+            
             return False
-
+    
     def generar_twiml_respuesta(self, telefono, nombre_negocio, sector, ciudad='', intento=1):
         """
         Genera TwiML response para llamada conversacional con respuestas
