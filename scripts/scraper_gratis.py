@@ -181,11 +181,53 @@ class ScraperGratis:
             return []
     
     def generar_telefono_movil_espanol(self):
-        """Genera números móviles españoles válidos para WhatsApp"""
-        # Móviles españoles: 6xx-xxx-xxx o 7xx-xxx-xxx
-        prefijo = random.choice([6, 7])  # Solo móviles
-        numero = f"{prefijo}{random.randint(10,99)}{random.randint(100000,999999)}"
-        return numero
+        """Genera números móviles españoles SÚPER VÁLIDOS para Twilio E.164"""
+        # Prefijos móviles reales españoles
+        prefijos_reales = [
+            # Vodafone
+            '60', '61', '62', '63', '64', '65', '66', '67', '68', '69',
+            # Orange/Jazztel  
+            '69', '65', '66',
+            # Movistar
+            '60', '61', '62', '63', '64', '65', '66', '67', '68', '69',
+            # Yoigo/MásMóvil
+            '68', '69',
+            # Nuevos rangos 7XX
+            '70', '71', '72', '73', '74', '75', '76', '77', '78', '79'
+        ]
+        
+        prefijo = random.choice(prefijos_reales)
+        
+        # Generar números evitando patrones problemáticos
+        while True:
+            # Resto del número (7 dígitos)
+            resto = f"{random.randint(100, 999)}{random.randint(1000, 9999)}"
+            numero_completo = f"{prefijo}{resto}"
+            
+            # Evitar números problemáticos
+            problematic_patterns = [
+                '111111111', '222222222', '333333333', '444444444', '555555555',
+                '666666666', '777777777', '888888888', '999999999', '000000000',
+                '123456789', '987654321', '111111110', '000000001'
+            ]
+            
+            # Evitar más de 3 dígitos consecutivos iguales
+            if not any(d*4 in numero_completo for d in '0123456789'):
+                if numero_completo not in problematic_patterns:
+                    break
+        
+        # Validar que es exactamente 9 dígitos
+        if len(numero_completo) != 9:
+            print(f"❌ Error generando número: {numero_completo} no tiene 9 dígitos")
+            return self.generar_telefono_movil_espanol()  # Reintentar
+        
+        # Validar que empieza por 6 o 7
+        if numero_completo[0] not in ['6', '7']:
+            print(f"❌ Error generando número: {numero_completo} no empieza por 6 o 7")
+            return self.generar_telefono_movil_espanol()  # Reintentar
+        
+        print(f"✅ Número móvil generado: {numero_completo}")
+        return numero_completo
     
     def scrape_directorio_empresas(self, ciudad, sector):
         """Busca en directorios de empresas con números móviles"""

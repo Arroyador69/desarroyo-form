@@ -831,56 +831,87 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         return mensajes_sms.get(sector, mensajes_sms['restaurantes'])
     
     def formatear_telefono_espanol(self, phone):
-        """Formatea número español con filtro para WhatsApp (solo móviles)"""
+        """VALIDACIÓN SÚPER ESTRICTA - Evita errores 21211 y 63024"""
         import re
         
-        # Limpiar número (solo dígitos y +)
-        phone_clean = re.sub(r'[^\d+]', '', phone)
+        if not phone or str(phone).strip() == '':
+            print(f"❌ Número vacío")
+            return None
+        
+        # Limpiar número completamente (solo dígitos y +)
+        phone_str = str(phone).strip()
+        phone_clean = re.sub(r'[^\d+]', '', phone_str)
         
         # Extraer solo dígitos
-        digits_only = re.sub(r'[^\d]', '', phone)
+        digits_only = re.sub(r'[^\d]', '', phone_clean)
         
-        # FILTRO ESPECIAL PARA WHATSAPP: Solo móviles (6xx, 7xx)
-        if self.canal_comunicacion == 'WHATSAPP':
-            if not self.es_telefono_movil_espanol(phone):
-                print(f"⚠️ WhatsApp requiere móvil - Saltando fijo: {phone}")
+        # VALIDACIÓN 1: Longitud de dígitos debe ser exacta
+        if len(digits_only) < 9 or len(digits_only) > 11:
+            print(f"❌ Longitud inválida: {phone} → {digits_only} ({len(digits_only)} dígitos)")
+            return None
+        
+        # CONSTRUIR NÚMERO EN FORMATO E.164
+        formatted_number = None
+        
+        # Caso 1: Ya tiene +34 (11 dígitos totales)
+        if phone_clean.startswith('+34') and len(digits_only) == 11:
+            formatted_number = phone_clean
+        
+        # Caso 2: Empieza con 34 sin + (11 dígitos)
+        elif digits_only.startswith('34') and len(digits_only) == 11:
+            formatted_number = f"+{digits_only}"
+        
+        # Caso 3: Número nacional de 9 dígitos
+        elif len(digits_only) == 9:
+            formatted_number = f"+34{digits_only}"
+        
+        # Caso 4: Empezar con 0 (quitar y añadir +34)
+        elif digits_only.startswith('0') and len(digits_only) == 10:
+            formatted_number = f"+34{digits_only[1:]}"
+        
+        if not formatted_number:
+            print(f"❌ Formato no reconocido: {phone} → {digits_only}")
+            return None
+        
+        # VALIDACIÓN 2: Verificar formato E.164 exacto
+        if not re.match(r'^\+34\d{9}$', formatted_number):
+            print(f"❌ No es E.164 válido: {phone} → {formatted_number}")
+            return None
+        
+        # VALIDACIÓN 3: Obtener dígito nacional (primer dígito después de +34)
+        national_number = formatted_number[3:]  # Quitar +34
+        first_digit = national_number[0]
+        
+        # VALIDACIÓN 4: Solo móviles españoles válidos (6XX, 7XX) para SMS
+        if self.canal_comunicacion in ['SMS', 'WHATSAPP']:
+            if first_digit not in ['6', '7']:
+                print(f"❌ No es móvil español: {phone} → {formatted_number} (empieza por {first_digit})")
                 return None
         
-        # Si ya tiene +34 y es correcto, validar longitud
-        if phone_clean.startswith('+34'):
-            if len(digits_only) == 11 and digits_only.startswith('34'):
-                # Para WhatsApp: solo móviles (6, 7)
-                # Para SMS: móviles y fijos (6, 7, 8, 9)
-                if self.canal_comunicacion == 'WHATSAPP':
-                    if digits_only[2] in ['6', '7']:
-                        return phone_clean
-                else:
-                    if digits_only[2] in ['6', '7', '8', '9']:
-                        return phone_clean
+        # VALIDACIÓN 5: Verificar patrones móviles específicos españoles
+        if first_digit == '6':
+            # 6XX - Móviles tradicionales
+            if len(national_number) != 9:
+                print(f"❌ Móvil 6XX inválido: {formatted_number}")
+                return None
+        elif first_digit == '7':
+            # 7XX - Móviles nuevos
+            if len(national_number) != 9:
+                print(f"❌ Móvil 7XX inválido: {formatted_number}")
+                return None
         
-        # Si empieza con 34 pero sin +, añadir +
-        if digits_only.startswith('34') and len(digits_only) == 11:
-            mobile_digit = digits_only[2]
-            if self.canal_comunicacion == 'WHATSAPP':
-                if mobile_digit in ['6', '7']:
-                    return f"+{digits_only}"
-            else:
-                if mobile_digit in ['6', '7', '8', '9']:
-                    return f"+{digits_only}"
+        # VALIDACIÓN FINAL: Comprobar que no sea un número conocido como problemático
+        problematic_patterns = [
+            '+34111111111', '+34222222222', '+34333333333',
+            '+34999999999', '+34000000000', '+34123456789'
+        ]
         
-        # Si es número español de 9 dígitos
-        if len(digits_only) == 9:
-            first_digit = digits_only[0]
-            if self.canal_comunicacion == 'WHATSAPP':
-                if first_digit in ['6', '7']:  # Solo móviles para WhatsApp
-                    return f"+34{digits_only}"
-            else:
-                if first_digit in ['6', '7', '8', '9']:  # Móviles y fijos para SMS
-                    return f"+34{digits_only}"
+        if formatted_number in problematic_patterns:
+            print(f"❌ Número de prueba detectado: {formatted_number}")
+            return None
         
-        # Si no coincide con patrones válidos, rechazar
-        print(f"⚠️ Número no válido para {self.canal_comunicacion}: {phone} (dígitos: {digits_only})")
-        return None
+        print(f"✅ Número válido E.164: {phone} → {formatted_number}")
+        return formatted_number
     
     def enviar_whatsapp_avanzado(self, lead, mensaje):
         """Envío avanzado con validación anti-error 63024"""
@@ -953,19 +984,46 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             return False
     
     def enviar_sms_automatico(self, lead, mensaje):
-        """Envía SMS automático - SIN RESTRICCIONES DE AUTORIZACIÓN"""
+        """Envía SMS automático - VALIDACIÓN SÚPER ESTRICTA"""
         if not self.twilio_client:
             print(f"⚠️  Twilio no configurado")
             return False
         
-        # Formatear y validar número
+        # TRIPLE VALIDACIÓN DEL NÚMERO
+        print(f"\n🔍 VALIDANDO NÚMERO PARA {lead['name']}:")
+        print(f"   📞 Original: {lead['phone']}")
+        
+        # Validación 1: Formatear número
         phone_formatted = self.formatear_telefono_espanol(lead['phone'])
         
         if not phone_formatted:
-            print(f"❌ Número inválido para {lead['name']}: {lead['phone']} - SALTANDO")
+            print(f"❌ FALLO VALIDACIÓN 1: Número inválido para {lead['name']}: {lead['phone']}")
             return False
         
+        print(f"   ✅ Formateado: {phone_formatted}")
+        
+        # Validación 2: Re-verificar formato E.164
+        import re
+        if not re.match(r'^\+34[67]\d{8}$', phone_formatted):
+            print(f"❌ FALLO VALIDACIÓN 2: No es E.164 válido: {phone_formatted}")
+            return False
+        
+        print(f"   ✅ E.164 válido: {phone_formatted}")
+        
+        # Validación 3: Verificar que es móvil español
+        numero_nacional = phone_formatted[3:]
+        if len(numero_nacional) != 9 or numero_nacional[0] not in ['6', '7']:
+            print(f"❌ FALLO VALIDACIÓN 3: No es móvil español: {numero_nacional}")
+            return False
+        
+        print(f"   ✅ Móvil español confirmado: {numero_nacional}")
+        
         try:
+            print(f"📤 ENVIANDO SMS...")
+            print(f"   From: {self.twilio_whatsapp}")
+            print(f"   To: {phone_formatted}")
+            print(f"   Mensaje: {mensaje[:50]}...")
+            
             # SMS - NO REQUIERE AUTORIZACIÓN PREVIA
             message = self.twilio_client.messages.create(
                 from_=self.twilio_whatsapp,  # Tu número Twilio
@@ -973,7 +1031,11 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 to=phone_formatted  # SIN 'whatsapp:' - es SMS directo
             )
             
-            print(f"✅ SMS → {lead['name']}: {phone_formatted} (Score: {lead['score']}) SID: {message.sid}")
+            print(f"✅ SMS ENVIADO EXITOSAMENTE!")
+            print(f"   📱 {lead['name']}: {phone_formatted}")
+            print(f"   ⭐ Score: {lead['score']}")
+            print(f"   🆔 SID: {message.sid}")
+            print(f"   💰 Coste aprox: ~0.074€")
             
             # Guardar conversación iniciada
             self.guardar_conversacion(lead['id'], 'sms_inicial_enviado', {
@@ -981,16 +1043,36 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 'sector': lead['sector'],
                 'mensaje': mensaje[:100],
                 'twilio_sid': message.sid,
-                'canal': 'SMS'
+                'canal': 'SMS',
+                'timestamp': datetime.now().isoformat()
             })
             
             return True
             
         except Exception as e:
-            print(f"❌ Error Twilio SMS {lead['name']}: {e}")
-            print(f"   From: {self.twilio_whatsapp}")
-            print(f"   To: {phone_formatted}")
-            print(f"   Lead: {lead['name']} - {lead['phone']}")
+            error_str = str(e)
+            print(f"❌ ERROR ENVIANDO SMS a {lead['name']}")
+            print(f"   📞 Número: {phone_formatted}")
+            print(f"   💥 Error: {error_str}")
+            
+            # Análisis detallado del error
+            if '21211' in error_str:
+                print(f"   🔍 ERROR 21211: Formato de número inválido")
+                print(f"   💡 SOLUCIÓN: Verificar formato E.164")
+            elif '63024' in error_str:
+                print(f"   🔍 ERROR 63024: Destinatario de mensaje inválido")
+                print(f"   💡 SOLUCIÓN: Número no válido para SMS")
+            elif '21635' in error_str:
+                print(f"   🔍 ERROR 21635: No se puede enviar a número fijo")
+                print(f"   💡 SOLUCIÓN: Solo usar números móviles")
+            elif '20003' in error_str:
+                print(f"   🔍 ERROR 20003: Problema de autenticación")
+                print(f"   💡 SOLUCIÓN: Verificar credenciales Twilio")
+            elif '21408' in error_str:
+                print(f"   🔍 ERROR 21408: Sin permisos para SMS")
+                print(f"   💡 SOLUCIÓN: Activar SMS en cuenta Twilio")
+            else:
+                print(f"   🔍 ERROR DESCONOCIDO: {error_str}")
             
             return False
     
