@@ -17,7 +17,7 @@ import requests
 from twilio.rest import Client
 import telegram
 from scraper_gratis import ScraperGratis
-from twilio.twiml import VoiceResponse
+from twilio.twiml.voice_response import VoiceResponse
 import argparse
 
 class SistemaLeadsAvanzado:

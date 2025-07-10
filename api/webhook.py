@@ -118,7 +118,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             ciudad = query_params.get('ciudad', [''])[0]
             
             # Importar TwiML localmente
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             
             # Scripts de voz por sector
             voice_scripts = {
@@ -200,7 +200,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             
         except Exception as e:
             # En caso de error, devolver TwiML simple
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
                 "Lo siento, ha ocurrido un error técnico. Puede contactarnos en alberto@desarroyo.tech",
@@ -233,7 +233,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             respuesta = form_data.get('Digits', [''])[0]
             telefono = form_data.get('To', [''])[0]
             
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             
             if respuesta == '1':  # SÍ, está interesado
@@ -297,7 +297,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 }
                 
         except Exception as e:
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
                 "Ha ocurrido un error. Puede contactarnos en alberto@desarroyo.tech",
@@ -315,7 +315,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
     def generar_reintento_llamada(self, sector, intento, nombre, ciudad):
         """Genera reintento con diferente estrategia"""
         try:
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             
             # Scripts alternativos por intento
             scripts_reintento = {
@@ -363,7 +363,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             }
             
         except Exception as e:
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
                 "Puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
@@ -398,7 +398,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             sector = query_params.get('sector', ['default'])[0]
             ciudad = query_params.get('ciudad', [''])[0]
             
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             
             # Limpiar y validar el móvil dictado
@@ -483,7 +483,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             
         except Exception as e:
             # En caso de error, devolver TwiML simple
-            from twilio.twiml import VoiceResponse
+            from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
                 "Ha ocurrido un error técnico. Puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
