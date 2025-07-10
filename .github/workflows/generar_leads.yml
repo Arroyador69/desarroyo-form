@@ -1,10 +1,13 @@
 name: 📞 Sistema de LLAMADAS CONVERSACIONALES - DesArroyo Tech (Demostración Tecnológica)
 
 on:
-  # ESTRATEGIA: SOLO LLAMADAS CONVERSACIONALES (Demostración DesArroyo Tech)
+  # ESTRATEGIA: SOLO LLAMADAS CONVERSACIONALES (Horario Comercial Español)
   schedule:
-    # Llamadas cada 8 horas para dar tiempo a procesar respuestas
-    - cron: '0 */8 * * *'  # 00:00, 08:00, 16:00
+    # HORARIO COMERCIAL ESPAÑOL (Lunes-Viernes)
+    - cron: '0 8,10,12 * * 1-5'    # 09:00, 11:00, 13:00 España (Mañana)
+    - cron: '0 15,17 * * 1-5'      # 16:00, 18:00 España (Tarde)
+    # WEEKEND - Volumen reducido
+    - cron: '0 11,16 * * 6,0'      # 12:00, 17:00 España (Sábado-Domingo)
   
   # Permitir ejecución manual
   workflow_dispatch:
@@ -31,53 +34,53 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
-      max-parallel: 2  # Máximo 2 llamadas simultáneas para calidad
+      max-parallel: 3  # Máximo 3 llamadas simultáneas (horario comercial)
       matrix:
-        # SOLO LLAMADAS - Demostración DesArroyo Tech
+        # PRESUPUESTO AUMENTADO: 300-600€/mes 
         include:
-          # BLOQUE 1 - Ciudades principales + Sectores con mejor ROI
+          # BLOQUE 1 - Ciudades principales (Mayor presupuesto)
           - ciudad: "Madrid"
             sector: "dentistas" 
-            llamadas_limite: "6"
-            presupuesto_max: "15"
+            llamadas_limite: "8"
+            presupuesto_max: "25"
           - ciudad: "Barcelona"  
             sector: "restaurantes"
-            llamadas_limite: "5"
-            presupuesto_max: "12"
+            llamadas_limite: "7"
+            presupuesto_max: "22"
           - ciudad: "Valencia"
             sector: "peluquerias"
-            llamadas_limite: "4"
-            presupuesto_max: "10"
+            llamadas_limite: "6"
+            presupuesto_max: "20"
           - ciudad: "Sevilla"
             sector: "abogados"
-            llamadas_limite: "5"
-            presupuesto_max: "12"
-          - ciudad: "Málaga"
+            llamadas_limite: "6"
+            presupuesto_max: "20"
+          - ciudad: "Bilbao"
             sector: "psicologos"
-            llamadas_limite: "4"
-            presupuesto_max: "10"
+            llamadas_limite: "5"
+            presupuesto_max: "18"
             
-          # BLOQUE 2 - Ciudades medianas + Sectores estratégicos  
+          # BLOQUE 2 - Ciudades medianas  
           - ciudad: "Murcia"
             sector: "fisioterapeutas"
-            llamadas_limite: "3"
-            presupuesto_max: "8"
-          - ciudad: "Palma"
+            llamadas_limite: "5"
+            presupuesto_max: "18"
+          - ciudad: "Zaragoza"
             sector: "centros_estetica"
             llamadas_limite: "4"
-            presupuesto_max: "10"
+            presupuesto_max: "15"
           - ciudad: "Las Palmas"
             sector: "academias_idiomas"
-            llamadas_limite: "3"
-            presupuesto_max: "8"
-          - ciudad: "Bilbao"
+            llamadas_limite: "4"
+            presupuesto_max: "15"
+          - ciudad: "Palma"
             sector: "gimnasios"
-            llamadas_limite: "3"
-            presupuesto_max: "8"
-          - ciudad: "Zaragoza"
+            llamadas_limite: "4"
+            presupuesto_max: "15"
+          - ciudad: "Vigo"
             sector: "fotografos_locales"
-            llamadas_limite: "3"
-            presupuesto_max: "8"
+            llamadas_limite: "4"
+            presupuesto_max: "15"
     
     steps:
     - name: 📥 Checkout código
