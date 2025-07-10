@@ -1,9 +1,10 @@
-name: 🚀 Sistema de Leads MASIVO - DesArroyo Tech (Rotación Inteligente)
+name: 📞 Sistema de LLAMADAS CONVERSACIONALES - DesArroyo Tech (Demostración Tecnológica)
 
 on:
-  # Ejecutar cada 6 horas automáticamente con rotación
+  # ESTRATEGIA: SOLO LLAMADAS CONVERSACIONALES (Demostración DesArroyo Tech)
   schedule:
-    - cron: '0 */6 * * *'  # Cada 6 horas (00:00, 06:00, 12:00, 18:00)
+    # Llamadas cada 8 horas para dar tiempo a procesar respuestas
+    - cron: '0 */8 * * *'  # 00:00, 08:00, 16:00
   
   # Permitir ejecución manual
   workflow_dispatch:
@@ -16,50 +17,67 @@ on:
         description: 'Sector específico (opcional)'
         required: false
         default: ''
+      tipo_campana:
+        description: 'Tipo de campaña'
+        required: false
+        default: 'HIBRIDO'
+        type: choice
+        options:
+        - LLAMADAS
 
 jobs:
-  rotacion-masiva-leads:
+  # ===== LLAMADAS CONVERSACIONALES (DEMOSTRACIÓN TECNOLÓGICA) =====
+  llamadas-conversacionales:
     runs-on: ubuntu-latest
     
     strategy:
+      max-parallel: 2  # Máximo 2 llamadas simultáneas para calidad
       matrix:
-        # Rotación 1: CIUDADES PRINCIPALES + SECTORES SALUD
+        # SOLO LLAMADAS - Demostración DesArroyo Tech
         include:
-          # BLOQUE 1 - Ciudades principales + Salud/Belleza
+          # BLOQUE 1 - Ciudades principales + Sectores con mejor ROI
           - ciudad: "Madrid"
-            sector: "dentistas"
+            sector: "dentistas" 
+            llamadas_limite: "6"
+            presupuesto_max: "15"
           - ciudad: "Barcelona"  
-            sector: "psicologos"
+            sector: "restaurantes"
+            llamadas_limite: "5"
+            presupuesto_max: "12"
           - ciudad: "Valencia"
-            sector: "fisioterapeutas"
-          - ciudad: "Sevilla"
-            sector: "centros_estetica"
-          - ciudad: "Zaragoza"
             sector: "peluquerias"
-            
-          # BLOQUE 2 - Ciudades medianas + Gastronomía  
+            llamadas_limite: "4"
+            presupuesto_max: "10"
+          - ciudad: "Sevilla"
+            sector: "abogados"
+            llamadas_limite: "5"
+            presupuesto_max: "12"
           - ciudad: "Málaga"
-            sector: "restaurantes"
-          - ciudad: "Murcia"
-            sector: "cafeterias"
-          - ciudad: "Palma"
-            sector: "panaderias"
-          - ciudad: "Las Palmas"
-            sector: "restaurantes"
-          - ciudad: "Bilbao"
-            sector: "cafeterias"
+            sector: "psicologos"
+            llamadas_limite: "4"
+            presupuesto_max: "10"
             
-          # BLOQUE 3 - Ciudades pequeñas + Servicios técnicos
-          - ciudad: "Alicante"
-            sector: "electricistas"
-          - ciudad: "Córdoba"
-            sector: "fontaneros"
-          - ciudad: "Valladolid"
-            sector: "electricistas"
-          - ciudad: "Vigo"
-            sector: "fontaneros"
-          - ciudad: "Gijón"
-            sector: "electricistas"
+          # BLOQUE 2 - Ciudades medianas + Sectores estratégicos  
+          - ciudad: "Murcia"
+            sector: "fisioterapeutas"
+            llamadas_limite: "3"
+            presupuesto_max: "8"
+          - ciudad: "Palma"
+            sector: "centros_estetica"
+            llamadas_limite: "4"
+            presupuesto_max: "10"
+          - ciudad: "Las Palmas"
+            sector: "academias_idiomas"
+            llamadas_limite: "3"
+            presupuesto_max: "8"
+          - ciudad: "Bilbao"
+            sector: "gimnasios"
+            llamadas_limite: "3"
+            presupuesto_max: "8"
+          - ciudad: "Zaragoza"
+            sector: "fotografos_locales"
+            llamadas_limite: "3"
+            presupuesto_max: "8"
     
     steps:
     - name: 📥 Checkout código
@@ -73,47 +91,59 @@ jobs:
     - name: 📦 Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4 lxml selenium python-telegram-bot twilio openai python-dotenv
+        pip install requests beautifulsoup4 lxml python-telegram-bot twilio openai python-dotenv
     
-    - name: 🔧 Configurar permisos
-      run: chmod +x scripts/scraper_gratis.py
-    
-    - name: 🎯 Ejecutar rotación ${{ matrix.ciudad }} - ${{ matrix.sector }}
+    - name: 📞 Ejecutar llamadas conversacionales ${{ matrix.ciudad }} - ${{ matrix.sector }}
       run: |
-        echo "🚀 Iniciando: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
-        python3 scripts/sistema_leads_avanzado.py "${{ matrix.ciudad }}" "${{ matrix.sector }}"
-        echo "✅ Completado: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
+        echo "📞 LLAMADAS CONVERSACIONALES: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
+        echo "🎯 Límite: ${{ matrix.llamadas_limite }} llamadas"
+        echo "💰 Presupuesto Máximo: ${{ matrix.presupuesto_max }}€"
+        echo "🚀 Demostración tecnológica DesArroyo Tech"
+        echo ""
+        echo "💬 FLUJO:"
+        echo "1️⃣ Llamada personalizada con IA"
+        echo "2️⃣ Cliente responde SÍ/NO"  
+        echo "3️⃣ Si SÍ → SMS automático con encuesta"
+        echo "4️⃣ Si NO → Lista negra (no volver a llamar)"
+        echo ""
+        
+        python3 scripts/sistema_leads_avanzado.py "${{ matrix.ciudad }}" "${{ matrix.sector }}" --llamadas --limite ${{ matrix.llamadas_limite }} --presupuesto-max ${{ matrix.presupuesto_max }}
+        
+        echo "✅ Llamadas completadas: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
       env:
         DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
         TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
         TWILIO_WHATSAPP_NUMBER: ${{ secrets.TWILIO_WHATSAPP_NUMBER }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
-        BUSINESS_NAME: ${{ secrets.BUSINESS_NAME }}
-        YOUR_NAME: ${{ secrets.YOUR_NAME }}
 
-  # EJECUCIÓN ALEATORIA EXTRA (Solo fines de semana para ciudades restantes)
-  rotacion-extra:
+  # ===== LLAMADAS EXTRA WEEKEND (Solo fines de semana) =====
+  llamadas-extra-weekend:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 */6 * * 6,0'  # Solo sábados y domingos
+    if: github.event.schedule == '0 12 * * 6,0'  # Solo sábados y domingos 12:00
     
     strategy:
       matrix:
-        # Ciudades adicionales para fines de semana
         include:
+          # Ciudades adicionales para fines de semana - SOLO LLAMADAS
           - ciudad: "Toledo"
             sector: "dentistas"
+            limite: "3"
           - ciudad: "Cáceres" 
             sector: "peluquerias"
+            limite: "3"
           - ciudad: "Badajoz"
             sector: "restaurantes"
+            limite: "4"
           - ciudad: "Cuenca"
-            sector: "electricistas"
+            sector: "abogados"
+            limite: "3"
           - ciudad: "Soria"
-            sector: "fontaneros"
+            sector: "psicologos"
+            limite: "2"
     
     steps:
     - name: 📥 Checkout código
@@ -127,25 +157,33 @@ jobs:
     - name: 📦 Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4 lxml selenium python-telegram-bot twilio openai python-dotenv
+        pip install requests beautifulsoup4 lxml python-telegram-bot twilio openai python-dotenv
     
-    - name: 🎯 Ejecutar rotación extra ${{ matrix.ciudad }} - ${{ matrix.sector }}
-      run: python3 scripts/sistema_leads_avanzado.py "${{ matrix.ciudad }}" "${{ matrix.sector }}"
+    - name: 📞 Ejecutar llamadas weekend ${{ matrix.ciudad }} - ${{ matrix.sector }}
+      run: |
+        echo "📞 WEEKEND LLAMADAS: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
+        echo "🎯 Límite: ${{ matrix.limite }} llamadas"
+        echo "🎉 Campaña de fin de semana - DesArroyo Tech"
+        echo ""
+        
+        python3 scripts/sistema_leads_avanzado.py "${{ matrix.ciudad }}" "${{ matrix.sector }}" --llamadas --limite ${{ matrix.limite }}
+        
+        echo "✅ Llamadas weekend completadas: ${{ matrix.ciudad }} - ${{ matrix.sector }}"
       env:
         DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
         TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        TWILIO_PHONE_NUMBER: ${{ secrets.TWILIO_PHONE_NUMBER }}
         TWILIO_WHATSAPP_NUMBER: ${{ secrets.TWILIO_WHATSAPP_NUMBER }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
-        BUSINESS_NAME: ${{ secrets.BUSINESS_NAME }}
-        YOUR_NAME: ${{ secrets.YOUR_NAME }}
 
-  reporte-general:
-    needs: [rotacion-masiva-leads]
+  # ===== REPORTE Y CONTROL DE PRESUPUESTO =====
+  control-presupuesto:
+    needs: [llamadas-conversacionales]
     runs-on: ubuntu-latest
+    if: always()
     
     steps:
     - name: 📥 Checkout código
@@ -156,23 +194,28 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: 📦 Instalar dependencias reporting
+    - name: 📦 Instalar dependencias
       run: |
         python -m pip install --upgrade pip
         pip install python-telegram-bot python-dotenv
     
-    - name: 📊 Generar reporte global
-      run: python3 scripts/generar_reporte.py
+    - name: 📊 Control presupuesto llamadas
+      run: |
+        echo "📊 CONTROL DE PRESUPUESTO LLAMADAS"
+        echo "Calculando gastos de llamadas conversacionales..."
+        echo "💰 Objetivo mensual: Máximo €100"
+        echo "📞 Coste por llamada: €0.08-0.15"
+        python3 scripts/control_presupuesto.py
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
     
-    - name: ✅ Notificar ejecución masiva completada
+    - name: ✅ Notificar llamadas completadas
       run: |
-        echo "🎉 ROTACIÓN MASIVA COMPLETADA"
-        echo "📱 15 ciudades/sectores procesados simultáneamente"
+        echo "🎉 LLAMADAS CONVERSACIONALES COMPLETADAS"
+        echo "📞 Sistema de demostración DesArroyo Tech ejecutado"
         echo "⏰ Fecha: $(date)"
-        echo "🎯 Próxima rotación en 6 horas" 
-        echo "💰 Coste estimado: ~11-25€ por rotación"
-        echo "📈 Cobertura: 41 ciudades × 60+ sectores = ESPAÑA COMPLETA"
-        echo "🚀 ROI esperado: 1 venta Plan Escalable = 1.4 meses cubiertos" 
+        echo "🔄 Próximas llamadas en 8 horas"
+        echo "💰 Sistema optimizado para máximo €100/mes"
+        echo "🎯 Conversión esperada: 40% de llamadas → SÍ → SMS automático"
+        echo "🚀 Cada llamada demuestra la tecnología de DesArroyo Tech" 

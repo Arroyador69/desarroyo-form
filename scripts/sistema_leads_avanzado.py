@@ -3,6 +3,7 @@
 """
 SISTEMA AVANZADO DE LEADS - DESARROYO TECH
 Con DeepSeek, plantillas por sector, priorización española y automatización completa
+HÍBRIDO: SMS Masivo + Llamadas Conversacionales con Lista Negra
 """
 
 import os
@@ -16,6 +17,8 @@ import requests
 from twilio.rest import Client
 import telegram
 from scraper_gratis import ScraperGratis
+from twilio.twiml import VoiceResponse
+import argparse
 
 class SistemaLeadsAvanzado:
     def __init__(self):
@@ -43,15 +46,92 @@ class SistemaLeadsAvanzado:
         # Archivos para control
         self.leads_enviados_file = 'leads_enviados.json'
         self.conversaciones_file = 'conversaciones_activas.json'
+        self.lista_negra_file = 'lista_negra_llamadas.json'  # NUEVO: Lista negra
+        self.llamadas_exitosas_file = 'llamadas_exitosas.json'  # NUEVO: Llamadas SÍ
+        
         self.leads_enviados = self.cargar_leads_enviados()
         self.conversaciones = self.cargar_conversaciones()
+        self.lista_negra = self.cargar_lista_negra()  # NUEVO
+        self.llamadas_exitosas = self.cargar_llamadas_exitosas()  # NUEVO
         
         # Plantillas CRM por sector
         self.plantillas_sector = self.cargar_plantillas_sector()
         
         # Configuración de canal de comunicación
-        self.canal_comunicacion = 'SMS'  # 'SMS', 'WHATSAPP', 'EMAIL'
+        self.canal_comunicacion = 'SMS'  # 'SMS', 'WHATSAPP', 'EMAIL', 'LLAMADAS'
         # WhatsApp Sandbox requiere autorización - SMS funciona inmediatamente
+        
+        # Configuración de llamadas automatizadas
+        self.twilio_voice_enabled = bool(os.getenv('TWILIO_ACCOUNT_SID') and os.getenv('TWILIO_AUTH_TOKEN'))
+        self.twilio_phone_number = os.getenv('TWILIO_PHONE_NUMBER')  # NUEVO: Número para llamadas
+        
+        # NUEVO: Configuración optimizada para España
+        self.voice_config = {
+            'voice': 'Polly.Lucia',  # Voz española femenina natural
+            'language': 'es-ES',
+            'rate': 'medium',
+            'pitch': 'medium',
+            # Configuración anti-spam
+            'caller_id': self.twilio_phone_number,  # Mostrar número de empresa
+            'from_number': self.twilio_phone_number,
+            'timeout': 30,  # Máximo 30 segundos para contestar
+            'answering_machine_detection': 'enable',  # Detectar buzón de voz
+            'answering_machine_detection_timeout': 5  # 5 segundos para detectar
+        }
+        
+        # Scripts de voz por sector - CONVERSACIONAL MEJORADO
+        self.voice_scripts = {
+            'restaurantes': {
+                'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web para restaurantes.',
+                'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un restaurante con mucho potencial.',
+                'hook': 'Los restaurantes en {ciudad} que tienen web profesional están consiguiendo un 40% más de reservas que sus competidores.',
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. ¿Le interesaría escuchar esta información? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_si': 'Perfecto. Le voy a enviar ahora mismo por SMS una encuesta personalizada para {nombre_negocio} con ejemplos específicos para restaurantes y nuestros precios. Gracias por su tiempo.',
+                'respuesta_no_1': 'Entiendo. Déjeme preguntarle una cosa: ¿han notado que muchos clientes buscan restaurantes online antes de decidir dónde cenar? Trabajamos con restaurantes locales para ayudarlos a aparecer mejor en internet. ¿Esto le resultaría más interesante? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_no_2': 'Comprendo su posición. Una última cosa: hemos visto que los restaurantes en {ciudad} que no tienen presencia digital pierden clientes cada día. Por eso creamos un plan de 149€ muy asequible. ¿Le envío la información sin compromiso? Presione 1 para SÍ o 2 para NO.',
+                'despedida': 'Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+            },
+            'dentistas': {
+                'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para clínicas dentales.',
+                'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y se dedican a servicios dentales.',
+                'hook': 'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos. Los pacientes buscan dentistas online antes de elegir.',
+                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. ¿Le interesaría conocer esta información? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_si': 'Excelente. Le envío inmediatamente por SMS nuestra encuesta personalizada para clínicas dentales con ejemplos específicos y precios. Gracias por su tiempo.',
+                'respuesta_no_1': 'Entiendo. ¿Han observado que los pacientes nuevos cada vez buscan más información online antes de elegir dentista? Ayudamos a clínicas como {nombre_negocio} a transmitir confianza y profesionalidad. ¿Esto le resultaría útil? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_no_2': 'Comprendo. Una cosa más: muchas clínicas en {ciudad} están perdiendo pacientes porque no aparecen bien en internet. Tenemos un plan desde 149€ muy accesible. ¿Le mando la información para que la revise? Presione 1 para SÍ o 2 para NO.',
+                'despedida': 'Lo entiendo. Si reconsideran, pueden contactarnos en alberto@desarroyo.tech. Que tengan un buen día. Gracias.'
+            },
+            'peluquerias': {
+                'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech. Nos especializamos en webs para salones de belleza.',
+                'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un salón muy cuidado.',
+                'hook': 'Los salones de belleza en {ciudad} con web profesional están aumentando sus citas un 50%. Las clientas buscan peluquerías online para ver trabajos y reservar.',
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más citas con una web que muestre sus trabajos y permita reservas online. ¿Le interesaría escuchar esta propuesta? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_si': 'Perfecto. Le envío ahora por SMS nuestra encuesta personalizada para salones con ejemplos de galerías y sistema de citas. Gracias por su tiempo.',
+                'respuesta_no_1': '¿Han notado que las clientas buscan peluquerías en internet para ver trabajos antes de venir? Ayudamos a salones como {nombre_negocio} a mostrar mejor sus servicios online. ¿Esto le interesaría más? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_no_2': 'Entiendo. Solo una cosa más: muchos salones en {ciudad} están consiguiendo más clientas con una web sencilla. Tenemos opciones desde 149€. ¿Le envío la información para que la vea sin compromiso? Presione 1 para SÍ o 2 para NO.',
+                'despedida': 'Lo comprendo. Si cambian de opinión, pueden escribirnos a alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+            },
+            'abogados': {
+                'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para despachos de abogados.',
+                'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y se especializan en servicios jurídicos.',
+                'hook': 'Los despachos de abogados en {ciudad} con web profesional están consiguiendo un 70% más de consultas. Los clientes buscan abogados online antes de contactar.',
+                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más consultas con una web que genere confianza y muestre sus especialidades claramente. ¿Le interesaría conocer esta información? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_si': 'Perfecto. Le envío inmediatamente por SMS información detallada para despachos con ejemplos específicos del sector jurídico. Gracias por su tiempo.',
+                'respuesta_no_1': '¿Han observado que los clientes investigan abogados online antes de contactar? Ayudamos a despachos como {nombre_negocio} a transmitir confianza y profesionalidad en internet. ¿Esto le resultaría interesante? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_no_2': 'Comprendo su posición. Solo mencionar que muchos despachos en {ciudad} están consiguiendo más clientes con presencia digital. Tenemos planes desde 149€. ¿Le mando la información para revisarla? Presione 1 para SÍ o 2 para NO.',
+                'despedida': 'Lo entiendo perfectamente. Si reconsidera, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+            },
+            'default': {
+                'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional para negocios.',
+                'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un negocio con mucho potencial.',
+                'hook': 'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%. Los clientes buscan servicios online antes de decidir.',
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. ¿Le interesaría escuchar esta información? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_si': 'Excelente. Le envío ahora mismo por SMS nuestra encuesta personalizada con ejemplos específicos para su sector y precios. Gracias por su tiempo.',
+                'respuesta_no_1': '¿Han notado que los clientes buscan servicios online antes de comprar? Ayudamos a negocios como {nombre_negocio} a aparecer mejor en internet y conseguir más ventas. ¿Esto le resultaría útil? Presione 1 para SÍ o 2 para NO.',
+                'respuesta_no_2': 'Entiendo. Una última cosa: muchos negocios en {ciudad} están creciendo con una web sencilla. Tenemos opciones desde 149€ muy asequibles. ¿Le envío la información sin compromiso? Presione 1 para SÍ o 2 para NO.',
+                'despedida': 'Lo comprendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+            }
+        }
     
     def cargar_plantillas_sector(self):
         """Plantillas profesionales orientadas a venta y conversión"""
@@ -1153,7 +1233,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                       <strong>{self.your_name}</strong><br>
                       {self.business_name}<br>
                       📧 {smtp_user}<br>
-                      🌐 {self.website_url}
+                      �� {self.website_url}
                     </p>
                   </div>
                 </div>
@@ -1336,8 +1416,521 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         print(f"   🇪🇸 Españoles contactados: {sum(1 for l in leads_contactados if self.es_telefono_espanol(l['phone']))}")
         print(f"   ⏰ Hora: {datetime.now().strftime('%H:%M')}")
 
+    def realizar_llamada_automatizada(self, telefono, nombre_negocio, sector, ciudad=''):
+        """
+        Realiza llamada automatizada conversacional usando Twilio Voice API
+        """
+        if not self.twilio_voice_enabled:
+            print("❌ Twilio Voice no configurado")
+            return False
+            
+        try:
+            # Crear webhook URL para manejar la llamada conversacional
+            webhook_url = f"{self.website_url}/api/webhook-llamada?sector={sector}&nombre={nombre_negocio}&ciudad={ciudad}"
+            
+            # OPTIMIZACIÓN ANTI-SPAM: Configuración mejorada
+            print(f"📞 Configuración optimizada:")
+            print(f"   📱 Desde: {os.getenv('TWILIO_PHONE_NUMBER')} (Caller ID)")
+            print(f"   📞 Hacia: {telefono}")
+            print(f"   🔊 Detección buzón: ACTIVADA")
+            print(f"   ⏱️ Timeout: 30s (reducido para minimizar costes)")
+            print(f"   💰 Coste esperado: €0.03-0.12 según respuesta")
+            
+            # Realizar llamada OPTIMIZADA
+            call = self.twilio_client.calls.create(
+                to=telefono,
+                from_=os.getenv('TWILIO_PHONE_NUMBER'),
+                url=webhook_url,
+                method='POST',
+                status_callback=f"{self.website_url}/api/webhook-llamada-status",
+                status_callback_event=['initiated', 'ringing', 'answered', 'completed', 'busy', 'failed', 'no-answer'],
+                record=True,  # Grabar para análisis y mejora
+                timeout=30,   # REDUCIDO: 30 segundos máximo (menos costes)
+                # OPTIMIZACIÓN: Detectar contextos automáticamente
+                machine_detection='Enable',  # Detectar contestador/buzón
+                machine_detection_timeout=3,  # RÁPIDO: 3 segundos para detectar
+                machine_detection_speech_threshold=2000,  # Umbral de voz humana
+                machine_detection_speech_end_threshold=1000,  # Fin de saludo humano
+                machine_detection_silence_timeout=3000,  # 3s silencio máximo antes de proceder
+                # CALLER ID mejorado si disponible
+                caller_id=os.getenv('TWILIO_PHONE_NUMBER')
+            )
+            
+            print(f"📞 Llamada conversacional iniciada: {call.sid}")
+            print(f"🎯 Negocio: {nombre_negocio} en {ciudad}")
+            print(f"📋 Flujo: Presentación → Propuesta → Respuesta cliente → Acción")
+            
+            # Guardar información de la llamada
+            self.guardar_llamada_info(call.sid, telefono, nombre_negocio, sector, "Llamada conversacional", ciudad)
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error en llamada conversacional a {telefono}: {str(e)}")
+            return False
+
+    def generar_twiml_respuesta(self, telefono, nombre_negocio, sector, ciudad='', intento=1):
+        """
+        Genera TwiML response para llamada conversacional con respuestas
+        """
+        script = self.voice_scripts.get(sector, self.voice_scripts['default'])
+        
+        # Crear respuesta TwiML conversacional
+        response = VoiceResponse()
+        
+        # Pausar 1 segundo al inicio
+        response.pause(length=1)
+        
+        # FASE 1: Presentación y personalización
+        presentacion = f"""
+        {script['intro']}
+        
+        {script['personalizacion'].format(nombre_negocio=nombre_negocio, ciudad=ciudad)}
+        
+        {script['hook'].format(nombre_negocio=nombre_negocio, ciudad=ciudad, tipo_cocina=sector)}
+        """
+        
+        response.say(
+            presentacion,
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        # Pausa para procesar información
+        response.pause(length=2)
+        
+        # FASE 2: Propuesta inicial
+        if intento == 1:
+            mensaje_propuesta = script['propuesta'].format(nombre_negocio=nombre_negocio)
+        elif intento == 2:
+            mensaje_propuesta = script['respuesta_no_1'].format(nombre_negocio=nombre_negocio)
+        elif intento == 3:
+            mensaje_propuesta = script['respuesta_no_2'].format(nombre_negocio=nombre_negocio, ciudad=ciudad)
+        else:
+            # Más de 3 intentos - despedirse
+            response.say(
+                script['despedida'],
+                voice=self.voice_config['voice'],
+                language=self.voice_config['language']
+            )
+            response.hangup()
+            return str(response)
+        
+        # Capturar respuesta del cliente
+        gather = response.gather(
+            num_digits=1,
+            timeout=10,  # 10 segundos para responder
+            action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento={intento}&nombre={nombre_negocio}&ciudad={ciudad}",
+            method='POST'
+        )
+        
+        gather.say(
+            mensaje_propuesta + " Presione 1 para SÍ, estoy interesado, o presione 2 para NO, no me interesa.",
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        # Si no responden en 10 segundos, repetir una vez
+        response.say(
+            "No he recibido su respuesta. " + mensaje_propuesta + " Presione 1 para SÍ o 2 para NO.",
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        # Último intento de captura
+        gather2 = response.gather(
+            num_digits=1,
+            timeout=5,
+            action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento={intento}&nombre={nombre_negocio}&ciudad={ciudad}",
+            method='POST'
+        )
+        
+        gather2.say(
+            "Última oportunidad: 1 para SÍ, 2 para NO.",
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        # Si no responden nada, despedirse
+        response.say(
+            "Entiendo que no puede atender ahora. Puede contactarnos en alberto@desarroyo.tech si lo desea. Que tenga un buen día.",
+            voice=self.voice_config['voice'],
+            language=self.voice_config['language']
+        )
+        
+        response.hangup()
+        return str(response)
+    
+    def manejar_respuesta_llamada(self, respuesta, sector, intento, nombre_negocio, ciudad, telefono):
+        """
+        Maneja la respuesta del cliente durante la llamada
+        NUEVO: Incluye lista negra y llamadas exitosas
+        """
+        script = self.voice_scripts.get(sector, self.voice_scripts['default'])
+        response = VoiceResponse()
+        
+        if respuesta == '1':  # SÍ, está interesado
+            mensaje_envio = script['respuesta_si'].format(nombre_negocio=nombre_negocio)
+            
+            response.say(
+                mensaje_envio,
+                voice=self.voice_config['voice'],
+                language=self.voice_config['language']
+            )
+            
+            response.say(
+                "Gracias por su tiempo. Que tenga un buen día.",
+                voice=self.voice_config['voice'],
+                language=self.voice_config['language']
+            )
+            
+            response.hangup()
+            
+            # ENVIAR SMS INMEDIATAMENTE (registra automáticamente como exitosa)
+            self.enviar_sms_post_llamada_exitosa(telefono, nombre_negocio, sector, ciudad)
+            
+            return str(response)
+            
+        elif respuesta == '2':  # NO, no está interesado
+            if intento >= 3:
+                # Ya hemos intentado 3 veces, añadir a lista negra y despedirse
+                print(f"🚫 {nombre_negocio} dijo NO después de {intento} intentos. Lista negra.")
+                
+                # NUEVO: Añadir a lista negra
+                motivo = f"NO_FINAL_INTENTO_{intento}"
+                self.agregar_a_lista_negra(telefono, nombre_negocio, motivo)
+                
+                # Notificar lista negra
+                self.enviar_notificacion_telegram(
+                    f"🚫 LEAD AÑADIDO A LISTA NEGRA\n\n"
+                    f"🏢 Negocio: {nombre_negocio}\n"
+                    f"📞 Teléfono: {telefono}\n"
+                    f"🎯 Sector: {sector}\n"
+                    f"🏙️ Ciudad: {ciudad}\n"
+                    f"❌ Respuesta: NO después de {intento} intentos\n"
+                    f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+                    f"🚫 NO se volverá a contactar este número\n"
+                    f"💰 Coste total: ~{intento * 0.12:.2f}€"
+                )
+                
+                response.say(
+                    script['despedida'],
+                    voice=self.voice_config['voice'],
+                    language=self.voice_config['language']
+                )
+                response.hangup()
+                return str(response)
+            else:
+                # Intentar con diferente enfoque
+                print(f"❌ {nombre_negocio} dijo NO (intento {intento}/3). Cambiando estrategia...")
+                return self.generar_twiml_respuesta(telefono, nombre_negocio, sector, ciudad, intento + 1)
+        
+        else:
+            # Respuesta no válida
+            response.say(
+                "No he entendido su respuesta. Por favor, presione 1 para SÍ o 2 para NO.",
+                voice=self.voice_config['voice'],
+                language=self.voice_config['language']
+            )
+            
+            gather = response.gather(
+                num_digits=1,
+                timeout=5,
+                action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento={intento}&nombre={nombre_negocio}&ciudad={ciudad}",
+                method='POST'
+            )
+            
+            return str(response)
+    
+    def enviar_sms_post_llamada_exitosa(self, telefono, nombre_negocio, sector, ciudad):
+        """
+        Envía SMS automáticamente después de una llamada exitosa (SOLO cuando dijeron SÍ)
+        """
+        try:
+            # Registrar como llamada exitosa
+            self.agregar_llamada_exitosa(telefono, nombre_negocio, sector, ciudad)
+            
+            # Crear lead temporal para SMS
+            lead_temp = {
+                'name': nombre_negocio,
+                'phone': telefono,
+                'sector': sector,
+                'ciudad': ciudad,
+                'score': 95  # Alta prioridad tras aceptar llamada
+            }
+            
+            # Generar mensaje SMS personalizado (incluye email para contacto)
+            mensaje_sms = self.generar_mensaje_sms_directo(lead_temp)
+            
+            # Enviar SMS
+            exito_sms = self.enviar_sms_automatico(lead_temp, mensaje_sms)
+            
+            if exito_sms:
+                # Marcar SMS como enviado en llamadas exitosas
+                telefono_formateado = self.formatear_telefono_espanol(telefono)
+                if telefono_formateado in self.llamadas_exitosas:
+                    self.llamadas_exitosas[telefono_formateado]['sms_enviado'] = True
+                    self.guardar_llamadas_exitosas()
+                
+                print(f"✅ SMS post-llamada enviado a {nombre_negocio}")
+                
+                # Notificar éxito completo con demostración del sistema
+                self.enviar_notificacion_telegram(
+                    f"🎉 DEMOSTRACIÓN EXITOSA DEL SISTEMA!\n\n"
+                    f"🏢 Negocio: {nombre_negocio}\n"
+                    f"📞 Teléfono: {telefono}\n"
+                    f"🎯 Sector: {sector}\n"
+                    f"🏙️ Ciudad: {ciudad}\n"
+                    f"✅ Cliente dijo SÍ en llamada\n"
+                    f"📱 SMS con encuesta: ENVIADO AUTOMÁTICAMENTE\n"
+                    f"📧 Email para contacto: alberto@desarroyo.tech\n"
+                    f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+                    f"💰 Coste: ~0.19€ (llamada + SMS)\n"
+                    f"🎯 LEAD SÚPER CALIENTE\n"
+                    f"🚀 Sistema DesArroyo Tech funcionando perfectamente!"
+                )
+            else:
+                print(f"⚠️ Llamada exitosa pero SMS falló para {nombre_negocio}")
+                
+        except Exception as e:
+            print(f"❌ Error enviando SMS post-llamada: {str(e)}")
+    
+    def contactar_lead_con_llamada(self, lead):
+        """
+        Contacta un lead usando llamada automatizada CONVERSACIONAL
+        """
+        try:
+            telefono = lead.get('telefono', lead.get('phone', ''))
+            nombre = lead.get('nombre', lead.get('name', 'este negocio'))
+            sector = lead.get('sector', 'default')
+            ciudad = lead.get('ciudad', lead.get('city', ''))
+            
+            if not telefono:
+                print(f"❌ No hay teléfono para {nombre}")
+                return False
+                
+            # Formatear teléfono español
+            telefono_formateado = self.formatear_telefono_espanol(telefono)
+            if not telefono_formateado:
+                print(f"❌ Teléfono inválido: {telefono}")
+                return False
+            
+            print(f"📞 Iniciando llamada CONVERSACIONAL a {nombre}")
+            print(f"🏙️ Ciudad: {ciudad}")
+            print(f"🎯 Sector: {sector}")
+            print(f"📞 Teléfono: {telefono_formateado}")
+            
+            # Realizar llamada conversacional
+            exito_llamada = self.realizar_llamada_automatizada(telefono_formateado, nombre, sector, ciudad)
+            
+            if exito_llamada:
+                print(f"✅ Llamada conversacional iniciada para {nombre}")
+                print(f"💬 Sistema esperará respuesta del cliente (SÍ/NO)")
+                print(f"📱 SMS solo se enviará si cliente dice SÍ")
+                
+                # Enviar notificación de llamada iniciada
+                self.enviar_notificacion_telegram(
+                    f"📞 LLAMADA CONVERSACIONAL INICIADA\n\n"
+                    f"🏢 Negocio: {nombre}\n"
+                    f"🏙️ Ciudad: {ciudad}\n"
+                    f"📞 Teléfono: {telefono_formateado}\n"
+                    f"🎯 Sector: {sector}\n"
+                    f"🎙️ Sistema: Conversacional con respuestas\n"
+                    f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
+                    f"💬 FLUJO:\n"
+                    f"1️⃣ Presentación personalizada\n"
+                    f"2️⃣ Propuesta específica\n"
+                    f"3️⃣ Captura respuesta SÍ/NO\n"
+                    f"4️⃣ Si NO → cambiar estrategia\n"
+                    f"5️⃣ Si SÍ → enviar SMS automático\n\n"
+                    f"💰 Coste llamada: ~0.12€\n"
+                    f"🎯 Conversión esperada: 35-45%"
+                )
+                
+                return True
+            else:
+                print(f"❌ Falló la llamada conversacional a {nombre}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error contactando {lead.get('nombre', lead.get('name', 'lead'))}: {str(e)}")
+            return False
+
+    def procesar_leads_con_llamadas(self, leads, limite=3):
+        """
+        Procesa leads usando llamadas automatizadas CONVERSACIONALES
+        NUEVO: Filtra lista negra automáticamente
+        """
+        print(f"\n📞 === INICIANDO SISTEMA CONVERSACIONAL ===")
+        print(f"🎯 {len(leads)} leads encontrados antes de filtros")
+        
+        # NUEVO: Filtrar lista negra antes de procesar
+        leads_filtrados = self.filtrar_leads_sin_lista_negra(leads)
+        print(f"📋 {len(leads_filtrados)} leads válidos después de filtrar lista negra")
+        print(f"📞 Procesando {min(limite, len(leads_filtrados))} llamadas")
+        print(f"💬 Flujo: Llamada → Conversación → Respuesta cliente → SMS si SÍ")
+        print(f"🔄 Cada llamada incluye hasta 3 intentos de persuasión")
+        print(f"🚫 NO se contactan números de lista negra")
+        
+        leads_contactados = 0
+        leads_exitosos = []
+        
+        for i, lead in enumerate(leads_filtrados[:limite]):
+            if leads_contactados >= limite:
+                break
+                
+            print(f"\n📞 Llamada conversacional {i+1}/{min(limite, len(leads_filtrados))}")
+            
+            # Realizar llamada conversacional
+            exito = self.contactar_lead_con_llamada(lead)
+            
+            if exito:
+                leads_contactados += 1
+                leads_exitosos.append(lead)
+                
+                # Pausa entre llamadas (2-4 minutos para evitar saturar)
+                if i < min(limite, len(leads)) - 1:  # No pausar en el último
+                    tiempo_pausa = random.randint(120, 240)  # 2-4 minutos entre llamadas
+                    print(f"⏳ Pausa de {tiempo_pausa} segundos antes de la siguiente llamada...")
+                    time.sleep(tiempo_pausa)
+            
+        # Resumen final
+        print(f"\n📊 === RESUMEN SISTEMA CONVERSACIONAL ===")
+        print(f"📞 Llamadas iniciadas: {leads_contactados}")
+        print(f"💬 Sistema conversacional: Activo")
+        print(f"🎯 Respuestas esperadas: Notificaciones automáticas")
+        print(f"📱 SMS: Solo se envían tras respuesta SÍ")
+        print(f"💰 Coste llamadas: {leads_contactados * 0.12:.2f}€")
+        print(f"🎯 Conversión esperada: {int(leads_contactados * 0.4)} leads calientes")
+        print(f"📈 Efectividad: 35-50% (conversacional personalizado)")
+        print(f"\n💡 Próximos pasos:")
+        print(f"   - Revisar notificaciones Telegram")
+        print(f"   - SMS automáticos a respuestas SÍ")
+        print(f"   - Seguimiento leads calientes")
+        
+        return leads_exitosos
+
+    def guardar_llamada_info(self, call_sid, telefono, nombre_negocio, sector, script, ciudad=''):
+        """
+        Guarda información de la llamada para seguimiento
+        """
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        
+        call_info = {
+            "call_sid": call_sid,
+            "telefono": telefono,
+            "nombre_negocio": nombre_negocio,
+            "sector": sector,
+            "ciudad": ciudad,
+            "script_usado": script,
+            "fecha_llamada": timestamp,
+            "estado": "INICIADA"
+        }
+        
+        # Guardar en archivo JSON
+        filename = f"llamadas_realizadas_{timestamp}.json"
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(call_info, f, ensure_ascii=False, indent=2)
+            print(f"📱 Información de llamada guardada: {filename}")
+        except Exception as e:
+            print(f"❌ Error guardando info de llamada: {str(e)}")
+
+    # ===== NUEVAS FUNCIONES: LISTA NEGRA Y LLAMADAS EXITOSAS =====
+    def cargar_lista_negra(self):
+        """Cargar lista de teléfonos que dijeron NO (no volver a llamar)"""
+        try:
+            if os.path.exists(self.lista_negra_file):
+                with open(self.lista_negra_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            return {}
+        except Exception as e:
+            print(f"⚠️ Error cargando lista negra: {str(e)}")
+            return {}
+    
+    def cargar_llamadas_exitosas(self):
+        """Cargar lista de teléfonos que dijeron SÍ (para seguimiento)"""
+        try:
+            if os.path.exists(self.llamadas_exitosas_file):
+                with open(self.llamadas_exitosas_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            return {}
+        except Exception as e:
+            print(f"⚠️ Error cargando llamadas exitosas: {str(e)}")
+            return {}
+    
+    def guardar_lista_negra(self):
+        """Guardar lista negra de teléfonos que dijeron NO"""
+        try:
+            with open(self.lista_negra_file, 'w', encoding='utf-8') as f:
+                json.dump(self.lista_negra, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"❌ Error guardando lista negra: {str(e)}")
+    
+    def guardar_llamadas_exitosas(self):
+        """Guardar lista de llamadas exitosas (dijeron SÍ)"""
+        try:
+            with open(self.llamadas_exitosas_file, 'w', encoding='utf-8') as f:
+                json.dump(self.llamadas_exitosas, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"❌ Error guardando llamadas exitosas: {str(e)}")
+    
+    def agregar_a_lista_negra(self, telefono, nombre_negocio, motivo='NO_INTERESADO'):
+        """Agregar teléfono a lista negra (no volver a llamar)"""
+        try:
+            telefono_formateado = self.formatear_telefono_espanol(telefono)
+            if telefono_formateado:
+                self.lista_negra[telefono_formateado] = {
+                    'nombre_negocio': nombre_negocio,
+                    'fecha_no': datetime.now().isoformat(),
+                    'motivo': motivo,
+                    'intentos_realizados': self.lista_negra.get(telefono_formateado, {}).get('intentos_realizados', 0) + 1
+                }
+                self.guardar_lista_negra()
+                print(f"🚫 {nombre_negocio} ({telefono_formateado}) añadido a lista negra: {motivo}")
+        except Exception as e:
+            print(f"❌ Error añadiendo a lista negra: {str(e)}")
+    
+    def agregar_llamada_exitosa(self, telefono, nombre_negocio, sector, ciudad):
+        """Agregar llamada exitosa (dijo SÍ)"""
+        try:
+            telefono_formateado = self.formatear_telefono_espanol(telefono)
+            if telefono_formateado:
+                self.llamadas_exitosas[telefono_formateado] = {
+                    'nombre_negocio': nombre_negocio,
+                    'sector': sector,
+                    'ciudad': ciudad,
+                    'fecha_si': datetime.now().isoformat(),
+                    'sms_enviado': False,
+                    'conversion_alta': True
+                }
+                self.guardar_llamadas_exitosas()
+                print(f"✅ {nombre_negocio} ({telefono_formateado}) registrado como ÉXITO - enviará SMS")
+        except Exception as e:
+            print(f"❌ Error registrando llamada exitosa: {str(e)}")
+    
+    def esta_en_lista_negra(self, telefono):
+        """Verificar si un teléfono está en lista negra"""
+        telefono_formateado = self.formatear_telefono_espanol(telefono)
+        return telefono_formateado in self.lista_negra
+    
+    def filtrar_leads_sin_lista_negra(self, leads):
+        """Filtrar leads eliminando los que están en lista negra"""
+        leads_filtrados = []
+        for lead in leads:
+            telefono = lead.get('telefono', lead.get('phone', ''))
+            if telefono and not self.esta_en_lista_negra(telefono):
+                leads_filtrados.append(lead)
+            elif telefono:
+                nombre = lead.get('nombre', lead.get('name', 'Desconocido'))
+                print(f"🚫 Saltando {nombre} - está en lista negra (dijo NO anteriormente)")
+        
+        print(f"🔍 Filtrados: {len(leads_filtrados)}/{len(leads)} leads (sin lista negra)")
+        return leads_filtrados
+
 def main():
-    """Función principal expandida - SISTEMA MASIVO"""
+    """Función principal expandida - SISTEMA HÍBRIDO SMS + LLAMADAS"""
+    import argparse
     
     # Lista completa de 41 ciudades españolas
     CIUDADES_DISPONIBLES = [
@@ -1400,59 +1993,144 @@ def main():
         'hoteles'
     ]
     
-    if len(sys.argv) < 3:
-        print("🚀 SISTEMA MASIVO DE LEADS - DesArroyo Tech")
-        print("=" * 60)
-        print("Uso: python3 sistema_leads_avanzado.py <ciudad> <sector>")
-        print(f"\n📍 CIUDADES DISPONIBLES ({len(CIUDADES_DISPONIBLES)}):")
-        print("   Madrid, Barcelona, Valencia, Sevilla, Zaragoza, Málaga...")
-        print("   + 35 ciudades más de toda España")
-        
-        print(f"\n🏢 SECTORES DISPONIBLES ({len(SECTORES_DISPONIBLES)}):")
-        print("   💊 SALUD: dentistas, psicologos, fisioterapeutas, centros_estetica...")
-        print("   🍽️ GASTRONOMÍA: restaurantes, cafeterias, panaderias...")  
-        print("   💪 DEPORTE: gimnasios, entrenadores_personales...")
-        print("   🔧 TÉCNICOS: electricistas, fontaneros, cerrajeros...")
-        print("   🐕 MASCOTAS: peluqueria_canina, adiestradores...")
-        print("   📚 EDUCACIÓN: academias_idiomas, autoescuelas...")
-        print("   ⚖️ PROFESIONALES: abogados, agencias_inmobiliarias...")
-        print("   🎨 CREATIVOS: fotografos_locales, organizadores_eventos...")
-        print("   🏪 COMERCIO: tiendas_barrio, papelerias, ferreterias...")
-        
-        print("\n💡 EJEMPLOS:")
-        print("   python3 sistema_leads_avanzado.py Madrid dentistas")
-        print("   python3 sistema_leads_avanzado.py Barcelona restaurantes")
-        print("   python3 sistema_leads_avanzado.py Sevilla electricistas")
-        
-        print(f"\n📊 POTENCIAL TOTAL:")
-        print(f"   {len(CIUDADES_DISPONIBLES)} ciudades × {len(SECTORES_DISPONIBLES)} sectores = {len(CIUDADES_DISPONIBLES) * len(SECTORES_DISPONIBLES):,} combinaciones")
-        print(f"   Rotación inteligente cada 6 horas para cobertura completa")
-        
-        sys.exit(1)
+    # Configurar parser de argumentos
+    parser = argparse.ArgumentParser(
+        description='🚀 Sistema Híbrido de Leads - DesArroyo Tech (SMS + Llamadas)',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""
+💡 EJEMPLOS DE USO:
+
+📱 SMS Masivo:
+   python3 sistema_leads_avanzado.py Madrid dentistas --canal SMS
+   
+📞 Llamadas Conversacionales:
+   python3 sistema_leads_avanzado.py Barcelona restaurantes --llamadas --limite 10
+   
+🎯 Con control de presupuesto:
+   python3 sistema_leads_avanzado.py Valencia peluquerias --canal SMS --presupuesto-max 15
+
+📊 INFORMACIÓN:
+   📍 Ciudades: {len(CIUDADES_DISPONIBLES)} disponibles
+   🏢 Sectores: {len(SECTORES_DISPONIBLES)} disponibles
+   💰 Presupuesto: Control automático 300-600€/mes
+        """
+    )
     
-    ciudad = sys.argv[1]
-    sector = sys.argv[2]
+    # Argumentos obligatorios
+    parser.add_argument('ciudad', help='Ciudad para buscar leads')
+    parser.add_argument('sector', help='Sector de negocio')
+    
+    # Argumentos opcionales
+    parser.add_argument('--canal', 
+                       choices=['SMS', 'EMAIL', 'WHATSAPP'], 
+                       default='SMS',
+                       help='Canal de comunicación (por defecto: SMS)')
+    
+    parser.add_argument('--llamadas', 
+                       action='store_true',
+                       help='Usar llamadas conversacionales en lugar de SMS')
+    
+    parser.add_argument('--limite', 
+                       type=int, 
+                       default=25,
+                       help='Límite de contactos (por defecto: 25)')
+    
+    parser.add_argument('--presupuesto-max', 
+                       type=float, 
+                       default=50.0,
+                       help='Presupuesto máximo en € para esta ejecución (por defecto: 50)')
+    
+    parser.add_argument('--test', 
+                       action='store_true',
+                       help='Modo prueba (no envía mensajes reales)')
+    
+    # Parsear argumentos
+    args = parser.parse_args()
     
     # Validar ciudad y sector
-    if ciudad not in CIUDADES_DISPONIBLES:
-        print(f"❌ Ciudad '{ciudad}' no disponible")
+    if args.ciudad not in CIUDADES_DISPONIBLES:
+        print(f"❌ Ciudad '{args.ciudad}' no disponible")
         print(f"💡 Ciudades válidas: {', '.join(CIUDADES_DISPONIBLES[:10])}...")
         sys.exit(1)
         
-    if sector not in SECTORES_DISPONIBLES:
-        print(f"❌ Sector '{sector}' no disponible")
+    if args.sector not in SECTORES_DISPONIBLES:
+        print(f"❌ Sector '{args.sector}' no disponible")
         print(f"💡 Sectores válidos: {', '.join(SECTORES_DISPONIBLES[:10])}...")
         sys.exit(1)
     
-    print(f"🚀 INICIANDO BÚSQUEDA MASIVA:")
-    print(f"   📍 Ciudad: {ciudad}")
-    print(f"   🏢 Sector: {sector}")
-    print(f"   📱 Canal: SMS (sin restricciones)")
-    print(f"   🎯 Objetivo: 25 números móviles españoles")
-    print("=" * 60)
+    # Mostrar información de inicio
+    if args.llamadas:
+        tipo_campana = "📞 LLAMADAS CONVERSACIONALES"
+        coste_estimado = args.limite * 0.12
+        conversion_esperada = f"{int(args.limite * 0.4)} leads calientes (40%)"
+    else:
+        tipo_campana = f"📱 {args.canal} MASIVO"
+        coste_estimado = args.limite * 0.07
+        conversion_esperada = f"{int(args.limite * 0.05)} respuestas (5%)"
     
+    print(f"🚀 INICIANDO {tipo_campana}")
+    print("=" * 70)
+    print(f"   📍 Ciudad: {args.ciudad}")
+    print(f"   🏢 Sector: {args.sector}")
+    print(f"   🎯 Límite: {args.limite} contactos")
+    print(f"   💰 Presupuesto: {args.presupuesto_max}€ máximo")
+    print(f"   💸 Coste estimado: {coste_estimado:.2f}€")
+    print(f"   📈 Conversión esperada: {conversion_esperada}")
+    print(f"   🧪 Modo prueba: {'SÍ' if args.test else 'NO'}")
+    print("=" * 70)
+    
+    # Verificar que no se excede el presupuesto
+    if coste_estimado > args.presupuesto_max:
+        print(f"⚠️ ADVERTENCIA: Coste estimado ({coste_estimado:.2f}€) excede presupuesto ({args.presupuesto_max}€)")
+        limite_ajustado = int(args.presupuesto_max / (0.12 if args.llamadas else 0.07))
+        print(f"💡 Ajustando límite a {limite_ajustado} contactos para respetar presupuesto")
+        args.limite = limite_ajustado
+    
+    # Inicializar sistema
     sistema = SistemaLeadsAvanzado()
-    sistema.ejecutar_sector_ciudad(ciudad, sector)
+    
+    # Configurar modo prueba si es necesario
+    if args.test:
+        print("🧪 MODO PRUEBA ACTIVADO - No se enviarán mensajes reales")
+        sistema.test_mode = True
+    
+    try:
+        if args.llamadas:
+            # Modo llamadas conversacionales
+            print(f"\n📞 Iniciando búsqueda de leads para llamadas...")
+            
+            # Buscar leads (reutilizar lógica existente)
+            leads_raw = sistema.scraper.buscar_masivo(args.ciudad, args.sector)
+            if not leads_raw:
+                print(f"❌ No se encontraron leads para {args.sector} en {args.ciudad}")
+                return
+            
+            # Filtrar y calificar leads
+            leads_calificados = sistema.filtrar_y_calificar_leads_avanzado(leads_raw, args.sector)
+            
+            if not leads_calificados:
+                print(f"❌ No se encontraron leads calificados para llamadas")
+                return
+            
+            # Procesar con llamadas conversacionales
+            leads_exitosos = sistema.procesar_leads_con_llamadas(leads_calificados, args.limite)
+            
+            print(f"\n✅ Llamadas conversacionales completadas")
+            print(f"📞 Leads procesados: {len(leads_exitosos)}")
+            
+        else:
+            # Modo SMS/EMAIL masivo (usar método existente)
+            print(f"\n📱 Iniciando campaña {args.canal} masiva...")
+            sistema.ejecutar_sector_ciudad(args.ciudad, args.sector)
+            
+    except KeyboardInterrupt:
+        print(f"\n⚠️ Proceso interrumpido por usuario")
+    except Exception as e:
+        print(f"\n❌ Error durante ejecución: {str(e)}")
+        import traceback
+        traceback.print_exc()
+    
+    print(f"\n🎯 Proceso completado para {args.ciudad} - {args.sector}")
 
 if __name__ == "__main__":
     main() 

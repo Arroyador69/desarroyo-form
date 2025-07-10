@@ -36,6 +36,12 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 return self.handle_whatsapp_webhook(request)
             elif path == '/webhook/encuesta':
                 return self.handle_encuesta_webhook(request)
+            elif path == '/api/webhook-llamada':
+                return self.handle_llamada_webhook(request)
+            elif path == '/api/webhook-llamada-respuesta':
+                return self.handle_llamada_respuesta_webhook(request)
+            elif path == '/api/webhook-llamada-status':
+                return self.handle_llamada_status_webhook(request)
             else:
                 return {
                     'statusCode': 404,
@@ -99,6 +105,414 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 'statusCode': 500,
                 'body': json.dumps({'error': str(e)})
             }
+
+    def handle_llamada_webhook(self, request):
+        """Maneja webhook inicial de llamada automatizada"""
+        try:
+            # Obtener parámetros de la URL
+            query_params = urllib.parse.parse_qs(urllib.parse.urlparse(request.url).query)
+            sector = query_params.get('sector', ['default'])[0]
+            nombre = query_params.get('nombre', ['Negocio'])[0]
+            ciudad = query_params.get('ciudad', [''])[0]
+            
+            # Importar TwiML localmente
+            from twilio.twiml import VoiceResponse
+            
+            # Scripts de voz por sector
+            voice_scripts = {
+                'restaurantes': {
+                    'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web para restaurantes.',
+                    'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un restaurante con mucho potencial.',
+                    'hook': f'Los restaurantes en {ciudad} que tienen web profesional están consiguiendo un 40% más de reservas que sus competidores.',
+                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. ¿Le interesaría escuchar esta información?',
+                },
+                'dentistas': {
+                    'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para clínicas dentales.',
+                    'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y se dedican a odontología general.',
+                    'hook': f'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos.',
+                    'propuesta': f'Nos gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. ¿Le interesaría conocer esta información?',
+                },
+                'default': {
+                    'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional para negocios.',
+                    'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un negocio con mucho potencial.',
+                    'hook': f'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%.',
+                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. ¿Le interesaría escuchar esta información?',
+                }
+            }
+            
+            script = voice_scripts.get(sector, voice_scripts['default'])
+            
+            # Crear respuesta TwiML conversacional
+            response = VoiceResponse()
+            
+            # Pausar 1 segundo al inicio
+            response.pause(length=1)
+            
+            # Presentación personalizada
+            presentacion = f"""
+            {script['intro']}
+            
+            {script['personalizacion']}
+            
+            {script['hook']}
+            """
+            
+            response.say(
+                presentacion,
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            # Pausa para procesar información
+            response.pause(length=2)
+            
+            # Propuesta con captura de respuesta
+            gather = response.gather(
+                num_digits=1,
+                timeout=10,
+                action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento=1&nombre={nombre}&ciudad={ciudad}",
+                method='POST'
+            )
+            
+            gather.say(
+                script['propuesta'] + " Presione 1 para SÍ, estoy interesado, o presione 2 para NO, no me interesa.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            # Si no responden, repetir
+            response.say(
+                "No he recibido su respuesta. " + script['propuesta'] + " Presione 1 para SÍ o 2 para NO.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            response.hangup()
+            
+            # Devolver XML de TwiML
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+            
+        except Exception as e:
+            # En caso de error, devolver TwiML simple
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            response.say(
+                "Lo siento, ha ocurrido un error técnico. Puede contactarnos en alberto@desarroyo.tech",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            response.hangup()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+
+    def handle_llamada_respuesta_webhook(self, request):
+        """Maneja respuesta del cliente durante la llamada"""
+        try:
+            # Parsear form data de Twilio
+            body = request.body.decode('utf-8')
+            form_data = urllib.parse.parse_qs(body)
+            
+            # Obtener parámetros
+            query_params = urllib.parse.parse_qs(urllib.parse.urlparse(request.url).query)
+            sector = query_params.get('sector', ['default'])[0]
+            intento = int(query_params.get('intento', ['1'])[0])
+            nombre = query_params.get('nombre', ['Negocio'])[0]
+            ciudad = query_params.get('ciudad', [''])[0]
+            
+            # Obtener respuesta del cliente
+            respuesta = form_data.get('Digits', [''])[0]
+            telefono = form_data.get('To', [''])[0]
+            
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            
+            if respuesta == '1':  # SÍ, está interesado
+                response.say(
+                    f"Perfecto. Le voy a enviar ahora mismo por SMS una encuesta personalizada para {nombre} con ejemplos específicos y nuestros precios. Gracias por su tiempo.",
+                    voice='Polly.Lucia',
+                    language='es-ES'
+                )
+                response.hangup()
+                
+                # ENVIAR SMS AUTOMÁTICAMENTE
+                self.enviar_sms_post_llamada_exitosa(telefono, nombre, sector, ciudad)
+                
+                # Notificar éxito por Telegram
+                self.notificar_llamada_exitosa(telefono, nombre, sector, ciudad)
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/xml'},
+                    'body': str(response)
+                }
+                
+            elif respuesta == '2':  # NO, no está interesado
+                if intento >= 3:
+                    # Ya hemos intentado 3 veces, despedirse
+                    response.say(
+                        "Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                        voice='Polly.Lucia',
+                        language='es-ES'
+                    )
+                    response.hangup()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/xml'},
+                        'body': str(response)
+                    }
+                else:
+                    # Intentar con diferente enfoque
+                    return self.generar_reintento_llamada(sector, intento + 1, nombre, ciudad)
+            
+            else:
+                # Respuesta no válida
+                response.say(
+                    "No he entendido su respuesta. Por favor, presione 1 para SÍ o 2 para NO.",
+                    voice='Polly.Lucia',
+                    language='es-ES'
+                )
+                
+                gather = response.gather(
+                    num_digits=1,
+                    timeout=5,
+                    action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento={intento}&nombre={nombre}&ciudad={ciudad}",
+                    method='POST'
+                )
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/xml'},
+                    'body': str(response)
+                }
+                
+        except Exception as e:
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            response.say(
+                "Ha ocurrido un error. Puede contactarnos en alberto@desarroyo.tech",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            response.hangup()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+
+    def generar_reintento_llamada(self, sector, intento, nombre, ciudad):
+        """Genera reintento con diferente estrategia"""
+        try:
+            from twilio.twiml import VoiceResponse
+            
+            # Scripts alternativos por intento
+            scripts_reintento = {
+                2: {
+                    'restaurantes': f"Entiendo. Déjeme preguntarle una cosa: ¿han notado que muchos clientes buscan restaurantes online antes de decidir dónde cenar? Nosotros ayudamos a restaurantes como {nombre} a aparecer mejor en internet. ¿Esto le resultaría más interesante?",
+                    'dentistas': f"Entiendo. ¿Han observado que los pacientes nuevos cada vez buscan más información online antes de elegir dentista? Nosotros ayudamos a clínicas como {nombre} a transmitir confianza y profesionalidad. ¿Esto le resultaría útil?",
+                    'default': f"Entiendo. ¿Han notado que los clientes buscan servicios online antes de comprar? Nosotros ayudamos a negocios como {nombre} a aparecer mejor en internet y conseguir más ventas. ¿Esto le resultaría útil?"
+                },
+                3: {
+                    'restaurantes': f"Comprendo su posición. Una última cosa: trabajamos con restaurantes en {ciudad} y hemos visto que los que no tienen presencia digital pierden clientes cada día. Por eso creamos un plan de 149€ muy asequible. ¿Le envío la información sin compromiso?",
+                    'dentistas': f"Comprendo. Una cosa más: muchas clínicas en {ciudad} están perdiendo pacientes porque no aparecen bien en internet. Tenemos un plan desde 149€ muy accesible. ¿Le mando la información para que la revise?",
+                    'default': f"Entiendo. Una última cosa: muchos negocios en {ciudad} están creciendo con una web sencilla. Tenemos opciones desde 149€ muy asequibles. ¿Le envío la información sin compromiso?"
+                }
+            }
+            
+            mensaje = scripts_reintento.get(intento, {}).get(sector, scripts_reintento.get(intento, {}).get('default', ''))
+            
+            response = VoiceResponse()
+            
+            gather = response.gather(
+                num_digits=1,
+                timeout=10,
+                action=f"{self.website_url}/api/webhook-llamada-respuesta?sector={sector}&intento={intento}&nombre={nombre}&ciudad={ciudad}",
+                method='POST'
+            )
+            
+            gather.say(
+                mensaje + " Presione 1 para SÍ o 2 para NO.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            response.say(
+                "Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            
+            response.hangup()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+            
+        except Exception as e:
+            from twilio.twiml import VoiceResponse
+            response = VoiceResponse()
+            response.say(
+                "Puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                voice='Polly.Lucia',
+                language='es-ES'
+            )
+            response.hangup()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/xml'},
+                'body': str(response)
+            }
+
+    def handle_llamada_status_webhook(self, request):
+        """Maneja actualizaciones de estado de llamada"""
+        try:
+            # Parsear form data de Twilio
+            body = request.body.decode('utf-8')
+            form_data = urllib.parse.parse_qs(body)
+            
+            call_sid = form_data.get('CallSid', [''])[0]
+            call_status = form_data.get('CallStatus', [''])[0]
+            
+            # Notificar estado por Telegram si es relevante
+            if call_status in ['completed', 'failed', 'no-answer']:
+                self.notificar_estado_llamada(call_sid, call_status)
+            
+            return {
+                'statusCode': 200,
+                'body': json.dumps({'status': 'ok'})
+            }
+            
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'body': json.dumps({'error': str(e)})
+            }
+
+    def enviar_sms_post_llamada_exitosa(self, telefono, nombre, sector, ciudad):
+        """Envía SMS automáticamente después de llamada exitosa"""
+        try:
+            # Generar mensaje SMS personalizado
+            mensaje_sms = f"""Buenos días,
+
+Soy de DesArroyo Tech, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
+
+He visto {nombre} y detectamos una gran oportunidad para aumentar sus ventas.
+
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
+
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
+{self.website_url}/index_conectado_n8n.html
+
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
+Saludos cordiales,
+DesArroyo Tech
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀"""
+
+            # Formatear teléfono para SMS
+            telefono_limpio = telefono.replace('whatsapp:', '').replace('+', '')
+            if not telefono_limpio.startswith('34'):
+                telefono_limpio = '34' + telefono_limpio
+            telefono_sms = '+' + telefono_limpio
+            
+            # Enviar SMS usando Twilio
+            if self.twilio_sid and self.twilio_token:
+                from twilio.rest import Client
+                client = Client(self.twilio_sid, self.twilio_token)
+                
+                message = client.messages.create(
+                    body=mensaje_sms,
+                    from_='+34910886507',  # Tu número Twilio
+                    to=telefono_sms
+                )
+                
+                print(f"✅ SMS post-llamada enviado: {message.sid}")
+                return True
+            
+        except Exception as e:
+            print(f"❌ Error enviando SMS post-llamada: {str(e)}")
+            return False
+
+    def notificar_llamada_exitosa(self, telefono, nombre, sector, ciudad):
+        """Notifica llamada exitosa por Telegram"""
+        if not self.telegram_token or not self.telegram_chat:
+            return
+            
+        try:
+            texto = f"""🎉 **¡LLAMADA EXITOSA - CLIENTE DIJO SÍ!**
+
+🏢 Negocio: {nombre}
+🏙️ Ciudad: {ciudad}
+📞 Teléfono: {telefono}
+🎯 Sector: {sector}
+✅ Cliente INTERESADO en llamada
+📱 SMS con encuesta: ENVIADO AUTOMÁTICAMENTE
+
+🔥 **LEAD SÚPER CALIENTE - ALTA PROBABILIDAD CONVERSIÓN**
+
+⏰ {datetime.now().strftime('%d/%m/%Y %H:%M')}"""
+
+            requests.post(
+                f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
+                json={
+                    'chat_id': self.telegram_chat,
+                    'text': texto,
+                    'parse_mode': 'Markdown'
+                }
+            )
+            
+        except Exception as e:
+            print(f"Error Telegram: {e}")
+
+    def notificar_estado_llamada(self, call_sid, status):
+        """Notifica estado de llamada por Telegram"""
+        if not self.telegram_token or not self.telegram_chat:
+            return
+            
+        try:
+            estados = {
+                'completed': '✅ Llamada completada',
+                'failed': '❌ Llamada falló',
+                'no-answer': '📵 No contestaron'
+            }
+            
+            texto = f"""📞 **ESTADO LLAMADA**
+
+🆔 {call_sid[:20]}...
+📊 {estados.get(status, status)}
+
+⏰ {datetime.now().strftime('%d/%m/%Y %H:%M')}"""
+
+            requests.post(
+                f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
+                json={
+                    'chat_id': self.telegram_chat,
+                    'text': texto,
+                    'parse_mode': 'Markdown'
+                }
+            )
+            
+        except Exception as e:
+            print(f"Error Telegram: {e}")
 
     def formatear_telefono_espanol(self, phone):
         """Formatea número español con validación estricta (Error 63024)"""
@@ -351,6 +765,64 @@ Casos reales: restaurantes +40% ventas, clínicas +3x citas...
             
         except Exception as e:
             print(f"Error Telegram: {e}")
+
+    # ===== NUEVAS FUNCIONES: LISTA NEGRA Y LLAMADAS EXITOSAS =====
+    
+    def registrar_llamada_exitosa(self, telefono, nombre_negocio, sector, ciudad):
+        """Registra una llamada exitosa (cliente dijo SÍ)"""
+        try:
+            # Simular registro local para webhook
+            timestamp = datetime.now().isoformat()
+            print(f"✅ LLAMADA EXITOSA: {nombre_negocio} ({telefono}) - {timestamp}")
+            
+            # En un entorno real, aquí guardaríamos en base de datos
+            # o archivo JSON como hace el sistema principal
+            
+        except Exception as e:
+            print(f"❌ Error registrando llamada exitosa: {str(e)}")
+    
+    def agregar_a_lista_negra(self, telefono, nombre_negocio, motivo='NO_INTERESADO'):
+        """Añade un teléfono a la lista negra (no volver a llamar)"""
+        try:
+            # Simular registro en lista negra para webhook
+            timestamp = datetime.now().isoformat()
+            print(f"🚫 LISTA NEGRA: {nombre_negocio} ({telefono}) - {motivo} - {timestamp}")
+            
+            # En un entorno real, aquí guardaríamos en base de datos
+            # o archivo JSON como hace el sistema principal
+            
+        except Exception as e:
+            print(f"❌ Error añadiendo a lista negra: {str(e)}")
+    
+    def notificar_lista_negra(self, telefono, nombre_negocio, sector, ciudad, intentos):
+        """Notifica que un lead se añadió a lista negra"""
+        if not self.telegram_token or not self.telegram_chat:
+            return
+            
+        try:
+            texto = f"""🚫 **LEAD AÑADIDO A LISTA NEGRA**
+
+🏢 Negocio: {nombre_negocio}
+📞 Teléfono: {telefono}
+🎯 Sector: {sector}
+🏙️ Ciudad: {ciudad}
+❌ Respuesta: NO después de {intentos} intentos
+⏰ Hora: {datetime.now().strftime('%H:%M')}
+
+🚫 NO se volverá a contactar este número
+💰 Coste total: ~{intentos * 0.12:.2f}€"""
+
+            requests.post(
+                f'https://api.telegram.org/bot{self.telegram_token}/sendMessage',
+                json={
+                    'chat_id': self.telegram_chat,
+                    'text': texto,
+                    'parse_mode': 'Markdown'
+                }
+            )
+            
+        except Exception as e:
+            print(f"Error notificando lista negra: {e}")
 
 # Función principal para Vercel
 def handler(request, context):
