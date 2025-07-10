@@ -1,179 +1,177 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-TEST WHATSAPP - Diagnóstico Error 63024
-Prueba directa de envío WhatsApp para identificar el problema
+🔧 SCRIPT DIAGNÓSTICO: Error 63024 WhatsApp Twilio
+Verifica configuración y formateo de números
 """
 
-from twilio.rest import Client
 import os
-import sys
+from twilio.rest import Client
+import re
+from datetime import datetime
 
-def test_whatsapp_directo():
-    """Prueba WhatsApp con configuración directa"""
-    
-    print("🧪 TEST WHATSAPP - DIAGNÓSTICO ERROR 63024")
-    print("=" * 50)
-    
-    # Configuración desde variables de entorno
-    TWILIO_SID = os.getenv('TWILIO_ACCOUNT_SID')
-    TWILIO_TOKEN = os.getenv('TWILIO_AUTH_TOKEN') 
-    TWILIO_WHATSAPP = os.getenv('TWILIO_WHATSAPP_NUMBER')
-    
-    print(f"📋 CONFIGURACIÓN:")
-    print(f"   SID: {TWILIO_SID[:8]}... (oculto)")
-    print(f"   Token: {TWILIO_TOKEN[:8]}... (oculto)")
-    print(f"   WhatsApp: {TWILIO_WHATSAPP}")
-    
-    if not all([TWILIO_SID, TWILIO_TOKEN, TWILIO_WHATSAPP]):
-        print("❌ ERROR: Variables de entorno no configuradas")
-        print("   Configura: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER")
-        return False
-    
-    # Pedir número de prueba
-    print(f"\n📞 INGRESA TU NÚMERO PERSONAL:")
-    print(f"   Formato: +34XXXXXXXXX (ejemplo: +34612345678)")
-    tu_numero = input("   Tu número: ").strip()
-    
-    if not tu_numero.startswith('+34'):
-        print(f"❌ ERROR: El número debe empezar con +34")
-        return False
-    
-    if len(tu_numero) != 12:
-        print(f"❌ ERROR: El número debe tener 12 caracteres (+34XXXXXXXXX)")
-        return False
-    
-    # Crear cliente Twilio
-    try:
-        client = Client(TWILIO_SID, TWILIO_TOKEN)
-        print(f"✅ Cliente Twilio creado correctamente")
-    except Exception as e:
-        print(f"❌ ERROR creando cliente Twilio: {e}")
-        return False
-    
-    # Enviar mensaje de prueba
-    print(f"\n📤 ENVIANDO MENSAJE DE PRUEBA...")
-    print(f"   From: whatsapp:{TWILIO_WHATSAPP}")
-    print(f"   To: whatsapp:{tu_numero}")
-    
-    try:
-        message = client.messages.create(
-            from_=f'whatsapp:{TWILIO_WHATSAPP}',
-            body='🧪 PRUEBA: Si recibes este mensaje, WhatsApp funciona correctamente. Error 63024 solucionado.',
-            to=f'whatsapp:{tu_numero}'
-        )
+class DiagnosticoWhatsApp:
+    def __init__(self):
+        self.twilio_sid = os.getenv('TWILIO_ACCOUNT_SID')
+        self.twilio_token = os.getenv('TWILIO_AUTH_TOKEN') 
+        self.twilio_whatsapp = os.getenv('TWILIO_WHATSAPP_NUMBER')
         
-        print(f"\n✅ MENSAJE ENVIADO EXITOSAMENTE!")
-        print(f"   SID: {message.sid}")
-        print(f"   Estado inicial: {message.status}")
-        print(f"   Dirección: {message.direction}")
-        print(f"   Precio: {message.price} {message.price_unit}")
+        print("🔧 DIAGNÓSTICO WHATSAPP - ERROR 63024")
+        print("=" * 50)
         
-        # Verificar estado después de unos segundos
-        import time
-        print(f"\n⏱️ Verificando estado en 10 segundos...")
-        time.sleep(10)
+        # Verificar configuración
+        self.verificar_configuracion()
         
-        # Refrescar estado del mensaje
-        message = client.messages(message.sid).fetch()
-        print(f"   Estado final: {message.status}")
+        # Verificar formateo de números
+        self.probar_formateo_numeros()
         
-        if message.status == 'delivered':
-            print(f"🎉 ÉXITO: Mensaje entregado correctamente")
-            print(f"   ✅ No hay error 63024")
-            print(f"   ✅ Configuración Twilio correcta")
-            return True
-        elif message.status == 'failed':
-            print(f"❌ FALLO: Mensaje no entregado")
-            print(f"   Error code: {message.error_code}")
-            print(f"   Error message: {message.error_message}")
-            return False
-        else:
-            print(f"⏳ PENDIENTE: Estado '{message.status}' - espera más tiempo")
-            return True
-            
-    except Exception as e:
-        print(f"\n❌ ERROR ENVIANDO MENSAJE:")
-        print(f"   {e}")
-        
-        # Análisis del error
-        error_str = str(e)
-        if '63024' in error_str:
-            print(f"\n🔍 DIAGNÓSTICO ERROR 63024:")
-            print(f"   ❌ Número no autorizado en WhatsApp Sandbox")
-            print(f"   📝 SOLUCIÓN:")
-            print(f"      1. Ve a Twilio Console → WhatsApp Sandbox")
-            print(f"      2. Añade tu número: {tu_numero}")
-            print(f"      3. Envía el código desde tu WhatsApp")
-            print(f"      4. Vuelve a ejecutar este test")
-        elif '20003' in error_str:
-            print(f"\n🔍 DIAGNÓSTICO ERROR 20003:")
-            print(f"   ❌ Credenciales incorrectas")
-            print(f"   📝 SOLUCIÓN: Verificar TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN")
-        elif '21408' in error_str:
-            print(f"\n🔍 DIAGNÓSTICO ERROR 21408:")
-            print(f"   ❌ Sin permisos para WhatsApp")
-            print(f"   📝 SOLUCIÓN: Verificar que tienes WhatsApp habilitado en Twilio")
-        
-        return False
+        # Test de envío si está configurado
+        if self.twilio_sid and self.twilio_token:
+            self.test_envio_sandbox()
 
-def test_formateo_numeros():
-    """Prueba formateo de números españoles"""
-    
-    print(f"\n🔧 TEST FORMATEO DE NÚMEROS")
-    print("=" * 30)
-    
-    numeros_prueba = [
-        "612345678",      # Móvil sin código país
-        "+34612345678",   # Móvil correcto
-        "34612345678",    # Con código sin +
-        "912345678",      # Fijo Madrid sin código
-        "+34912345678",   # Fijo Madrid correcto
-        "123456789",      # Número inválido
-        "+1234567890",    # Número no español
-        "(+34) 612 345 678",  # Con espacios y paréntesis
-    ]
-    
-    def formatear_numero_mejorado(phone):
-        """Formateo mejorado con validación"""
-        import re
+    def verificar_configuracion(self):
+        print("\n1️⃣ VERIFICACIÓN DE CONFIGURACIÓN:")
         
-        # Limpiar número (solo dígitos)
-        phone_clean = re.sub(r'[^\d]', '', phone)
+        configs = {
+            'TWILIO_ACCOUNT_SID': self.twilio_sid,
+            'TWILIO_AUTH_TOKEN': self.twilio_token,
+            'TWILIO_WHATSAPP_NUMBER': self.twilio_whatsapp
+        }
         
-        # Si ya tiene +34, devolverlo limpio
-        if phone.startswith('+34') and len(phone_clean) == 11:
-            return f"+{phone_clean}"
+        for key, value in configs.items():
+            if value:
+                masked_value = value[:4] + "*" * (len(value) - 8) + value[-4:] if len(value) > 8 else "***"
+                print(f"   ✅ {key}: {masked_value}")
+            else:
+                print(f"   ❌ {key}: NO CONFIGURADO")
         
-        # Si empieza con 34, añadir +
-        if phone_clean.startswith('34') and len(phone_clean) == 11:
-            return f"+{phone_clean}"
+        if not all(configs.values()):
+            print(f"\n⚠️  SOLUCIÓN: Configurar variables de entorno faltantes en GitHub Secrets")
+
+    def formatear_telefono_espanol(self, phone):
+        """Formatea número español con validación estricta (Error 63024)"""
+        # Limpiar número (solo dígitos y +)
+        phone_clean = re.sub(r'[^\d+]', '', phone)
         
-        # Si es móvil español (6,7,9) de 9 dígitos
-        if len(phone_clean) == 9 and phone_clean[0] in ['6', '7', '9']:
-            return f"+34{phone_clean}"
+        # Extraer solo dígitos
+        digits_only = re.sub(r'[^\d]', '', phone)
         
-        # Si no coincide con patrones españoles, rechazar
+        # Si ya tiene +34 y es correcto, validar longitud
+        if phone_clean.startswith('+34'):
+            if len(digits_only) == 11 and digits_only.startswith('34'):
+                # Validar que el número móvil sea válido (6, 7, 9)
+                if digits_only[2] in ['6', '7', '9']:
+                    return phone_clean
+                # Validar que el número fijo sea válido (8, 9)
+                elif digits_only[2] in ['8', '9']:
+                    return phone_clean
+        
+        # Si empieza con 34 pero sin +, añadir +
+        if digits_only.startswith('34') and len(digits_only) == 11:
+            mobile_digit = digits_only[2]
+            if mobile_digit in ['6', '7', '8', '9']:
+                return f"+{digits_only}"
+        
+        # Si es número español de 9 dígitos (móviles: 6,7,9 | fijos: 8,9)
+        if len(digits_only) == 9:
+            first_digit = digits_only[0]
+            if first_digit in ['6', '7']:  # Móviles
+                return f"+34{digits_only}"
+            elif first_digit in ['8', '9']:  # Fijos y algunos móviles
+                return f"+34{digits_only}"
+        
         return None
-    
-    for numero in numeros_prueba:
-        resultado = formatear_numero_mejorado(numero)
-        estado = "✅ VÁLIDO" if resultado else "❌ INVÁLIDO"
-        print(f"   {numero:20} → {resultado or 'RECHAZADO':15} {estado}")
+
+    def probar_formateo_numeros(self):
+        print("\n2️⃣ PRUEBA DE FORMATEO DE NÚMEROS:")
+        
+        # Números de prueba (incluye los que aparecen en tu dashboard)
+        numeros_test = [
+            "998622614",      # Del dashboard sin +34
+            "+34998622614",   # Del dashboard completo
+            "982678857",      # Del dashboard sin +34
+            "+34982678857",   # Del dashboard completo
+            "612345678",      # Móvil típico
+            "+34612345678",   # Móvil correcto
+            "912345678",      # Fijo Madrid
+            "+34912345678",   # Fijo Madrid correcto
+            "34612345678",    # Con 34 pero sin +
+            "(+34) 612 345 678",  # Con espacios y paréntesis
+            "1234567890",     # Número no español
+            "abc123def456",   # Con letras
+        ]
+        
+        for numero in numeros_test:
+            resultado = self.formatear_telefono_espanol(numero)
+            status = "✅" if resultado else "❌"
+            print(f"   {status} {numero:15} → {resultado if resultado else 'INVÁLIDO'}")
+
+    def test_envio_sandbox(self):
+        print("\n3️⃣ TEST DE ENVÍO (SANDBOX):")
+        
+        try:
+            client = Client(self.twilio_sid, self.twilio_token)
+            
+            # Número de prueba formateado correctamente
+            numero_prueba = "+34612345678"  # Cambia por tu número real
+            
+            print(f"\n🧪 ENVIANDO MENSAJE DE PRUEBA A: {numero_prueba}")
+            print("⚠️  IMPORTANTE: Este número debe estar en tu WhatsApp Sandbox")
+            
+            mensaje_test = """🔧 TEST DIAGNÓSTICO
+            
+Este es un mensaje de prueba para verificar la configuración de WhatsApp.
+
+Si recibes este mensaje, la configuración es correcta."""
+            
+            message = client.messages.create(
+                from_=f'whatsapp:{self.twilio_whatsapp}',
+                body=mensaje_test,
+                to=f'whatsapp:{numero_prueba}'
+            )
+            
+            print(f"✅ MENSAJE ENVIADO EXITOSAMENTE")
+            print(f"   SID: {message.sid}")
+            print(f"   Estado: {message.status}")
+            
+        except Exception as e:
+            error_str = str(e)
+            print(f"❌ ERROR EN ENVÍO: {error_str}")
+            
+            # Análisis específico del error
+            if '63024' in error_str:
+                self.diagnosticar_error_63024()
+            elif '20003' in error_str:
+                print("   🔍 ERROR 20003: Credenciales de Twilio incorrectas")
+                print("   💡 SOLUCIÓN: Verificar TWILIO_ACCOUNT_SID y TWILIO_AUTH_TOKEN")
+            elif '21408' in error_str:
+                print("   🔍 ERROR 21408: Sin permisos para WhatsApp")
+                print("   💡 SOLUCIÓN: Activar WhatsApp en la consola de Twilio")
+
+    def diagnosticar_error_63024(self):
+        print("\n🔍 DIAGNÓSTICO ESPECÍFICO ERROR 63024:")
+        print("   ⚠️  Este error indica que el número no está autorizado en el Sandbox")
+        print("\n💡 SOLUCIONES:")
+        print("   1. Ve a: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn")
+        print("   2. Añade los números de tu dashboard al Sandbox:")
+        print("      • +34998622614")
+        print("      • +34982678857") 
+        print("      • +34919115769")
+        print("      • +34953125590")
+        print("      • +34932850618")
+        print("      • +34989628987")
+        print("      • +34911437050")
+        print("   3. Cada número debe enviar 'join [código]' a tu WhatsApp Sandbox")
+        print("   4. O actualiza a WhatsApp Business API (sin Sandbox)")
+
+    def mostrar_instrucciones_finales(self):
+        print("\n🎯 INSTRUCCIONES FINALES:")
+        print("1. Configurar números en Sandbox de Twilio")
+        print("2. O actualizar a WhatsApp Business API completa")
+        print("3. Verificar que TWILIO_WHATSAPP_NUMBER sea correcto")
+        print("4. Ejecutar de nuevo el sistema de leads")
+        
+        print(f"\n⏰ {self.__class__.__name__} completado a las {datetime.now().strftime('%H:%M:%S')}")
 
 if __name__ == "__main__":
-    print("🚀 DESARROYO TECH - DIAGNÓSTICO WHATSAPP")
-    print("🎯 Solución para Error 63024 'Invalid message recipient'")
-    print()
-    
-    # Test 1: Formateo de números
-    test_formateo_numeros()
-    
-    # Test 2: Envío directo
-    input("\n⌨️ Presiona ENTER para probar envío directo...")
-    if test_whatsapp_directo():
-        print(f"\n🎉 ¡ÉXITO! WhatsApp funcionando correctamente")
-        print(f"   Ya puedes usar el sistema de leads sin error 63024")
-    else:
-        print(f"\n⚠️ Revisa la configuración según el diagnóstico")
-        print(f"   Sigue las instrucciones en SOLUCION_ERROR_CONEXION.md") 
+    diagnostico = DiagnosticoWhatsApp()
+    diagnostico.mostrar_instrucciones_finales() 

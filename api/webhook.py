@@ -100,26 +100,77 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 'body': json.dumps({'error': str(e)})
             }
 
+    def formatear_telefono_espanol(self, phone):
+        """Formatea número español con validación estricta (Error 63024)"""
+        import re
+        
+        # Limpiar número (solo dígitos y +)
+        phone_clean = re.sub(r'[^\d+]', '', phone)
+        
+        # Extraer solo dígitos
+        digits_only = re.sub(r'[^\d]', '', phone)
+        
+        # Si ya tiene +34 y es correcto, validar longitud
+        if phone_clean.startswith('+34'):
+            if len(digits_only) == 11 and digits_only.startswith('34'):
+                # Validar que el número móvil sea válido (6, 7, 9)
+                if digits_only[2] in ['6', '7', '9']:
+                    return phone_clean
+                # Validar que el número fijo sea válido (8, 9)
+                elif digits_only[2] in ['8', '9']:
+                    return phone_clean
+        
+        # Si empieza con 34 pero sin +, añadir +
+        if digits_only.startswith('34') and len(digits_only) == 11:
+            mobile_digit = digits_only[2]
+            if mobile_digit in ['6', '7', '8', '9']:
+                return f"+{digits_only}"
+        
+        # Si es número español de 9 dígitos (móviles: 6,7,9 | fijos: 8,9)
+        if len(digits_only) == 9:
+            first_digit = digits_only[0]
+            if first_digit in ['6', '7']:  # Móviles
+                return f"+34{digits_only}"
+            elif first_digit in ['8', '9']:  # Fijos y algunos móviles
+                return f"+34{digits_only}"
+        
+        # Si no coincide con patrones españoles válidos, rechazar
+        return None
+
     def handle_encuesta_webhook(self, request):
-        """Maneja encuestas completadas"""
+        """Maneja webhook de encuesta completada"""
         try:
-            data = json.loads(request.body)
+            data = json.loads(request.body.decode('utf-8'))
             
-            telefono = data.get('telefono', '')
-            nombre_negocio = data.get('nombre_negocio', '')
-            presupuesto = data.get('presupuesto', '')
+            # Validar datos requeridos
+            telefono = data.get('telefono', '').strip()
+            if not telefono:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'Teléfono requerido'})
+                }
             
-            # Mensaje de confirmación
-            mensaje = f"""¡Excelente! 🎉 He recibido tu encuesta de {nombre_negocio}.
+            # Formatear teléfono con validación mejorada
+            telefono_formatted = self.formatear_telefono_espanol(telefono)
+            if not telefono_formatted:
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'Número de teléfono no válido para España'})
+                }
+
+            mensaje_confirmacion = f"""¡Perfecto! He recibido tu información.
+
+📋 Negocio: {data.get('nombre_negocio', 'No especificado')}
+💰 Presupuesto: {data.get('presupuesto', 'A consultar')}
 
 Te voy a contactar en los próximos 30 minutos para revisar los detalles.
 
-¿Te parece bien si te llamo al {telefono}?"""
+¿Te parece bien si te llamo al {telefono_formatted}?"""
 
-            # Enviar confirmación
-            telefono_formatted = f"whatsapp:+34{telefono}" if not telefono.startswith('+') else f"whatsapp:{telefono}"
+            # Enviar confirmación con número formateado correctamente
+            telefono_whatsapp = f"whatsapp:{telefono_formatted}"
             
-            if self.enviar_whatsapp(telefono_formatted, mensaje):
+            if self.enviar_whatsapp(telefono_whatsapp, mensaje_confirmacion):
                 # Notificar LEAD CALIENTE por Telegram
                 self.notificar_lead_caliente(data)
                 

@@ -47,6 +47,7 @@
     "cheerio": "^1.0.0-rc.12",
     "sqlite3": "^5.1.6",
     "stripe": "^14.0.0",
+    "twilio": "^4.23.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

@@ -48,6 +48,9 @@ class SistemaLeadsAvanzado:
         
         # Plantillas CRM por sector
         self.plantillas_sector = self.cargar_plantillas_sector()
+        
+        # Configuración de canal de comunicación
+        self.canal_comunicacion = 'WHATSAPP'  # 'SMS', 'WHATSAPP', 'EMAIL'
     
     def cargar_plantillas_sector(self):
         """Plantillas profesionales orientadas a venta y conversión"""
@@ -423,27 +426,123 @@ Genera un mensaje de WhatsApp personalizado, amigable y directo que:
             **{placeholder.strip('{}'): lead['name']}
         )
     
+    def generar_mensaje_sms_directo(self, lead):
+        """Genera mensaje SMS optimizado - directo y efectivo"""
+        sector = lead.get('sector', 'restaurantes')
+        
+        # Mensajes SMS optimizados por sector (más directos)
+        mensajes_sms = {
+            'restaurantes': f"""Hola {lead['name']} 👋
+
+Soy Alberto de DesArroyo Tech. ¿Te interesa una web profesional que aumente tus reservas y pedidos online?
+
+✅ Web lista en 48h desde 149€
+✅ +40% ventas (clientes reales)
+✅ Sistema reservas incluido
+
+Encuesta rápida (2 min): desarroyo.tech/generador_automatizaciones.html
+
+¿Hablamos?""",
+
+            'peluquerias': f"""Hola {lead['name']} 👋
+
+Alberto de DesArroyo Tech. ¿Quieres triplicar tus citas con una web profesional?
+
+✅ Web + reservas online en 48h
+✅ Desde 149€, 3 planes disponibles  
+✅ +60% citas confirmadas
+
+Encuesta (2 min): desarroyo.tech/generador_automatizaciones.html
+
+¿Te interesa?""",
+
+            'dentistas': f"""Estimado Dr./Dra. {lead['name']}
+
+Alberto de DesArroyo Tech. ¿Le interesa captar 3x más pacientes con una web médica profesional?
+
+✅ Web clínica en 48h desde 149€
+✅ Sistema citas online integrado
+✅ Resultados garantizados
+
+Encuesta: desarroyo.tech/generador_automatizaciones.html
+
+¿Vemos su caso?""",
+
+            'abogados': f"""Estimado/a {lead['name']}
+
+Alberto de DesArroyo Tech. ¿Le interesa captar más clientes con una web de bufete profesional?
+
+✅ Web jurídica en 48h desde 149€  
+✅ Presencia digital que genera confianza
+✅ +50% consultas online
+
+Encuesta: desarroyo.tech/generador_automatizaciones.html
+
+¿Hablamos?""",
+
+            'hoteles': f"""Hola {lead['name']} 👋
+
+Alberto de DesArroyo Tech. ¿Quiere aumentar reservas directas con una web hotelera profesional?
+
+✅ Web + booking en 48h desde 149€
+✅ Sin comisiones de OTAs
+✅ +30% reservas directas
+
+Encuesta: desarroyo.tech/generador_automatizaciones.html
+
+¿Le interesa?""",
+
+            'gimnasios': f"""Hola {lead['name']} 💪
+
+Alberto de DesArroyo Tech. ¿Te interesa captar más socios con una web fitness profesional?
+
+✅ Web + sistema socios en 48h
+✅ Desde 149€, resultados garantizados
+✅ +40% inscripciones online
+
+Encuesta: desarroyo.tech/generador_automatizaciones.html
+
+¿Vemos tu caso?"""
+        }
+        
+        return mensajes_sms.get(sector, mensajes_sms['restaurantes'])
+    
     def formatear_telefono_espanol(self, phone):
         """Formatea número español con validación estricta (Error 63024)"""
         import re
         
-        # Limpiar número (solo dígitos)
-        phone_clean = re.sub(r'[^\d]', '', phone)
+        # Limpiar número (solo dígitos y +)
+        phone_clean = re.sub(r'[^\d+]', '', phone)
         
-        # Si ya tiene +34, validar y devolver limpio
-        if phone.startswith('+34') and len(phone_clean) == 11:
-            return f"+{phone_clean}"
+        # Extraer solo dígitos
+        digits_only = re.sub(r'[^\d]', '', phone)
         
-        # Si empieza con 34, añadir +
-        if phone_clean.startswith('34') and len(phone_clean) == 11:
-            return f"+{phone_clean}"
+        # Si ya tiene +34 y es correcto, validar longitud
+        if phone_clean.startswith('+34'):
+            if len(digits_only) == 11 and digits_only.startswith('34'):
+                # Validar que el número móvil sea válido (6, 7, 9)
+                if digits_only[2] in ['6', '7', '9']:
+                    return phone_clean
+                # Validar que el número fijo sea válido (8, 9)
+                elif digits_only[2] in ['8', '9']:
+                    return phone_clean
         
-        # Si es móvil español (6,7,9) de 9 dígitos
-        if len(phone_clean) == 9 and phone_clean[0] in ['6', '7', '9']:
-            return f"+34{phone_clean}"
+        # Si empieza con 34 pero sin +, añadir +
+        if digits_only.startswith('34') and len(digits_only) == 11:
+            mobile_digit = digits_only[2]
+            if mobile_digit in ['6', '7', '8', '9']:
+                return f"+{digits_only}"
         
-        # Si no coincide con patrones españoles, rechazar
-        print(f"⚠️ Número no válido para España: {phone}")
+        # Si es número español de 9 dígitos (móviles: 6,7,9 | fijos: 8,9)
+        if len(digits_only) == 9:
+            first_digit = digits_only[0]
+            if first_digit in ['6', '7']:  # Móviles
+                return f"+34{digits_only}"
+            elif first_digit in ['8', '9']:  # Fijos y algunos móviles
+                return f"+34{digits_only}"
+        
+        # Si no coincide con patrones españoles válidos, rechazar
+        print(f"⚠️ Número no válido para España: {phone} (dígitos: {digits_only})")
         return None
     
     def enviar_whatsapp_avanzado(self, lead, mensaje):
@@ -495,6 +594,206 @@ Genera un mensaje de WhatsApp personalizado, amigable y directo que:
             elif '21408' in error_str:
                 print(f"   🔍 ERROR 21408: Sin permisos WhatsApp")
             
+            return False
+    
+    def enviar_mensaje_automatico(self, lead, mensaje):
+        """Envía mensaje por el canal configurado"""
+        
+        if self.canal_comunicacion == 'SMS':
+            # ✅ 100% automático, sin restricciones, ~$0.08/mensaje
+            return self.enviar_sms_automatico(lead, mensaje)
+        elif self.canal_comunicacion == 'EMAIL':
+            # ✅ 100% automático, más económico, requiere emails de leads
+            return self.enviar_email_automatico(lead, mensaje)
+        elif self.canal_comunicacion == 'WHATSAPP':
+            # ⚠️ Requiere autorización manual en Sandbox o API de pago
+            return self.enviar_whatsapp_avanzado(lead, mensaje)
+        else:
+            print(f"❌ Canal no válido: {self.canal_comunicacion}")
+            return False
+    
+    def enviar_sms_automatico(self, lead, mensaje):
+        """Envía SMS automático - SIN RESTRICCIONES DE AUTORIZACIÓN"""
+        if not self.twilio_client:
+            print(f"⚠️  Twilio no configurado")
+            return False
+        
+        # Formatear y validar número
+        phone_formatted = self.formatear_telefono_espanol(lead['phone'])
+        
+        if not phone_formatted:
+            print(f"❌ Número inválido para {lead['name']}: {lead['phone']} - SALTANDO")
+            return False
+        
+        try:
+            # SMS - NO REQUIERE AUTORIZACIÓN PREVIA
+            message = self.twilio_client.messages.create(
+                from_=self.twilio_whatsapp,  # Tu número Twilio
+                body=mensaje,
+                to=phone_formatted  # SIN 'whatsapp:' - es SMS directo
+            )
+            
+            print(f"✅ SMS → {lead['name']}: {phone_formatted} (Score: {lead['score']}) SID: {message.sid}")
+            
+            # Guardar conversación iniciada
+            self.guardar_conversacion(lead['id'], 'sms_inicial_enviado', {
+                'phone': phone_formatted,
+                'sector': lead['sector'],
+                'mensaje': mensaje[:100],
+                'twilio_sid': message.sid,
+                'canal': 'SMS'
+            })
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error Twilio SMS {lead['name']}: {e}")
+            print(f"   From: {self.twilio_whatsapp}")
+            print(f"   To: {phone_formatted}")
+            print(f"   Lead: {lead['name']} - {lead['phone']}")
+            
+            return False
+    
+    def enviar_email_automatico(self, lead, mensaje):
+        """Envía email profesional - MÁS ECONÓMICO que SMS"""
+        # Requiere configurar SMTP (Gmail, Outlook, etc.)
+        smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+        smtp_port = int(os.getenv('SMTP_PORT', '587'))
+        smtp_user = os.getenv('SMTP_USER')  # tu-email@gmail.com
+        smtp_pass = os.getenv('SMTP_PASS')  # contraseña de aplicación
+        
+        if not smtp_user or not smtp_pass:
+            print(f"⚠️  Email no configurado (SMTP_USER, SMTP_PASS)")
+            return False
+        
+        # Buscar email del lead (si está disponible)
+        email_lead = lead.get('email')
+        if not email_lead:
+            print(f"⚠️  {lead['name']} sin email - SALTANDO")
+            return False
+        
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            # Crear mensaje profesional
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = f"Propuesta web profesional para {lead['name']}"
+            msg['From'] = f"{self.your_name} <{smtp_user}>"
+            msg['To'] = email_lead
+            
+            # HTML profesional
+            html_body = f"""
+            <html>
+              <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px;">🚀 {self.business_name}</h1>
+                    <p style="margin: 10px 0 0; font-size: 16px;">Desarrollo Web Profesional</p>
+                  </div>
+                  
+                  <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 20px;">
+                    <h2 style="color: #333; margin-top: 0;">Hola, equipo de {lead['name']} 👋</h2>
+                    
+                    <p>{mensaje.replace(chr(10), '<br>')}</p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <h3 style="color: #495057; margin-top: 0;">📋 Nuestros Planes:</h3>
+                      <div style="margin: 15px 0;">
+                        <strong style="color: #28a745;">🟢 Plan Rápida: 149€</strong><br>
+                        ✅ 1 página profesional<br>
+                        ✅ Entrega en 72 horas<br>
+                        ✅ Optimizada para móviles
+                      </div>
+                      <div style="margin: 15px 0;">
+                        <strong style="color: #ffc107;">🟡 Plan Escalable: 449€</strong><br>
+                        ✅ Hasta 5 páginas<br>
+                        ✅ SEO básico incluido<br>
+                        ✅ Animaciones profesionales
+                      </div>
+                      <div style="margin: 15px 0;">
+                        <strong style="color: #dc3545;">🔴 Plan Pro Digital: 999€</strong><br>
+                        ✅ Hasta 10 páginas<br>
+                        ✅ Dashboard personalizado<br>
+                        ✅ Integración avanzada
+                      </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="{self.website_url}/generador_automatizaciones.html" 
+                         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">
+                        📋 Completar Encuesta (2 min)
+                      </a>
+                    </div>
+                    
+                    <p style="color: #6c757d; font-size: 14px; border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px;">
+                      <strong>{self.your_name}</strong><br>
+                      {self.business_name}<br>
+                      📧 {smtp_user}<br>
+                      🌐 {self.website_url}
+                    </p>
+                  </div>
+                </div>
+              </body>
+            </html>
+            """
+            
+            # Versión texto plano (fallback)
+            text_body = f"""
+            {self.business_name} - Propuesta Web Profesional
+            
+            Hola, equipo de {lead['name']}
+            
+            {mensaje}
+            
+            NUESTROS PLANES:
+            
+            🟢 Plan Rápida: 149€
+            - 1 página profesional
+            - Entrega en 72 horas
+            
+            🟡 Plan Escalable: 449€ 
+            - Hasta 5 páginas
+            - SEO básico incluido
+            
+            🔴 Plan Pro Digital: 999€
+            - Hasta 10 páginas
+            - Dashboard personalizado
+            
+            Completar encuesta: {self.website_url}/generador_automatizaciones.html
+            
+            Saludos,
+            {self.your_name}
+            {self.business_name}
+            """
+            
+            # Adjuntar ambas versiones
+            msg.attach(MIMEText(text_body, 'plain', 'utf-8'))
+            msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+            
+            # Enviar
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+            server.quit()
+            
+            print(f"✅ EMAIL → {lead['name']}: {email_lead} (Score: {lead['score']})")
+            
+            # Guardar conversación iniciada
+            self.guardar_conversacion(lead['id'], 'email_inicial_enviado', {
+                'email': email_lead,
+                'phone': lead.get('phone', 'N/A'),
+                'sector': lead['sector'],
+                'mensaje': mensaje[:100],
+                'canal': 'EMAIL'
+            })
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error enviando email a {lead['name']}: {e}")
             return False
     
     def notificar_telegram_avanzado(self, leads_contactados, ciudad, sector):
@@ -576,12 +875,15 @@ Genera un mensaje de WhatsApp personalizado, amigable y directo que:
             try:
                 print(f"\n📞 Contactando: {lead['name']} (Score: {lead['score']})")
                 
-                # Generar mensaje con IA
-                mensaje = self.generar_mensaje_con_deepseek(lead)
+                # Generar mensaje optimizado según canal
+                if self.canal_comunicacion == 'SMS':
+                    mensaje = self.generar_mensaje_sms_directo(lead)
+                else:
+                    mensaje = self.generar_mensaje_con_deepseek(lead)
                 print(f"💬 Mensaje: {mensaje[:50]}...")
                 
-                # Enviar WhatsApp
-                if self.enviar_whatsapp_avanzado(lead, mensaje):
+                # Enviar mensaje (SMS o WhatsApp según configuración)
+                if self.enviar_mensaje_automatico(lead, mensaje):
                     leads_contactados.append(lead)
                     
                     # Marcar como enviado

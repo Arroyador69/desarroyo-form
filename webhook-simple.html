@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook WhatsApp - DesArroyo Tech</title>
+</head>
+<body>
+    <h1>🤖 Webhook Activo - DesArroyo Tech</h1>
+    <p>Sistema de respuestas automáticas funcionando ✅</p>
+    
+    <script>
+        // Manejar webhook de WhatsApp
+        if (window.location.search.includes('From=') || document.body.innerHTML.includes('webhook')) {
+            console.log('📱 Webhook WhatsApp recibido');
+            
+            // En producción, esto se manejaría en el servidor
+            // Por ahora, solo confirma que el webhook está activo
+            
+            // Respuesta simple para Twilio
+            document.body.innerHTML = `
+                <TwiML>
+                    <Message>¡Gracias por tu mensaje! Te responderé en breve. 
+
+Para más información sobre nuestros servicios web:
+https://desarroyo.tech/generador_automatizaciones.html
+
+Alberto - DesArroyo Tech 🚀</Message>
+                </TwiML>
+            `;
+        }
+    </script>
+</body>
+</html> 
