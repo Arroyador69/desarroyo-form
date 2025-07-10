@@ -159,8 +159,8 @@
                             localStorage.setItem('dashboard_token', data.token);
                             localStorage.setItem('dashboard_user', JSON.stringify(data.user));
                             
-                            // Redirigir al dashboard
-                            window.location.href = '/dashboard';
+                            // Redirigir al dashboard con token en query param
+                            window.location.href = '/dashboard?token=' + data.token;
                         } else {
                             this.error = data.error || 'Error al iniciar sesión';
                         }

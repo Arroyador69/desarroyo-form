@@ -470,23 +470,32 @@ function initDatabase() {
     });
 
     // Crear usuario admin por defecto si no existe
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    // Usar config.js como respaldo si no hay variable de entorno
+    const { config } = require('./config');
+    const adminPassword = process.env.ADMIN_PASSWORD || config.admin.password;
+    
+    console.log('🔐 Inicializando admin con contraseña desde:', process.env.ADMIN_PASSWORD ? 'ENV' : 'CONFIG');
+    
     bcrypt.hash(adminPassword, 10, (err, hash) => {
         if (err) {
             console.error('Error hasheando contraseña admin:', err);
             return;
         }
         
-        db.run(`INSERT OR IGNORE INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`,
-            ['admin', 'alberto@desarroyo.tech', hash, 'admin'],
-            (err) => {
-                if (err) {
-                    console.error('Error creando usuario admin:', err);
-                } else {
-                    console.log('✅ Usuario admin creado/verificado');
+        // Primero eliminar admin existente para evitar conflictos
+        db.run(`DELETE FROM users WHERE username = 'admin'`, (delErr) => {
+            // Crear nuevo admin con contraseña correcta
+            db.run(`INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`,
+                ['admin', 'alberto@desarroyo.tech', hash, 'admin'],
+                (err) => {
+                    if (err) {
+                        console.error('Error creando usuario admin:', err);
+                    } else {
+                        console.log('✅ Usuario admin creado/actualizado con contraseña correcta');
+                    }
                 }
-            }
-        );
+            );
+        });
     });
 }
 

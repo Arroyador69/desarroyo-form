@@ -7,7 +7,7 @@ const config = {
     // 🔐 Credenciales de Administrador
     admin: {
         username: 'admin',
-        password: 'admin123',
+        password: 'DesArroyo2024!',
         email: 'alberto@desarroyo.tech'
     },
 
