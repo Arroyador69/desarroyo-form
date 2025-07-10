@@ -74,13 +74,16 @@ He visto {restaurant_name} y detectamos una gran oportunidad para aumentar sus v
 🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
 🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
-📧 **Más información:** alberto@desarroyo.tech
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
 
 Saludos cordiales,
 {your_name} - {business_name}
+📧 alberto@desarroyo.tech
 "Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Reservas online 24/7', 'Carta digital actualizable', 'Pedidos a domicilio', 'Mayor facturación'],
                 'urgencia': 'Sus competidores ya están captando clientes online',
@@ -105,13 +108,16 @@ He visto {salon_name} y detectamos una gran oportunidad para multiplicar sus cit
 🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
 🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
-📧 **Más información:** alberto@desarroyo.tech
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
 
 Saludos,
 {your_name} - {business_name}
+📧 alberto@desarroyo.tech
 "Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Reservas automáticas', 'Galería profesional', 'Más citas', 'Presencia digital'],
                 'urgencia': 'Sus clientes buscan peluquerías online antes de reservar',
@@ -136,13 +142,16 @@ He visto {clinic_name} y detectamos una gran oportunidad para triplicar sus paci
 🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
 🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
-📧 **Más información:** alberto@desarroyo.tech
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
 
 Atentamente,
 {your_name} - {business_name}
+📧 alberto@desarroyo.tech
 "Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Más pacientes nuevos', 'Citas online', 'Confianza profesional', 'Información tratamientos'],
                 'urgencia': 'Los pacientes eligen dentistas que inspiran confianza online',
@@ -152,22 +161,32 @@ Atentamente,
             'abogados': {
                 'mensaje_inicial': """Estimado/a Letrado/a,
 
-Soy {your_name} de {business_name}, especialistas en desarrollo web para despachos de abogados.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
 He analizado la presencia digital de {law_firm_name} y veo oportunidades importantes de captación.
 
-✅ Web jurídica profesional en máximo 48 horas
+⚖️ **NUESTROS SERVICIOS PARA DESPACHOS:**
+✅ Web jurídica profesional + presencia online 24/7
 ✅ Especialidades claramente definidas
 ✅ Formulario de contacto optimizado
 ✅ Hasta 5x más consultas cualificadas
 
-Los despachos con presencia digital profesional captan más clientes de calidad.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesaría conocer nuestra propuesta? Encuesta rápida (2 minutos):
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
 Saludos profesionales,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Más consultas', 'Credibilidad jurídica', 'Especialidades claras', 'Captación profesional'],
                 'urgencia': 'Los clientes investigan abogados online antes de contactar',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
@@ -176,22 +195,32 @@ Saludos profesionales,
             'hoteles': {
                 'mensaje_inicial': """Buenos días,
 
-Soy {your_name} de {business_name}, especialistas en webs para hoteles independientes.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
 He analizado {hotel_name} y veo una gran oportunidad para aumentar reservas directas.
 
-✅ Web hotelera profesional en máximo 48 horas
+🏨 **NUESTROS SERVICIOS PARA HOTELES:**
+✅ Web hotelera profesional + presencia online 24/7
 ✅ Sistema de reservas sin comisiones
 ✅ Ahorro del 15-20% en costes de booking
 ✅ Control total de sus reservas
 
-Los hoteles con web propia aumentan significativamente su rentabilidad.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesa conocer cómo? Encuesta personalizada (2 minutos):
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
 Cordialmente,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Reservas sin comisiones', 'Mayor rentabilidad', 'Control total', 'Más margen'],
                 'urgencia': 'Cada reserva por booking reduce su margen un 15-20%',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
@@ -200,22 +229,32 @@ Cordialmente,
             'gimnasios': {
                 'mensaje_inicial': """Buenos días,
 
-Soy {your_name} de {business_name}, especialistas en webs para centros deportivos.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
 He analizado {gym_name} y detectamos potencial para conseguir más socios.
 
-✅ Web deportiva profesional en máximo 48 horas
+💪 **NUESTROS SERVICIOS PARA GIMNASIOS:**
+✅ Web deportiva profesional + presencia online 24/7
 ✅ Sistema de inscripciones online
 ✅ Reserva de clases automática
 ✅ Hasta 50% más inscripciones
 
-Los gimnasios con presencia digital captan más socios que la competencia tradicional.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesa nuestra propuesta? Encuesta rápida (2 minutos):
+📋 **TODA LA INFO EN ESTA ENCUESTA (2 minutos):**
 {website_url}/index_conectado_n8n.html
 
+📧 **Dudas por email:** alberto@desarroyo.tech
+
+⚠️ **NO responda a este SMS - Use solo la encuesta o email**
+
 Saludos deportivos,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+📧 alberto@desarroyo.tech
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Más socios', 'Inscripciones online', 'Reservas automáticas', 'Gestión digital'],
                 'urgencia': 'Las personas buscan gimnasios online antes de apuntarse',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
