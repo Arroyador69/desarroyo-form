@@ -28,6 +28,18 @@
   },
   "routes": [
     {
+      "src": "/api/dashboard/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/login.html",
+      "dest": "/login.html"
+    },
+    {
       "src": "/webhook/whatsapp",
       "dest": "/scripts/webhook_respuestas.py"
     },
@@ -47,12 +59,15 @@
   "env": {
     "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
     "TWILIO_AUTH_TOKEN": "@twilio_auth_token", 
+    "TWILIO_PHONE_NUMBER": "@twilio_phone_number",
     "TWILIO_WHATSAPP_NUMBER": "@twilio_whatsapp_number",
     "DEEPSEEK_API_KEY": "@deepseek_api_key",
     "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
     "TELEGRAM_CHAT_ID": "@telegram_chat_id",
     "WEBSITE_URL": "https://desarroyo.tech",
     "BUSINESS_NAME": "DesArroyo Tech",
-    "YOUR_NAME": "Alberto"
+    "YOUR_NAME": "Alberto",
+    "JWT_SECRET": "@jwt_secret",
+    "ADMIN_PASSWORD": "@admin_password"
   }
 } 
