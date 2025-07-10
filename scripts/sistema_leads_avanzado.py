@@ -58,22 +58,29 @@ class SistemaLeadsAvanzado:
             'restaurantes': {
                 'mensaje_inicial': """Buenos días,
 
-Soy {your_name} de {business_name}, especialistas en desarrollo web para restaurantes.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
-He analizado la presencia digital de {restaurant_name} y veo una gran oportunidad de crecimiento.
+He visto {restaurant_name} y detectamos una gran oportunidad para aumentar sus ventas.
 
-✅ Creamos su web profesional en máximo 48 horas
-✅ Sistema de reservas online 24/7  
-✅ Carta digital y pedidos a domicilio
-✅ Aumentamos sus ventas hasta un 40%
+🍽️ **NUESTROS SERVICIOS PARA RESTAURANTES:**
+✅ Web profesional + reservas y presencia online 24/7
+✅ Carta digital actualizable
+✅ Sistema de pedidos a domicilio  
+✅ Aumentamos ventas hasta 40%
 
-Los restaurantes con web profesional facturan significativamente más que la competencia.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesaría una propuesta personalizada? Le envío una breve encuesta (2 minutos):
-{website_url}/generador_automatizaciones.html
+📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Más información:** alberto@desarroyo.tech
 
 Saludos cordiales,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Reservas online 24/7', 'Carta digital actualizable', 'Pedidos a domicilio', 'Mayor facturación'],
                 'urgencia': 'Sus competidores ya están captando clientes online',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
@@ -82,22 +89,29 @@ Saludos cordiales,
             'peluquerias': {
                 'mensaje_inicial': """Buenos días,
 
-Soy {your_name} de {business_name}, especialistas en webs para salones de belleza.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
-He visto {salon_name} y detectamos una oportunidad de negocio importante.
+He visto {salon_name} y detectamos una gran oportunidad para multiplicar sus citas.
 
-✅ Web profesional lista en máximo 48 horas
-✅ Sistema de reservas automático
+💇 **NUESTROS SERVICIOS PARA SALONES:**
+✅ Web profesional + reservas y presencia online 24/7
 ✅ Galería de trabajos que convence
-✅ Hasta 60% más citas confirmadas
+✅ Sistema de citas online
+✅ Hasta 60% más reservas confirmadas
 
-Las peluquerías con presencia digital profesional multiplican sus reservas.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesa conocer nuestra propuesta? Encuesta rápida (2 minutos):
-{website_url}/generador_automatizaciones.html
+📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Más información:** alberto@desarroyo.tech
 
 Saludos,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Reservas automáticas', 'Galería profesional', 'Más citas', 'Presencia digital'],
                 'urgencia': 'Sus clientes buscan peluquerías online antes de reservar',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
@@ -106,22 +120,29 @@ Saludos,
             'dentistas': {
                 'mensaje_inicial': """Estimado Dr./Dra.,
 
-Soy {your_name} de {business_name}, especialistas en desarrollo web para clínicas dentales.
+Soy {your_name} de {business_name}, empresa especializada en ayudar a negocios locales a crear su web de manera rápida, personalizada al 100% y eficiente.
 
-He analizado la presencia online de {clinic_name} y veo potencial para captar más pacientes.
+He visto {clinic_name} y detectamos una gran oportunidad para triplicar sus pacientes nuevos.
 
-✅ Web médica profesional en máximo 48 horas
-✅ Sistema de citas online integrado
-✅ Información completa de tratamientos  
+🦷 **NUESTROS SERVICIOS PARA CLÍNICAS DENTALES:**
+✅ Web médica profesional + citas y presencia online 24/7
+✅ Información completa de tratamientos
+✅ Galería antes/después que genera confianza
 ✅ Hasta 3x más pacientes nuevos al mes
 
-Las clínicas con web profesional generan más confianza y captan más pacientes que la competencia.
+💰 **NUESTROS 3 PLANES:**
+🟢 **Plan Rápida: 149€** - 1 página + **entrega garantizada en 48h**
+🟡 **Plan Escalable: 449€** - 5 páginas + SEO básico + entrega en pocos días
+🔴 **Plan Pro: 999€** - 10 páginas + dashboard completo + entrega según complejidad
 
-¿Le interesaría una propuesta personalizada? Encuesta breve (2 minutos):
-{website_url}/generador_automatizaciones.html
+📋 **Para propuesta personalizada, complete esta encuesta (2 minutos):**
+{website_url}/index_conectado_n8n.html
+
+📧 **Más información:** alberto@desarroyo.tech
 
 Atentamente,
-{your_name} - {business_name}""",
+{your_name} - {business_name}
+"Transformamos negocios locales en máquinas de ventas online" 🚀""",
                 'beneficios': ['Más pacientes nuevos', 'Citas online', 'Confianza profesional', 'Información tratamientos'],
                 'urgencia': 'Los pacientes eligen dentistas que inspiran confianza online',
                 'precio_ref': 'Desde 149€ - 3 planes disponibles'
@@ -142,7 +163,7 @@ He analizado la presencia digital de {law_firm_name} y veo oportunidades importa
 Los despachos con presencia digital profesional captan más clientes de calidad.
 
 ¿Le interesaría conocer nuestra propuesta? Encuesta rápida (2 minutos):
-{website_url}/generador_automatizaciones.html
+{website_url}/index_conectado_n8n.html
 
 Saludos profesionales,
 {your_name} - {business_name}""",
@@ -166,7 +187,7 @@ He analizado {hotel_name} y veo una gran oportunidad para aumentar reservas dire
 Los hoteles con web propia aumentan significativamente su rentabilidad.
 
 ¿Le interesa conocer cómo? Encuesta personalizada (2 minutos):
-{website_url}/generador_automatizaciones.html
+{website_url}/index_conectado_n8n.html
 
 Cordialmente,
 {your_name} - {business_name}""",
@@ -190,7 +211,7 @@ He analizado {gym_name} y detectamos potencial para conseguir más socios.
 Los gimnasios con presencia digital captan más socios que la competencia tradicional.
 
 ¿Le interesa nuestra propuesta? Encuesta rápida (2 minutos):
-{website_url}/generador_automatizaciones.html
+{website_url}/index_conectado_n8n.html
 
 Saludos deportivos,
 {your_name} - {business_name}""",
