@@ -200,7 +200,7 @@ jobs:
     - name: 📦 Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-        pip install python-telegram-bot python-dotenv
+        pip install requests python-telegram-bot python-dotenv
     
     - name: 📊 Control presupuesto llamadas
       run: |
