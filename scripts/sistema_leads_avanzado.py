@@ -24,113 +24,144 @@ class SistemaLeadsAvanzado:
     def __init__(self):
         # Configuración desde variables de entorno
         self.deepseek_api_key = os.getenv('DEEPSEEK_API_KEY')
-        self.openai_api_key = os.getenv('OPENAI_API_KEY')  # Backup
-        self.twilio_sid = os.getenv('TWILIO_ACCOUNT_SID')
-        self.twilio_token = os.getenv('TWILIO_AUTH_TOKEN')
-        self.twilio_whatsapp = os.getenv('TWILIO_WHATSAPP_NUMBER')
         self.telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
-        self.telegram_chat = os.getenv('TELEGRAM_CHAT_ID')
+        self.telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = os.getenv('BUSINESS_NAME', 'DesArroyo Tech')
         self.your_name = os.getenv('YOUR_NAME', 'Alberto')
         
-        # Inicializar clientes
-        if self.twilio_sid and self.twilio_token:
-            self.twilio_client = Client(self.twilio_sid, self.twilio_token)
+        # Configuración Twilio (para SMS)
+        self.twilio_enabled = all([
+            os.getenv('TWILIO_ACCOUNT_SID'),
+            os.getenv('TWILIO_AUTH_TOKEN'),
+            os.getenv('TWILIO_PHONE_NUMBER')
+        ])
         
-        if self.telegram_token:
-            self.telegram_bot = telegram.Bot(token=self.telegram_token)
+        if self.twilio_enabled:
+            from twilio.rest import Client
+            self.twilio_client = Client(
+                os.getenv('TWILIO_ACCOUNT_SID'),
+                os.getenv('TWILIO_AUTH_TOKEN')
+            )
+            
+        # NUEVA: Configuración Vonage (para LLAMADAS con números españoles)
+        self.vonage_enabled = all([
+            os.getenv('VONAGE_API_KEY'),
+            os.getenv('VONAGE_API_SECRET'),
+            os.getenv('VONAGE_PHONE_NUMBER')
+        ])
         
-        self.scraper = ScraperGratis()
+        if self.vonage_enabled:
+            try:
+                import vonage
+                self.vonage_client = vonage.Client(
+                    key=os.getenv('VONAGE_API_KEY'),
+                    secret=os.getenv('VONAGE_API_SECRET')
+                )
+                print(f"✅ VONAGE configurado: {os.getenv('VONAGE_PHONE_NUMBER')} (números españoles)")
+            except ImportError:
+                print("⚠️ Vonage SDK no instalado. Usar: pip install vonage")
+                self.vonage_enabled = False
+            except Exception as e:
+                print(f"❌ Error configurando Vonage: {e}")
+                self.vonage_enabled = False
         
-        # Archivos para control
-        self.leads_enviados_file = 'leads_enviados.json'
+        # Configuración de llamadas (mantener Twilio como fallback)
+        self.twilio_voice_enabled = all([
+            os.getenv('TWILIO_ACCOUNT_SID'),
+            os.getenv('TWILIO_AUTH_TOKEN'),
+            os.getenv('TWILIO_PHONE_NUMBER')
+        ]) and self.twilio_enabled
+        
+        # Archivos de datos
+        self.leads_enviados_file = 'leads_contactados_hoy.json'
         self.conversaciones_file = 'conversaciones_activas.json'
-        self.lista_negra_file = 'lista_negra_llamadas.json'  # NUEVO: Lista negra
-        self.llamadas_exitosas_file = 'llamadas_exitosas.json'  # NUEVO: Llamadas SÍ
+        self.lista_negra_file = 'lista_negra_llamadas.json'
+        self.llamadas_exitosas_file = 'llamadas_exitosas.json'
         
+        # Cargar datos existentes
         self.leads_enviados = self.cargar_leads_enviados()
         self.conversaciones = self.cargar_conversaciones()
-        self.lista_negra = self.cargar_lista_negra()  # NUEVO
-        self.llamadas_exitosas = self.cargar_llamadas_exitosas()  # NUEVO
+        self.lista_negra = self.cargar_lista_negra()
+        self.llamadas_exitosas = self.cargar_llamadas_exitosas()
         
-        # Plantillas CRM por sector
-        self.plantillas_sector = self.cargar_plantillas_sector()
+        # Configuración de WhatsApp
+        self.whatsapp_enabled = all([
+            os.getenv('TWILIO_ACCOUNT_SID'),
+            os.getenv('TWILIO_AUTH_TOKEN'),
+            os.getenv('TWILIO_WHATSAPP_NUMBER')
+        ])
         
-        # Configuración de canal de comunicación
-        self.canal_comunicacion = 'SMS'  # 'SMS', 'WHATSAPP', 'EMAIL', 'LLAMADAS'
-        # WhatsApp Sandbox requiere autorización - SMS funciona inmediatamente
-        
-        # Configuración de llamadas automatizadas
-        self.twilio_voice_enabled = bool(os.getenv('TWILIO_ACCOUNT_SID') and os.getenv('TWILIO_AUTH_TOKEN'))
-        self.twilio_phone_number = os.getenv('TWILIO_PHONE_NUMBER')  # NUEVO: Número para llamadas
-        
-        # NUEVO: Configuración optimizada para España
-        self.voice_config = {
-            'voice': 'Polly.Lucia',  # Voz española femenina natural
-            'language': 'es-ES',
-            'rate': 'medium',
-            'pitch': 'medium',
-            # Configuración anti-spam
-            'caller_id': self.twilio_phone_number,  # Mostrar número de empresa
-            'from_number': self.twilio_phone_number,
-            'timeout': 30,  # Máximo 30 segundos para contestar
-            'answering_machine_detection': 'enable',  # Detectar buzón de voz
-            'answering_machine_detection_timeout': 5  # 5 segundos para detectar
-        }
-        
-        # Scripts de voz por sector - CONVERSACIONAL MEJORADO
+        # Configuración de voz (scripts por sector)
         self.voice_scripts = {
             'restaurantes': {
                 'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web para restaurantes.',
                 'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un restaurante con mucho potencial.',
                 'hook': 'Los restaurantes en {ciudad} que tienen web profesional están consiguiendo un 40% más de reservas que sus competidores.',
-                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. ¿Le interesaría escuchar esta información? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_si': 'Perfecto. Le voy a enviar ahora mismo por SMS una encuesta personalizada para {nombre_negocio} con ejemplos específicos para restaurantes y nuestros precios. Gracias por su tiempo.',
-                'respuesta_no_1': 'Entiendo. Déjeme preguntarle una cosa: ¿han notado que muchos clientes buscan restaurantes online antes de decidir dónde cenar? Trabajamos con restaurantes locales para ayudarlos a aparecer mejor en internet. ¿Esto le resultaría más interesante? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_no_2': 'Comprendo su posición. Una última cosa: hemos visto que los restaurantes en {ciudad} que no tienen presencia digital pierden clientes cada día. Por eso creamos un plan de 149€ muy asequible. ¿Le envío la información sin compromiso? Presione 1 para SÍ o 2 para NO.',
-                'despedida': 'Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. ¿Le interesaría escuchar esta información?',
+                'respuesta_si': 'Perfecto. Le voy a enviar toda la información por SMS a este número. Revise su móvil en unos minutos.',
+                'respuesta_no_1': 'Entiendo. Déjeme preguntarle una cosa: ¿han notado que muchos clientes buscan restaurantes online antes de decidir dónde cenar? Trabajamos con restaurantes locales para ayudarlos a aparecer mejor en internet. ¿Esto le resultaría más interesante?',
+                'respuesta_no_2': 'Comprendo su posición. Una última cosa: hemos visto que los restaurantes en {ciudad} que no tienen presencia digital pierden clientes cada día. Por eso creamos un plan de 149€ muy asequible. ¿Le envío la información sin compromiso?',
+                'despedida': 'Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.'
             },
             'dentistas': {
                 'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para clínicas dentales.',
                 'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y se dedican a servicios dentales.',
-                'hook': 'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos. Los pacientes buscan dentistas online antes de elegir.',
-                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. ¿Le interesaría conocer esta información? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_si': 'Excelente. Le envío inmediatamente por SMS nuestra encuesta personalizada para clínicas dentales con ejemplos específicos y precios. Gracias por su tiempo.',
-                'respuesta_no_1': 'Entiendo. ¿Han observado que los pacientes nuevos cada vez buscan más información online antes de elegir dentista? Ayudamos a clínicas como {nombre_negocio} a transmitir confianza y profesionalidad. ¿Esto le resultaría útil? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_no_2': 'Comprendo. Una cosa más: muchas clínicas en {ciudad} están perdiendo pacientes porque no aparecen bien en internet. Tenemos un plan desde 149€ muy accesible. ¿Le mando la información para que la revise? Presione 1 para SÍ o 2 para NO.',
-                'despedida': 'Lo entiendo. Si reconsideran, pueden contactarnos en alberto@desarroyo.tech. Que tengan un buen día. Gracias.'
+                'hook': 'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos.',
+                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. ¿Le interesaría conocer esta información?',
+                'respuesta_si': 'Excelente. Le envío toda la información por SMS para que pueda revisarla tranquilamente.',
+                'respuesta_no_1': 'Entiendo. ¿Han observado que los pacientes nuevos cada vez buscan más información online antes de elegir dentista? Ayudamos a clínicas como {nombre_negocio} a transmitir confianza y profesionalidad. ¿Esto le resultaría útil?',
+                'respuesta_no_2': 'Comprendo. Una cosa más: muchas clínicas en {ciudad} están perdiendo pacientes porque no aparecen bien en internet. Tenemos un plan desde 149€ muy accesible. ¿Le mando la información para que la revise?',
+                'despedida': 'Lo entiendo. Si reconsideran, pueden contactarnos en alberto@desarroyo.tech. Que tengan un buen día.'
             },
             'peluquerias': {
                 'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech. Nos especializamos en webs para salones de belleza.',
                 'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un salón muy cuidado.',
-                'hook': 'Los salones de belleza en {ciudad} con web profesional están aumentando sus citas un 50%. Las clientas buscan peluquerías online para ver trabajos y reservar.',
-                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más citas con una web que muestre sus trabajos y permita reservas online. ¿Le interesaría escuchar esta propuesta? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_si': 'Perfecto. Le envío ahora por SMS nuestra encuesta personalizada para salones con ejemplos de galerías y sistema de citas. Gracias por su tiempo.',
-                'respuesta_no_1': '¿Han notado que las clientas buscan peluquerías en internet para ver trabajos antes de venir? Ayudamos a salones como {nombre_negocio} a mostrar mejor sus servicios online. ¿Esto le interesaría más? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_no_2': 'Entiendo. Solo una cosa más: muchos salones en {ciudad} están consiguiendo más clientas con una web sencilla. Tenemos opciones desde 149€. ¿Le envío la información para que la vea sin compromiso? Presione 1 para SÍ o 2 para NO.',
-                'despedida': 'Lo comprendo. Si cambian de opinión, pueden escribirnos a alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+                'hook': 'Los salones de belleza en {ciudad} con web profesional están aumentando sus citas un 50%.',
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más citas con una web que muestre sus trabajos y permita reservas online. ¿Le interesaría escuchar esta propuesta?',
+                'respuesta_si': 'Perfecto. Le envío la información por SMS para que pueda revisarla cuando guste.',
+                'respuesta_no_1': '¿Han notado que las clientas buscan peluquerías en internet para ver trabajos antes de venir? Ayudamos a salones como {nombre_negocio} a mostrar mejor sus servicios online. ¿Esto le interesaría más?',
+                'respuesta_no_2': 'Entiendo. Solo una cosa más: muchos salones en {ciudad} están consiguiendo más clientas con una web sencilla. Tenemos opciones desde 149€. ¿Le envío la información para que la vea sin compromiso?',
+                'despedida': 'Lo comprendo. Si cambian de opinión, pueden escribirnos a alberto@desarroyo.tech. Que tenga un buen día.'
             },
             'abogados': {
                 'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para despachos de abogados.',
                 'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y se especializan en servicios jurídicos.',
-                'hook': 'Los despachos de abogados en {ciudad} con web profesional están consiguiendo un 70% más de consultas. Los clientes buscan abogados online antes de contactar.',
-                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más consultas con una web que genere confianza y muestre sus especialidades claramente. ¿Le interesaría conocer esta información? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_si': 'Perfecto. Le envío inmediatamente por SMS información detallada para despachos con ejemplos específicos del sector jurídico. Gracias por su tiempo.',
-                'respuesta_no_1': '¿Han observado que los clientes investigan abogados online antes de contactar? Ayudamos a despachos como {nombre_negocio} a transmitir confianza y profesionalidad en internet. ¿Esto le resultaría interesante? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_no_2': 'Comprendo su posición. Solo mencionar que muchos despachos en {ciudad} están consiguiendo más clientes con presencia digital. Tenemos planes desde 149€. ¿Le mando la información para revisarla? Presione 1 para SÍ o 2 para NO.',
-                'despedida': 'Lo entiendo perfectamente. Si reconsidera, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+                'hook': 'Los despachos de abogados en {ciudad} con web profesional están consiguiendo un 70% más de consultas.',
+                'propuesta': 'Nos gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más consultas con una web que genere confianza y muestre sus especialidades claramente. ¿Le interesaría conocer esta información?',
+                'respuesta_si': 'Perfecto. Le envío información detallada por SMS para que pueda revisarla tranquilamente.',
+                'respuesta_no_1': '¿Han observado que los clientes investigan abogados online antes de contactar? Ayudamos a despachos como {nombre_negocio} a transmitir confianza y profesionalidad en internet. ¿Esto le resultaría interesante?',
+                'respuesta_no_2': 'Comprendo su posición. Solo mencionar que muchos despachos en {ciudad} están consiguiendo más clientes con presencia digital. Tenemos planes desde 149€. ¿Le mando la información para revisarla?',
+                'despedida': 'Lo entiendo perfectamente. Si reconsidera, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.'
             },
             'default': {
                 'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional para negocios.',
                 'personalizacion': 'Estoy llamando específicamente por {nombre_negocio}, he visto que están en {ciudad} y me parece un negocio con mucho potencial.',
-                'hook': 'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%. Los clientes buscan servicios online antes de decidir.',
-                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. ¿Le interesaría escuchar esta información? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_si': 'Excelente. Le envío ahora mismo por SMS nuestra encuesta personalizada con ejemplos específicos para su sector y precios. Gracias por su tiempo.',
-                'respuesta_no_1': '¿Han notado que los clientes buscan servicios online antes de comprar? Ayudamos a negocios como {nombre_negocio} a aparecer mejor en internet y conseguir más ventas. ¿Esto le resultaría útil? Presione 1 para SÍ o 2 para NO.',
-                'respuesta_no_2': 'Entiendo. Una última cosa: muchos negocios en {ciudad} están creciendo con una web sencilla. Tenemos opciones desde 149€ muy asequibles. ¿Le envío la información sin compromiso? Presione 1 para SÍ o 2 para NO.',
-                'despedida': 'Lo comprendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día. Gracias.'
+                'hook': 'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%.',
+                'propuesta': 'Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. ¿Le interesaría escuchar esta información?',
+                'respuesta_si': 'Excelente. Le envío la información por SMS para que pueda revisarla cuando guste.',
+                'respuesta_no_1': '¿Han notado que los clientes buscan servicios online antes de comprar? Ayudamos a negocios como {nombre_negocio} a aparecer mejor en internet y conseguir más ventas. ¿Esto le resultaría útil?',
+                'respuesta_no_2': 'Entiendo. Una última cosa: muchos negocios en {ciudad} están creciendo con una web sencilla. Tenemos opciones desde 149€ muy asequibles. ¿Le envío la información sin compromiso?',
+                'despedida': 'Lo comprendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.'
             }
+        }
+        
+        # Configuración de voz
+        self.voice_config = {
+            'voice': 'Polly.Lucia',  # Voz española femenina
+            'language': 'es-ES'
+        }
+        
+        # Plantillas de mensajes por sector
+        self.plantillas_sector = self.cargar_plantillas_sector()
+        
+        # Configuración de presupuesto
+        self.presupuesto_configuracion = {
+            'presupuesto_diario_maximo': 10.0,  # 10€ máximo por día
+            'costo_llamada_minuto': 0.08,       # €0.08 por minuto con número español
+            'costo_sms_nacional': 0.07,         # €0.07 por SMS nacional
+            'duracion_llamada_promedio': 1.5,   # 1.5 minutos promedio por llamada
+            'factor_seguridad': 0.85             # Factor de seguridad del 85%
         }
     
     def cargar_plantillas_sector(self):
@@ -1436,6 +1467,21 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             print(f"   ⏱️ Timeout: 30s (reducido para minimizar costes)")
             print(f"   💰 Coste esperado: €0.03-0.12 según respuesta")
             
+            # DIAGNÓSTICO: Verificar si es número español
+            caller_number = os.getenv('TWILIO_PHONE_NUMBER')
+            if caller_number and caller_number.startswith('+34'):
+                print(f"🇪🇸 NÚMERO ESPAÑOL DETECTADO:")
+                print(f"   ✅ Caller ID: {caller_number} (España)")
+                print(f"   📈 Conversión esperada: 3x mayor (número local)")
+                print(f"   💰 Llamadas locales: €0.08-0.15/min")
+                print(f"   🎯 Confianza cliente: MÁXIMA")
+            elif caller_number and caller_number.startswith('+1'):
+                print(f"🇺🇸 NÚMERO US DETECTADO:")
+                print(f"   ⚠️ Caller ID: {caller_number} (Internacional)")
+                print(f"   📉 Conversión: Baja (número extranjero)")
+                print(f"   💰 Llamadas internacionales: €0.25-0.50/min")
+                print(f"   🤔 Confianza cliente: Regular")
+            
             # DIAGNÓSTICO: Verificar capacidades antes de llamar
             print(f"🔍 DIAGNÓSTICO PRE-LLAMADA:")
             
@@ -1518,6 +1564,109 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 print(f"   🚨 ERROR VOICE: Tu número probablemente no tiene capacidad de llamadas")
                 print(f"   💡 Ve a Twilio Console → Phone Numbers → Habilita 'Voice'")
             
+            return False
+
+    def realizar_llamada_vonage(self, telefono, nombre_negocio, sector, ciudad=''):
+        """
+        NUEVA: Realizar llamada automatizada con VONAGE (números españoles)
+        """
+        if not self.vonage_enabled:
+            print("❌ Vonage no configurado")
+            return False
+            
+        try:
+            print(f"🇪🇸 LLAMADA VONAGE (NÚMERO ESPAÑOL):")
+            print(f"   📱 Desde: {os.getenv('VONAGE_PHONE_NUMBER')} (España +34)")
+            print(f"   📞 Hacia: {telefono}")
+            print(f"   💰 Coste: ~€0.04/minuto (local)")
+            print(f"   🎯 Conversión esperada: 3x mayor que internacional")
+            
+            # Crear llamada Vonage con webhook
+            response = self.vonage_client.voice.create_call({
+                'to': [{'type': 'phone', 'number': telefono}],
+                'from': {'type': 'phone', 'number': os.getenv('VONAGE_PHONE_NUMBER')},
+                'answer_url': [f"{self.website_url}/api/vonage-answer?sector={sector}&nombre={nombre_negocio}&ciudad={ciudad}"],
+                'event_url': [f"{self.website_url}/api/vonage-events"],
+                'machine_detection': 'hangup',  # Colgar si es buzón
+                'length_timer': 30,  # Máximo 30 segundos
+                'ringing_timer': 20  # Máximo 20 segundos esperando respuesta
+            })
+            
+            if response.get('status') == 'started':
+                call_uuid = response.get('uuid')
+                print(f"✅ Llamada Vonage iniciada: {call_uuid}")
+                print(f"🎯 Negocio: {nombre_negocio} en {ciudad}")
+                print(f"📋 Flujo: Presentación → Propuesta → Respuesta → SMS automático")
+                print(f"👀 VER EN VONAGE: Dashboard → Voice → Call logs → {call_uuid}")
+                
+                # Guardar información de la llamada
+                self.guardar_llamada_info(call_uuid, telefono, nombre_negocio, sector, "Llamada Vonage España", ciudad)
+                
+                return True
+            else:
+                print(f"❌ Error iniciando llamada Vonage: {response}")
+                return False
+            
+        except Exception as e:
+            print(f"❌ ERROR DETALLADO VONAGE a {telefono}:")
+            print(f"   💥 Tipo de error: {type(e).__name__}")
+            print(f"   📝 Mensaje: {str(e)}")
+            
+            # Errores específicos de Vonage
+            if "401" in str(e):
+                print(f"   🚨 ERROR 401: Credenciales Vonage incorrectas")
+            elif "403" in str(e):
+                print(f"   🚨 ERROR 403: Sin permisos o saldo insuficiente")
+            elif "402" in str(e):
+                print(f"   🚨 ERROR 402: Sin saldo en cuenta Vonage")
+            elif "invalid" in str(e).lower():
+                print(f"   🚨 ERROR: Número de destino inválido")
+            
+            return False
+
+    def contactar_lead_con_llamada(self, lead):
+        """
+        ACTUALIZADO: Contacta lead con llamada (Vonage preferido, Twilio fallback)
+        """
+        try:
+            telefono = self.formatear_telefono_espanol(lead.get('phone', ''))
+            nombre_negocio = lead.get('business_name', 'Negocio')
+            sector = lead.get('sector', 'default')
+            ciudad = lead.get('ciudad', '')
+            
+            if not telefono:
+                print(f"❌ Teléfono inválido para {nombre_negocio}")
+                return False
+            
+            # Verificar lista negra
+            if self.esta_en_lista_negra(telefono):
+                print(f"🚫 {telefono} ({nombre_negocio}) está en lista negra - SKIP")
+                return False
+            
+            print(f"\n📞 INICIANDO LLAMADA CONVERSACIONAL:")
+            print(f"   🏢 Negocio: {nombre_negocio}")
+            print(f"   📱 Teléfono: {telefono}")
+            print(f"   🏙️ Ciudad: {ciudad}")
+            print(f"   🎯 Sector: {sector}")
+            
+            # PRIORIDAD 1: Usar Vonage si está disponible (números españoles)
+            if self.vonage_enabled:
+                print(f"🇪🇸 Intentando llamada con VONAGE (número español)...")
+                if self.realizar_llamada_vonage(telefono, nombre_negocio, sector, ciudad):
+                    return True
+                else:
+                    print(f"⚠️ Vonage falló, intentando Twilio fallback...")
+            
+            # FALLBACK: Usar Twilio si Vonage no está o falla
+            if self.twilio_voice_enabled:
+                print(f"🇺🇸 Usando Twilio como fallback (número US)...")
+                return self.realizar_llamada_automatizada(telefono, nombre_negocio, sector, ciudad)
+            else:
+                print(f"❌ Ni Vonage ni Twilio Voice disponibles")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error contactando lead con llamada: {e}")
             return False
     
     def generar_twiml_respuesta(self, telefono, nombre_negocio, sector, ciudad='', intento=1):
@@ -1964,67 +2113,6 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         except Exception as e:
             print(f"❌ Error enviando SMS post-llamada: {str(e)}")
     
-    def contactar_lead_con_llamada(self, lead):
-        """
-        Contacta un lead usando llamada automatizada CONVERSACIONAL
-        """
-        try:
-            telefono = lead.get('telefono', lead.get('phone', ''))
-            nombre = lead.get('nombre', lead.get('name', 'este negocio'))
-            sector = lead.get('sector', 'default')
-            ciudad = lead.get('ciudad', lead.get('city', ''))
-            
-            if not telefono:
-                print(f"❌ No hay teléfono para {nombre}")
-                return False
-                
-            # Formatear teléfono español
-            telefono_formateado = self.formatear_telefono_espanol(telefono)
-            if not telefono_formateado:
-                print(f"❌ Teléfono inválido: {telefono}")
-                return False
-            
-            print(f"📞 Iniciando llamada CONVERSACIONAL a {nombre}")
-            print(f"🏙️ Ciudad: {ciudad}")
-            print(f"🎯 Sector: {sector}")
-            print(f"📞 Teléfono: {telefono_formateado}")
-            
-            # Realizar llamada conversacional
-            exito_llamada = self.realizar_llamada_automatizada(telefono_formateado, nombre, sector, ciudad)
-            
-            if exito_llamada:
-                print(f"✅ Llamada conversacional iniciada para {nombre}")
-                print(f"💬 Sistema esperará respuesta del cliente (SÍ/NO)")
-                print(f"📱 SMS solo se enviará si cliente dice SÍ")
-                
-                # Enviar notificación de llamada iniciada
-                self.enviar_notificacion_telegram(
-                    f"📞 LLAMADA CONVERSACIONAL INICIADA\n\n"
-                    f"🏢 Negocio: {nombre}\n"
-                    f"🏙️ Ciudad: {ciudad}\n"
-                    f"📞 Teléfono: {telefono_formateado}\n"
-                    f"🎯 Sector: {sector}\n"
-                    f"🎙️ Sistema: Conversacional con respuestas\n"
-                    f"⏰ Hora: {datetime.now().strftime('%H:%M')}\n\n"
-                    f"💬 FLUJO:\n"
-                    f"1️⃣ Presentación personalizada\n"
-                    f"2️⃣ Propuesta específica\n"
-                    f"3️⃣ Captura respuesta SÍ/NO\n"
-                    f"4️⃣ Si NO → cambiar estrategia\n"
-                    f"5️⃣ Si SÍ → enviar SMS automático\n\n"
-                    f"💰 Coste llamada: ~0.12€\n"
-                    f"🎯 Conversión esperada: 35-45%"
-                )
-                
-                return True
-            else:
-                print(f"❌ Falló la llamada conversacional a {nombre}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Error contactando {lead.get('nombre', lead.get('name', 'lead'))}: {str(e)}")
-            return False
-
     def procesar_leads_con_llamadas(self, leads, limite=3):
         """
         Procesa leads usando llamadas automatizadas CONVERSACIONALES
@@ -2196,6 +2284,42 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         
         print(f"🔍 Filtrados: {len(leads_filtrados)}/{len(leads)} leads (sin lista negra)")
         return leads_filtrados
+
+    def calcular_presupuesto_llamadas(self, total_numeros_disponibles):
+        """
+        Calcula cuántas llamadas hacer según presupuesto de 10€ diario
+        """
+        try:
+            config = self.presupuesto_configuracion
+            
+            # Costo por llamada completa (llamada + SMS si acepta)
+            # Asumiendo 30% tasa de aceptación para calcular SMS
+            costo_llamada = config['costo_llamada_minuto'] * config['duracion_llamada_promedio']
+            costo_sms_ponderado = config['costo_sms_nacional'] * 0.30  # 30% acepta
+            costo_por_lead = costo_llamada + costo_sms_ponderado
+            
+            # Presupuesto disponible
+            presupuesto_disponible = config['presupuesto_diario_maximo'] * config['factor_seguridad']
+            
+            # Llamadas máximas según presupuesto
+            max_llamadas_presupuesto = int(presupuesto_disponible / costo_por_lead)
+            
+            # Llamadas finales (mínimo entre presupuesto y números disponibles)
+            llamadas_a_hacer = min(max_llamadas_presupuesto, total_numeros_disponibles)
+            
+            # Logging detallado
+            self.log_llamadas(f"📊 PRESUPUESTO DIARIO: {config['presupuesto_diario_maximo']}€")
+            self.log_llamadas(f"💰 Costo por llamada: €{costo_llamada:.3f}")
+            self.log_llamadas(f"📱 Costo SMS (30% acepta): €{costo_sms_ponderado:.3f}")
+            self.log_llamadas(f"💡 Costo total por lead: €{costo_por_lead:.3f}")
+            self.log_llamadas(f"🎯 Llamadas máximas con 10€: {max_llamadas_presupuesto}")
+            self.log_llamadas(f"📞 Llamadas a realizar: {llamadas_a_hacer}")
+            
+            return llamadas_a_hacer
+            
+        except Exception as e:
+            self.log_llamadas(f"❌ Error calculando presupuesto: {e}")
+            return 10  # Valor por defecto conservador
 
 def main():
     """Función principal expandida - SISTEMA HÍBRIDO SMS + LLAMADAS"""
@@ -2381,8 +2505,12 @@ def main():
                 print(f"❌ No se encontraron leads calificados para llamadas")
                 return
             
+            # Calcular cuántas llamadas hacer según presupuesto de 10€
+            llamadas_a_hacer = sistema.calcular_presupuesto_llamadas(len(leads_calificados))
+            print(f"💰 Llamadas calculadas según presupuesto: {llamadas_a_hacer}")
+            
             # Procesar con llamadas conversacionales
-            leads_exitosos = sistema.procesar_leads_con_llamadas(leads_calificados, args.limite)
+            leads_exitosos = sistema.procesar_leads_con_llamadas(leads_calificados, llamadas_a_hacer)
             
             print(f"\n✅ Llamadas conversacionales completadas")
             print(f"📞 Leads procesados: {len(leads_exitosos)}")

@@ -31,6 +31,9 @@ colorama==0.4.6
 # Base de datos
 sqlite3
 
+# VONAGE Voice API para números españoles  
+vonage==3.14.0
+
 # Dependencias JavaScript (para referencia)
 # express
 # bcryptjs  
