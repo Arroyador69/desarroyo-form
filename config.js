@@ -44,6 +44,7 @@ const config = {
         },
         stripe: {
             secretKey: process.env.STRIPE_SECRET_KEY || '',
+            publicKey: process.env.STRIPE_PUBLIC_KEY || '',
             webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || ''
         },
         telegram: {
@@ -188,7 +189,8 @@ function showConfig() {
     
     console.log('🤖 APIs configuradas:');
     console.log(`   DeepSeek: ${config.apis.deepseek.apiKey ? 'Configurada' : 'No configurada'}`);
-    console.log(`   Stripe: ${config.apis.stripe.secretKey ? 'Configurada' : 'No configurada'}`);
+    console.log(`   Stripe Secret: ${config.apis.stripe.secretKey ? 'Configurada' : 'No configurada'}`);
+    console.log(`   Stripe Public: ${config.apis.stripe.publicKey ? 'Configurada' : 'No configurada'}`);
     console.log(`   Telegram: ${config.apis.telegram.botToken ? 'Configurada' : 'No configurada'}`);
 }
 

@@ -123,7 +123,7 @@ async function createPaymentSession() {
         const { sessionId } = await response.json();
         
         // Redirigir a Stripe Checkout
-        const stripe = Stripe('pk_live_51RGg0AGayGuUgznnZ1FfHOEfSlHEdiSAhSGKO41ckEowveEs4aojJVdEcrx3MpJUp4dmfLeZ84ybN9iCe5ClzU3p00bKSWKKWR'); // Tu Stripe publishable key
+        const stripe = Stripe(config.apis?.stripe?.publicKey || 'TU_STRIPE_PUBLIC_KEY'); // Tu Stripe publishable key desde config
         stripe.redirectToCheckout({
             sessionId: sessionId
         });

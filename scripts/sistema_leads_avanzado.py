@@ -874,7 +874,7 @@ Genera un mensaje de WhatsApp personalizado, amigable y directo que:
         mensajes_sms = {
             'restaurantes': f"""Hola {lead['name']} 👋
 
-Soy Alberto de DesArroyo Tech. ¿Te interesa una web profesional que aumente tus reservas y pedidos online?
+Somos DesArroyo Tech. ¿Te interesa una web profesional que aumente tus reservas y pedidos online?
 
 ✅ Web lista en 48h desde 149€
 ✅ +40% ventas (clientes reales)
@@ -886,7 +886,7 @@ Encuesta rápida (2 min): desarroyo.tech/generador_automatizaciones.html
 
             'peluquerias': f"""Hola {lead['name']} 👋
 
-Alberto de DesArroyo Tech. ¿Quieres triplicar tus citas con una web profesional?
+DesArroyo Tech. ¿Quieres triplicar tus citas con una web profesional?
 
 ✅ Web + reservas online en 48h
 ✅ Desde 149€, 3 planes disponibles  
@@ -898,7 +898,7 @@ Encuesta (2 min): desarroyo.tech/generador_automatizaciones.html
 
             'dentistas': f"""Estimado Dr./Dra. {lead['name']}
 
-Alberto de DesArroyo Tech. ¿Le interesa captar 3x más pacientes con una web médica profesional?
+DesArroyo Tech. ¿Le interesa captar 3x más pacientes con una web médica profesional?
 
 ✅ Web clínica en 48h desde 149€
 ✅ Sistema citas online integrado
@@ -910,7 +910,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
 
             'abogados': f"""Estimado/a {lead['name']}
 
-Alberto de DesArroyo Tech. ¿Le interesa captar más clientes con una web de bufete profesional?
+DesArroyo Tech. ¿Le interesa captar más clientes con una web de bufete profesional?
 
 ✅ Web jurídica en 48h desde 149€  
 ✅ Presencia digital que genera confianza
@@ -922,7 +922,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
 
             'hoteles': f"""Hola {lead['name']} 👋
 
-Alberto de DesArroyo Tech. ¿Quiere aumentar reservas directas con una web hotelera profesional?
+DesArroyo Tech. ¿Quiere aumentar reservas directas con una web hotelera profesional?
 
 ✅ Web + booking en 48h desde 149€
 ✅ Sin comisiones de OTAs
@@ -934,7 +934,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
 
             'gimnasios': f"""Hola {lead['name']} 💪
 
-Alberto de DesArroyo Tech. ¿Te interesa captar más socios con una web fitness profesional?
+DesArroyo Tech. ¿Te interesa captar más socios con una web fitness profesional?
 
 ✅ Web + sistema socios en 48h
 ✅ Desde 149€, resultados garantizados
