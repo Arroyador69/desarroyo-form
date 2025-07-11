@@ -130,7 +130,7 @@ def manejar_llamada():
     
     Estoy llamando específicamente por {nombre_negocio}. He visto que están en {ciudad} y me parece un negocio con mucho potencial.
     
-    Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que aumente sus ventas.
+    Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que aumente sus ventas. Le hacemos la web completamente personalizada en 48 horas.
     
     ¿Le interesaría escuchar esta información? Presione 1 para SÍ, estoy interesado, o presione 2 para NO, no me interesa.
     """

@@ -126,19 +126,19 @@ class WebhookHandler(BaseHTTPRequestHandler):
                     'intro': 'Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web para restaurantes.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un restaurante con mucho potencial.',
                     'hook': f'Los restaurantes en {ciudad} que tienen web profesional están consiguiendo un 40% más de reservas que sus competidores.',
-                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. ¿Le interesaría escuchar esta información?',
+                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas. Le hacemos la web completamente personalizada en 48 horas. ¿Le interesaría escuchar esta información?',
                 },
                 'dentistas': {
                     'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en webs para clínicas dentales.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y se dedican a odontología general.',
                     'hook': f'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos.',
-                    'propuesta': f'Nos gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. ¿Le interesaría conocer esta información?',
+                    'propuesta': f'Nos gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más pacientes con una web que permita citas online y genere confianza profesional. Le hacemos la web completamente personalizada en 48 horas. ¿Le interesaría conocer esta información?',
                 },
                 'default': {
                     'intro': 'Buenos días, soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional para negocios.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un negocio con mucho potencial.',
                     'hook': f'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%.',
-                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. ¿Le interesaría escuchar esta información?',
+                    'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas. Le hacemos la web completamente personalizada en 48 horas. ¿Le interesaría escuchar esta información?',
                 }
             }
             
