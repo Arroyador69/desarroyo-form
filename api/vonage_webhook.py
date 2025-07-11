@@ -17,7 +17,7 @@ class VonageVoiceHandler:
         self.vonage_phone = os.getenv('VONAGE_PHONE_NUMBER')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = "DesArroyo Tech"
-        self.your_name = "Alberto"
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
 
     def handle_answer_webhook(self, request):
         """Maneja webhook inicial de llamada (answer)"""
@@ -31,19 +31,19 @@ class VonageVoiceHandler:
             # Scripts de voz por sector (adaptados para Vonage)
             voice_scripts = {
                 'restaurantes': {
-                    'intro': f'Hola, buenos días. Soy {self.your_name} de {self.business_name}, empresa especializada en desarrollo web para restaurantes.',
+                    'intro': f'Hola, buenos días. Soy {self.agent_intro}, empresa especializada en desarrollo web para restaurantes.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un restaurante con mucho potencial.',
                     'hook': f'Los restaurantes en {ciudad} que tienen web profesional están consiguiendo un 40% más de reservas que sus competidores.',
                     'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web que muestre su carta, permita reservas online y aumente sus ventas.',
                 },
                 'dentistas': {
-                    'intro': f'Buenos días, soy {self.your_name} de {self.business_name}, empresa especializada en webs para clínicas dentales.',
+                    'intro': f'Buenos días, soy {self.agent_intro}, empresa especializada en webs para clínicas dentales.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y se dedican a odontología.',
                     'hook': f'Las clínicas dentales en {ciudad} con web moderna están consiguiendo un 60% más de pacientes nuevos.',
                     'propuesta': f'Nos gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más pacientes con una web que permita citas online y genere confianza profesional.',
                 },
                 'default': {
-                    'intro': f'Buenos días, soy {self.your_name} de {self.business_name}, empresa especializada en desarrollo web profesional.',
+                    'intro': f'Buenos días, soy {self.agent_intro}, empresa especializada en desarrollo web profesional.',
                     'personalizacion': f'Estoy llamando específicamente por {nombre}, he visto que están en {ciudad} y me parece un negocio con mucho potencial.',
                     'hook': f'Las empresas en {ciudad} con web profesional están aumentando sus ventas un 45%.',
                     'propuesta': f'Me gustaría explicarle cómo podríamos ayudar a {nombre} a conseguir más clientes con una web profesional que atraiga y convierta visitas en ventas.',

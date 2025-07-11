@@ -25,7 +25,7 @@ class SistemaLeadsInmediato:
         # Configuración básica
         self.website_url = "https://desarroyo.tech"
         self.business_name = "DesArroyo Tech"  
-        self.your_name = "Alberto"
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
         
         # Scraper gratis
         self.scraper = ScraperGratis()

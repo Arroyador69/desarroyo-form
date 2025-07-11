@@ -24,7 +24,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
         self.telegram_chat = os.getenv('TELEGRAM_CHAT_ID')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = os.getenv('BUSINESS_NAME', 'DesArroyo Tech')
-        self.your_name = os.getenv('YOUR_NAME', 'Alberto')
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
 
     def do_POST(self, request):
         """Maneja requests POST del webhook"""
@@ -260,7 +260,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 if intento >= 3:
                     # Ya hemos intentado 3 veces, despedirse
                     response.say(
-                        "Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                        "Entiendo. Si cambia de opinión, puede contactarnos en contacto@desarroyo.tech. Que tenga un buen día.",
                         voice='Polly.Lucia',
                         language='es-ES'
                     )
@@ -300,7 +300,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
-                "Ha ocurrido un error. Puede contactarnos en alberto@desarroyo.tech",
+                "Ha ocurrido un error. Puede contactarnos en contacto@desarroyo.tech",
                 voice='Polly.Lucia',
                 language='es-ES'
             )
@@ -349,7 +349,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             )
             
             response.say(
-                "Entiendo. Si cambia de opinión, puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                "Entiendo. Si cambia de opinión, puede contactarnos en contacto@desarroyo.tech. Que tenga un buen día.",
                 voice='Polly.Lucia',
                 language='es-ES'
             )
@@ -366,7 +366,7 @@ class WebhookHandler(BaseHTTPRequestHandler):
             from twilio.twiml.voice_response import VoiceResponse
             response = VoiceResponse()
             response.say(
-                "Puede contactarnos en alberto@desarroyo.tech. Que tenga un buen día.",
+                "Puede contactarnos en contacto@desarroyo.tech. Que tenga un buen día.",
                 voice='Polly.Lucia',
                 language='es-ES'
             )
@@ -449,14 +449,14 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 else:
                     # Móvil no válido (no empieza por 6 o 7)
                     response.say(
-                        f"El número {movil_limpio} no parece ser un móvil válido. No hay problema, puede contactarnos por email en alberto@desarroyo.tech.",
+                        f"El número {movil_limpio} no parece ser un móvil válido. No hay problema, puede contactarnos por email en contacto@desarroyo.tech.",
                         voice='Polly.Lucia',
                         language='es-ES'
                     )
             else:
                 # No se recibió móvil o es muy corto
                 response.say(
-                    "No he podido capturar el número correctamente. No hay problema, puede contactarnos por email en alberto@desarroyo.tech para recibir toda la información.",
+                    "No he podido capturar el número correctamente. No hay problema, puede contactarnos por email en contacto@desarroyo.tech para recibir toda la información.",
                     voice='Polly.Lucia',
                     language='es-ES'
                 )

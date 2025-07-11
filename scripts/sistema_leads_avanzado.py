@@ -28,7 +28,7 @@ class SistemaLeadsAvanzado:
         self.telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = os.getenv('BUSINESS_NAME', 'DesArroyo Tech')
-        self.your_name = os.getenv('YOUR_NAME', 'Alberto')
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
         
         # Configuración Twilio (para SMS)
         self.twilio_enabled = all([
@@ -1734,7 +1734,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
         
         # Si no responden nada, despedirse
         response.say(
-            "Entiendo que no puede atender ahora. Puede contactarnos en alberto@desarroyo.tech si lo desea. Que tenga un buen día.",
+            "Entiendo que no puede atender ahora. Puede contactarnos en contacto@desarroyo.tech si lo desea. Que tenga un buen día.",
             voice=self.voice_config['voice'],
             language=self.voice_config['language']
         )
