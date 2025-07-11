@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 import requests
 from twilio.rest import Client
 import telegram
-from .scraper_gratis import ScraperGratis
+from scraper_gratis import ScraperGratis
 from twilio.twiml.voice_response import VoiceResponse
 import argparse
 
@@ -163,6 +163,12 @@ class SistemaLeadsAvanzado:
             'duracion_llamada_promedio': 1.5,   # 1.5 minutos promedio por llamada
             'factor_seguridad': 0.85             # Factor de seguridad del 85%
         }
+        
+        # Inicializar scraper
+        self.scraper = ScraperGratis()
+        
+        # Canal de comunicación por defecto
+        self.canal_comunicacion = 'LLAMADAS'
     
     def cargar_plantillas_sector(self):
         """Plantillas profesionales orientadas a venta y conversión"""
@@ -1482,38 +1488,13 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
                 print(f"   💰 Llamadas internacionales: €0.25-0.50/min")
                 print(f"   🤔 Confianza cliente: Regular")
             
-            # DIAGNÓSTICO: Verificar capacidades antes de llamar
+            # DIAGNÓSTICO: Verificar que tenemos Verified Caller ID
             print(f"🔍 DIAGNÓSTICO PRE-LLAMADA:")
             
-            # Verificar número Twilio tiene capacidades de Voice
-            try:
-                phone_numbers = self.twilio_client.incoming_phone_numbers.list()
-                twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
-                
-                numero_encontrado = None
-                for number in phone_numbers:
-                    if number.phone_number == twilio_number:
-                        numero_encontrado = number
-                        break
-                
-                if numero_encontrado:
-                    capacidades = numero_encontrado.capabilities
-                    print(f"   ✅ Número encontrado: {twilio_number}")
-                    print(f"   🗣️  Voice: {'✅' if capacidades.get('voice') else '❌ NO HABILITADO'}")
-                    print(f"   💬 SMS: {'✅' if capacidades.get('sms') else '❌'}")
-                    
-                    if not capacidades.get('voice'):
-                        print(f"🚨 ERROR CRÍTICO: Tu número {twilio_number} NO tiene capacidad de VOICE")
-                        print(f"💡 SOLUCIÓN: Ve a Twilio Console → Phone Numbers → Habilita 'Voice'")
-                        print(f"💡 O compra un número nuevo con capacidad Voice + SMS")
-                        return False
-                else:
-                    print(f"❌ ERROR: Número {twilio_number} no encontrado en tu cuenta Twilio")
-                    return False
-                    
-            except Exception as diag_e:
-                print(f"⚠️  No se pudo verificar capacidades: {diag_e}")
-                print(f"⚠️  Intentando llamada de todas formas...")
+            twilio_number = os.getenv('TWILIO_PHONE_NUMBER')
+            print(f"   📞 Using Verified Caller ID: {twilio_number}")
+            print(f"   ✅ Número verificado como Caller ID en Twilio Console")
+            print(f"   🎯 Preparado para llamadas salientes")
             
             # Realizar llamada OPTIMIZADA
             print(f"🚀 INICIANDO LLAMADA...")

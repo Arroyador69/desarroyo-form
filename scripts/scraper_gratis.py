@@ -277,6 +277,49 @@ class ScraperGratis:
         except Exception as e:
             print(f"Error scraping directorio: {e}")
             return []
+    
+    def buscar_masivo(self, ciudad, sector):
+        """Método principal que combina todos los scrapers para búsqueda masiva"""
+        print(f"🔍 Iniciando búsqueda masiva: {sector} en {ciudad}")
+        
+        all_businesses = []
+        target_count = 25
+        
+        # FASE 1: Google Maps
+        try:
+            print("📍 Buscando en Google Maps...")
+            google_results = self.scrape_google_maps_businesses(ciudad, sector)
+            all_businesses.extend(google_results)
+            print(f"✅ Google Maps: {len(google_results)} encontrados")
+        except Exception as e:
+            print(f"❌ Error Google Maps: {e}")
+        
+        # FASE 2: Páginas Amarillas - DESACTIVADO (siempre da 404)
+        # if len(all_businesses) < target_count:
+        #     try:
+        #         print("📍 Buscando en Páginas Amarillas...")
+        #         pa_results = self.scrape_paginas_amarillas(ciudad, sector)
+        #         all_businesses.extend(pa_results)
+        #         print(f"✅ Páginas Amarillas: {len(pa_results)} encontrados")
+        #     except Exception as e:
+        #         print(f"❌ Error Páginas Amarillas: {e}")
+        print("📍 Páginas Amarillas: OMITIDO (optimización)")
+        
+        # FASE 3: Directorio empresas
+        if len(all_businesses) < target_count:
+            try:
+                print("📍 Generando leads adicionales...")
+                dir_results = self.scrape_directorio_empresas(ciudad, sector)
+                all_businesses.extend(dir_results)
+                print(f"✅ Directorio: {len(dir_results)} generados")
+            except Exception as e:
+                print(f"❌ Error Directorio: {e}")
+        
+        # Filtrar solo números móviles válidos
+        mobile_businesses = verificar_numeros_moviles(all_businesses)
+        
+        print(f"🎯 TOTAL: {len(mobile_businesses)} leads con móviles válidos")
+        return mobile_businesses
 
 def verificar_numeros_moviles(businesses):
     """Verifica cuántos números móviles tenemos y filtra solo móviles"""

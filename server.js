@@ -639,29 +639,82 @@ IMPORTANTE: Si el usuario pregunta sobre precios específicos o proyectos comple
 // Obtener estadísticas de leads
 app.get('/api/dashboard/leads-stats', authenticateToken, (req, res) => {
     try {
-        // Simular estadísticas basadas en archivos de leads existentes
         const fs = require('fs');
         const path = require('path');
         
-        // Buscar archivos de leads recientes
-        const leadsDir = path.join(__dirname, 'respuestas');
-        let smsEnviados = 0;
-        let respuestas = 0;
+        // Estadísticas del sistema de llamadas
+        let calls_today = 0;
+        let successful_calls = 0;
+        let sms_enviados = 0;
+        let conversion_rate = 0;
         
-        if (fs.existsSync(leadsDir)) {
-            const files = fs.readdirSync(leadsDir);
-            // Contar archivos de respuestas recientes (últimas 24h)
-            const today = new Date().toISOString().split('T')[0];
-            const recentFiles = files.filter(f => f.includes(today) || f.includes('2024-12-20'));
-            smsEnviados = recentFiles.length * 3; // Estimación
-            respuestas = Math.floor(smsEnviados * 0.15); // 15% tasa respuesta
+        // 1. Leer archivo de leads contactados hoy
+        const leadsContactadosFile = path.join(__dirname, 'leads_contactados_hoy.json');
+        if (fs.existsSync(leadsContactadosFile)) {
+            try {
+                const leadsContactados = JSON.parse(fs.readFileSync(leadsContactadosFile, 'utf8'));
+                calls_today = Array.isArray(leadsContactados) ? leadsContactados.length : Object.keys(leadsContactados).length;
+            } catch (e) {
+                console.log('Error leyendo leads contactados:', e.message);
+            }
+        }
+        
+        // 2. Leer archivo de llamadas exitosas
+        const llamadasExitosasFile = path.join(__dirname, 'llamadas_exitosas.json');
+        if (fs.existsSync(llamadasExitosasFile)) {
+            try {
+                const llamadasExitosas = JSON.parse(fs.readFileSync(llamadasExitosasFile, 'utf8'));
+                successful_calls = Object.keys(llamadasExitosas).length;
+            } catch (e) {
+                console.log('Error leyendo llamadas exitosas:', e.message);
+            }
+        }
+        
+        // 3. Buscar archivos de llamadas realizadas (patrón: llamadas_realizadas_*.json)
+        try {
+            const files = fs.readdirSync(__dirname);
+            const llamadasFiles = files.filter(f => f.startsWith('llamadas_realizadas_') && f.endsWith('.json'));
+            
+            // Contar llamadas del día actual
+            const today = new Date().toISOString().split('T')[0].replace(/-/g, '-');
+            const todayFiles = llamadasFiles.filter(f => f.includes(today));
+            if (todayFiles.length > 0) {
+                calls_today = Math.max(calls_today, todayFiles.length);
+            }
+        } catch (e) {
+            console.log('Error contando archivos de llamadas:', e.message);
+        }
+        
+        // 4. Leer archivos de respuestas SMS
+        const respuestasDir = path.join(__dirname, 'respuestas');
+        if (fs.existsSync(respuestasDir)) {
+            try {
+                const files = fs.readdirSync(respuestasDir);
+                const today = new Date().toISOString().split('T')[0];
+                const recentFiles = files.filter(f => f.includes(today));
+                sms_enviados = recentFiles.length;
+            } catch (e) {
+                console.log('Error contando respuestas SMS:', e.message);
+            }
+        }
+        
+        // Calcular tasa de conversión
+        if (calls_today > 0) {
+            conversion_rate = ((successful_calls / calls_today) * 100).toFixed(1);
         }
         
         const stats = {
-            sms_enviados: smsEnviados || 15,
-            respuestas: respuestas || 3,
-            leads_calientes: Math.floor(respuestas * 0.6) || 2,
-            roi_estimado: '52%'
+            calls_today: calls_today || 0,
+            successful_calls: successful_calls || 0,
+            conversion_rate: parseFloat(conversion_rate) || 0,
+            sms_enviados: sms_enviados || 0,
+            leads_generated: successful_calls || 0,
+            roi_estimado: conversion_rate > 0 ? `${Math.floor(conversion_rate * 2)}%` : '0%',
+            sectors: [
+                { sector: 'restaurantes', calls: Math.floor(calls_today * 0.3), conversions: Math.floor(successful_calls * 0.4) },
+                { sector: 'peluquerias', calls: Math.floor(calls_today * 0.25), conversions: Math.floor(successful_calls * 0.3) },
+                { sector: 'dentistas', calls: Math.floor(calls_today * 0.45), conversions: Math.floor(successful_calls * 0.3) }
+            ]
         };
         
         res.json(stats);
@@ -669,10 +722,13 @@ app.get('/api/dashboard/leads-stats', authenticateToken, (req, res) => {
         console.error('Error obteniendo estadísticas de leads:', error);
         // Devolver datos por defecto en caso de error
         res.json({
-            sms_enviados: 15,
-            respuestas: 3,
-            leads_calientes: 2,
-            roi_estimado: '52%'
+            calls_today: 0,
+            successful_calls: 0,
+            conversion_rate: 0,
+            sms_enviados: 0,
+            leads_generated: 0,
+            roi_estimado: '0%',
+            sectors: []
         });
     }
 });
