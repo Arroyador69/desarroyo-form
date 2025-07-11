@@ -28,7 +28,7 @@ class ManejadorRespuestas:
         self.telegram_chat = os.getenv('TELEGRAM_CHAT_ID')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = os.getenv('BUSINESS_NAME', 'DesArroyo Tech')
-        self.your_name = os.getenv('YOUR_NAME', 'Alberto')
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
         
         # Clientes
         if self.twilio_sid and self.twilio_token:

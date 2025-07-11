@@ -25,7 +25,7 @@ class TestWhatsAppBusinessAPI:
         self.twilio_whatsapp = os.getenv('TWILIO_WHATSAPP_NUMBER')
         self.website_url = os.getenv('WEBSITE_URL', 'https://desarroyo.tech')
         self.business_name = os.getenv('BUSINESS_NAME', 'DesArroyo Tech')
-        self.your_name = os.getenv('YOUR_NAME', 'Alberto')
+        self.agent_intro = "un agente comercial de DesArroyo Tech"
         
         # Inicializar cliente Twilio
         self.twilio_client = None

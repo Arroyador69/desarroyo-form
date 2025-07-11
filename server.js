@@ -6405,11 +6405,11 @@ Nuestros clientes ven resultados desde la primera semana:
 
 ¡Que tengas un excelente día!
 
-Alberto - DesArroyo Tech 🚀`;
+Agente comercial de DesArroyo Tech 🚀`;
     }
     
     // Respuesta general
-    return `¡Hola! 👋 Gracias por tu mensaje.
+            return `¡Hola! 👋 Gracias por tu mensaje.
 
 Entiendo que puedas tener dudas. Es normal cuando se trata de invertir en el crecimiento de tu negocio.
 
@@ -6423,7 +6423,7 @@ https://desarroyo.tech/generador_automatizaciones.html
 
 ¿En qué más puedo ayudarte?
 
-Alberto - DesArroyo Tech 🚀`;
+Agente comercial de DesArroyo Tech 🚀`;
 }
 
 // Función para notificar por Telegram

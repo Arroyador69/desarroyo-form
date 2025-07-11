@@ -105,7 +105,7 @@ Nuestros clientes ven resultados desde la primera semana:
 
 ¡Que tengas un excelente día!
 
-Alberto - DesArroyo Tech 🚀`;
+Agente comercial de DesArroyo Tech 🚀`;
     }
     
     // Respuesta general
@@ -123,7 +123,7 @@ https://desarroyo.tech/generador_automatizaciones.html
 
 ¿En qué más puedo ayudarte?
 
-Alberto - DesArroyo Tech 🚀`;
+Agente comercial de DesArroyo Tech 🚀`;
 }
 
 async function notificarTelegram(phone, mensaje, respuesta) {
