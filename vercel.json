@@ -27,6 +27,9 @@
     },
     "api/webhook.py": {
       "runtime": "python3.11"
+    },
+    "api/webhook-llamada.py": {
+      "runtime": "python3.11"
     }
   },
   "routes": [
@@ -56,7 +59,7 @@
     },
     {
       "src": "/api/webhook-llamada",
-      "dest": "/api/webhook.py"
+      "dest": "/api/webhook-llamada.py"
     },
     {
       "src": "/api/webhook-llamada-respuesta", 
