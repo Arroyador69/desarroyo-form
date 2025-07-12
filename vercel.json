@@ -24,6 +24,9 @@
   "functions": {
     "scripts/webhook_respuestas.py": {
       "runtime": "python3.11"
+    },
+    "api/webhook.py": {
+      "runtime": "python3.11"
     }
   },
   "routes": [
@@ -50,6 +53,18 @@
     {
       "src": "/health",
       "dest": "/scripts/webhook_respuestas.py"
+    },
+    {
+      "src": "/api/webhook-llamada",
+      "dest": "/api/webhook.py"
+    },
+    {
+      "src": "/api/webhook-llamada-respuesta", 
+      "dest": "/api/webhook.py"
+    },
+    {
+      "src": "/api/webhook-llamada-status",
+      "dest": "/api/webhook.py"
     },
     {
       "src": "/(.*)",
