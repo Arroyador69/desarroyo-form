@@ -1,91 +1,36 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "**/*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "**/*.js",
-      "use": "@vercel/static",
-      "config": {
-        "excludeFiles": ["server.js"]
-      }
-    }
-  ],
   "functions": {
-    "scripts/webhook_respuestas.py": {
-      "runtime": "python3.11"
-    },
-    "api/webhook.py": {
-      "runtime": "python3.11"
-    },
     "api/webhook-llamada.py": {
-      "runtime": "python3.11"
+      "runtime": "@vercel/python"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/dashboard/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/login.html",
-      "dest": "/login.html"
-    },
-    {
-      "src": "/webhook/whatsapp",
-      "dest": "/scripts/webhook_respuestas.py"
-    },
-    {
-      "src": "/webhook/encuesta", 
-      "dest": "/scripts/webhook_respuestas.py"
-    },
-    {
-      "src": "/health",
-      "dest": "/scripts/webhook_respuestas.py"
-    },
-    {
-      "src": "/api/webhook-llamada",
-      "dest": "/api/webhook-llamada.py"
-    },
-    {
-      "src": "/api/webhook-llamada-respuesta", 
-      "dest": "/api/webhook.py"
-    },
-    {
-      "src": "/api/webhook-llamada-status",
-      "dest": "/api/webhook.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/webhook-llamada",
+      "destination": "/api/webhook-llamada.py"
     }
   ],
   "env": {
-    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
-    "TWILIO_AUTH_TOKEN": "@twilio_auth_token", 
-    "TWILIO_PHONE_NUMBER": "@twilio_phone_number",
-    "TWILIO_WHATSAPP_NUMBER": "@twilio_whatsapp_number",
-    "DEEPSEEK_API_KEY": "@deepseek_api_key",
-    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
-    "TELEGRAM_CHAT_ID": "@telegram_chat_id",
-    "WEBSITE_URL": "https://desarroyo.tech",
-    "BUSINESS_NAME": "DesArroyo Tech",
-    "AGENT_INTRO": "un agente comercial de DesArroyo Tech",
-    "JWT_SECRET": "@jwt_secret",
-    "ADMIN_PASSWORD": "@admin_password"
-  }
+    "WEBSITE_URL": "https://desarroyo.tech"
+  },
+  "headers": [
+    {
+      "source": "/api/webhook-llamada",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
 } 
