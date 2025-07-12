@@ -8,15 +8,22 @@ INCLUYE: Detección móvil/fijo, SMS automático, conversación natural
 
 import os
 import re
-from flask import Flask, request
+from flask import Flask, request, Response
 from twilio.twiml.voice_response import VoiceResponse
 from twilio.rest import Client
 from dotenv import load_dotenv
+from datetime import datetime
+import pytz
+import logging
 
 # Cargar variables de entorno desde .env
 load_dotenv()
 
 app = Flask(__name__)
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Configuración Twilio para SMS
 try:
@@ -101,64 +108,94 @@ https://desarroyo.tech/index_conectado_n8n.html
         print(f"❌ Error enviando SMS a {telefono}: {e}")
         return False
 
+def es_horario_comercial():
+    """Verifica si estamos en horario comercial español"""
+    # Zona horaria de España
+    spain_tz = pytz.timezone('Europe/Madrid')
+    now = datetime.now(spain_tz)
+    
+    # Día de la semana (0=lunes, 6=domingo)
+    weekday = now.weekday()
+    hour = now.hour
+    
+    # Lunes a viernes: 9-14h y 16-20h
+    if weekday <= 4:  # Lunes a viernes
+        return (9 <= hour < 14) or (16 <= hour < 20)
+    
+    # Sábados: 10-13h
+    elif weekday == 5:  # Sábado
+        return 10 <= hour < 13
+    
+    # Domingos: cerrado
+    else:
+        return False
+
 @app.route('/webhook-llamada', methods=['POST'])
-def manejar_llamada():
-    """Webhook definitivo que habla en español con agente comercial"""
-    
-    # Obtener datos del formulario
-    from_number = request.form.get('From', '')
-    to_number = request.form.get('To', '')
-    call_sid = request.form.get('CallSid', '')
-    
-    # Nombre del negocio desde parámetros o por defecto
-    nombre_negocio = request.args.get('nombre', 'su negocio')
-    sector = request.args.get('sector', 'restaurantes')
-    ciudad = request.args.get('ciudad', '')
-    
-    print(f"📞 LLAMADA ESPAÑOLA: {from_number} → {to_number}")
-    print(f"🏢 Negocio: {nombre_negocio}, Sector: {sector}, Ciudad: {ciudad}")
-    
-    # Crear respuesta TwiML EN ESPAÑOL
-    response = VoiceResponse()
-    
-    # PAUSA inicial
-    response.pause(length=1)
-    
-    # MENSAJE PRINCIPAL EN ESPAÑOL - SIN "SOY ALBERTO"
-    mensaje = f"""
-    Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web para negocios locales.
-    
-    Estoy llamando específicamente por {nombre_negocio}. He visto que están en {ciudad} y me parece un negocio con mucho potencial.
-    
-    Me gustaría explicarle cómo podríamos ayudar a {nombre_negocio} a conseguir más clientes con una web profesional que aumente sus ventas. Le hacemos la web completamente personalizada en 48 horas.
-    
-    ¿Le interesaría escuchar esta información? Presione 1 para SÍ, estoy interesado, o presione 2 para NO, no me interesa.
-    """
-    
-    # Configurar voz española
-    gather = response.gather(
-        num_digits=1,
-        timeout=15,  # Tiempo suficiente para responder
-        action=f'/webhook-respuesta?nombre={nombre_negocio}',
-        method='POST'
-    )
-    
-    gather.say(
-        mensaje,
-        voice='Polly.Lucia',  # Voz española femenina
-        language='es-ES'      # Español de España
-    )
-    
-    # Si no responde, despedirse en español
-    response.say(
-        "No he recibido su respuesta. Puede contactarnos en alberto@desarroyo.tech si lo desea. Que tenga un buen día.",
-        voice='Polly.Lucia',
-        language='es-ES'
-    )
-    
-    response.hangup()
-    
-    return str(response)
+def webhook_llamada():
+    """Webhook para manejar llamadas entrantes de Twilio"""
+    try:
+        # Log de la llamada
+        call_sid = request.form.get('CallSid', 'Unknown')
+        from_number = request.form.get('From', 'Unknown')
+        to_number = request.form.get('To', 'Unknown')
+        
+        logger.info(f"Llamada recibida - CallSid: {call_sid}, From: {from_number}, To: {to_number}")
+        
+        # Verificar horario comercial
+        if es_horario_comercial():
+            # Mensaje durante horario comercial
+            twiml_response = '''<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Hola, gracias por atender. Soy un agente comercial de DesArroyo Tech, una empresa especializada en desarrollo web y automatización empresarial.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Le contactamos porque hemos identificado que su empresa podría beneficiarse de nuestros servicios de desarrollo web profesional. Podemos crear una página web personalizada para su negocio en tan solo 48 horas.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Nuestros servicios incluyen diseño web responsivo, optimización para móviles, integración con redes sociales y sistemas de gestión de contenido. Todo adaptado a las necesidades específicas de su empresa.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Si está interesado en conocer más sobre nuestros servicios, puede contactarnos a través de nuestra página web desarroyo punto tech, o llamarnos directamente. Estaremos encantados de preparar una propuesta personalizada para su negocio.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Gracias por su tiempo y esperamos poder ayudarle a potenciar su presencia digital. Que tenga un excelente día.
+    </Say>
+</Response>'''
+        else:
+            # Mensaje fuera de horario comercial
+            twiml_response = '''<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Hola, gracias por atender. Soy un agente comercial de DesArroyo Tech. Le hemos llamado fuera de nuestro horario comercial habitual. Nos disculpamos por la molestia.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Nuestro horario de atención es de lunes a viernes de 9 a 14 horas y de 16 a 20 horas, y sábados de 10 a 13 horas. Le contactaremos de nuevo en horario comercial para presentarle nuestra propuesta de desarrollo web.
+    </Say>
+    <Pause length="1"/>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Puede visitarnos en desarroyo punto tech para conocer más sobre nuestros servicios. Gracias por su tiempo. Que tenga un buen día.
+    </Say>
+</Response>'''
+        
+        logger.info(f"Respuesta TwiML enviada para CallSid: {call_sid}")
+        return Response(twiml_response, mimetype='application/xml')
+        
+    except Exception as e:
+        logger.error(f"Error procesando webhook: {str(e)}")
+        # Respuesta de fallback en caso de error
+        fallback_response = '''<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="Polly.Lucia" language="es-ES">
+        Hola, gracias por atender. Soy un agente comercial de DesArroyo Tech. Disculpe, tenemos un problema técnico temporal. Puede contactarnos en desarroyo punto tech. Gracias.
+    </Say>
+</Response>'''
+        return Response(fallback_response, mimetype='application/xml')
 
 @app.route('/webhook-respuesta', methods=['POST'])
 def manejar_respuesta():
@@ -289,32 +326,13 @@ def status():
         'twilio_configurado': twilio_client is not None
     }
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """Endpoint de verificación de salud"""
+    return {'status': 'ok', 'timestamp': datetime.now().isoformat()}
+
 if __name__ == '__main__':
-    print("=" * 60)
-    print("🇪🇸 WEBHOOK ESPAÑOL DEFINITIVO INICIADO")
-    print("✅ Las llamadas hablan PERFECTO español")
-    print("🎙️ Voz: Polly.Lucia (española femenina)")
-    print("🤖 Agente: 'agente comercial de DesArroyo.tech'")
-    print("📱 SMS automático: ACTIVADO")
-    print("📞 Detección móvil/fijo: ACTIVADA")
-    print("📋 Encuesta automática: INCLUIDA")
-    print("📱 Puerto: 5001")
-    print("🔗 URL: http://localhost:5001/webhook-llamada")
-    print()
-    print("🎯 FLUJO COMPLETO:")
-    print("  1. Llamada → Presentación en español")
-    print("  2. Si MÓVIL + SÍ → SMS automático")
-    print("  3. Si FIJO + SÍ → Pide móvil → SMS")
-    print("  4. Si NO → Despedida cortés")
-    print()
-    print("🚨 INSTRUCCIONES TWILIO:")
-    print("1. Ve a Twilio Console → Phone Numbers")
-    print("2. Haz clic en tu número de teléfono")
-    print("3. En 'Voice Configuration' → Webhook:")
-    print("   URL: https://tu-dominio.ngrok.io/webhook-llamada")
-    print("4. Guarda los cambios")
-    print()
-    print("🚀 ¡SISTEMA DEFINITIVO LISTO!")
-    print("=" * 60)
-    
-    app.run(host='0.0.0.0', port=5001, debug=True) 
+    print("🚀 Webhook de DesArroyo Tech iniciado")
+    print("📞 Listo para manejar llamadas en español")
+    print("🕐 Horarios comerciales configurados para España")
+    app.run(host='0.0.0.0', port=5000, debug=False) 

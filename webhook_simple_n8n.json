@@ -1,0 +1,71 @@
+{
+  "name": "Webhook Llamadas DesArroyo Tech",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-llamada",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Llamadas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "webhook-llamada-simple"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🕐 CONTROL HORARIO COMERCIAL ESPAÑA\nconst now = new Date();\nconst madrid = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Madrid' }));\nconst hour = madrid.getHours();\nconst day = madrid.getDay(); // 0=domingo, 1=lunes, ..., 6=sábado\n\n// Horarios comerciales\nlet esHorarioComercial = false;\n\nif (day >= 1 && day <= 5) { // Lunes a viernes\n  esHorarioComercial = (hour >= 9 && hour < 14) || (hour >= 16 && hour < 20);\n} else if (day === 6) { // Sábado\n  esHorarioComercial = (hour >= 10 && hour < 13);\n}\n// Domingo cerrado\n\n// 📞 DATOS DE LA LLAMADA\nconst fromNumber = $input.first().body.From || '';\nconst toNumber = $input.first().body.To || '';\nconst callSid = $input.first().body.CallSid || '';\n\nconsole.log(`📞 Llamada: ${fromNumber} → ${toNumber}`);\nconsole.log(`⏰ Hora Madrid: ${madrid.toLocaleString('es-ES')}`);\nconsole.log(`🏢 Horario comercial: ${esHorarioComercial ? 'SÍ' : 'NO'}`);\n\n// 🎯 MENSAJE SEGÚN HORARIO\nlet mensaje;\n\nif (esHorarioComercial) {\n  // Mensaje completo en horario comercial\n  mensaje = `\n  Hola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional.\n  \n  Le llamo porque hemos identificado que su negocio tiene un gran potencial para crecer online.\n  \n  Nos especializamos en crear páginas web que ayudan a empresas como la suya a conseguir más clientes a través de internet.\n  \n  Nuestros clientes suelen aumentar sus ventas entre un 30% y un 50% después de implementar una presencia web profesional.\n  \n  En las próximas 48 horas le enviaremos un ejemplo personalizado de cómo podría ser su página web, completamente gratis y sin compromiso.\n  \n  Esto le dará una idea clara de cómo podríamos ayudarle a hacer crecer su negocio online.\n  `;\n} else {\n  // Mensaje reducido fuera de horario\n  mensaje = `\n  Hola, gracias por atender. Soy un agente comercial de DesArroyo Tech.\n  \n  Le hemos llamado fuera de nuestro horario comercial habitual. Nos disculpamos por la molestia.\n  \n  Nuestro horario de atención es de lunes a viernes de 9 a 14 horas y de 16 a 20 horas, y sábados de 10 a 13 horas.\n  \n  Le contactaremos de nuevo en horario comercial para presentarle nuestra propuesta de desarrollo web.\n  `;\n}\n\n// 📋 GENERAR TWIML\nconst twimlResponse = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n    <Say voice=\"Polly.Lucia\" language=\"es-ES\">\n        ${mensaje.trim()}\n    </Say>\n    <Pause length=\"1\"/>\n    <Say voice=\"Polly.Lucia\" language=\"es-ES\">\n        Gracias por su tiempo. Que tenga un buen día.\n    </Say>\n</Response>`;\n\nreturn {\n  statusCode: 200,\n  headers: {\n    'Content-Type': 'application/xml; charset=utf-8',\n    'Access-Control-Allow-Origin': '*'\n  },\n  body: twimlResponse,\n  // Para logging\n  info: {\n    from: fromNumber,\n    to: toNumber,\n    callSid: callSid,\n    timestamp: madrid.toLocaleString('es-ES'),\n    businessHours: esHorarioComercial\n  }\n};"
+      },
+      "id": "generar-respuesta",
+      "name": "Generar Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "allInputData",
+        "options": {}
+      },
+      "id": "responder-webhook",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [600, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Llamadas": {
+      "main": [
+        [
+          {
+            "node": "Generar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Responder Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Europe/Madrid"
+  },
+  "staticData": null,
+  "id": "webhook-llamadas-simple",
+  "tags": []
+} 

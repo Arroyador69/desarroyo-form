@@ -1,0 +1,109 @@
+{
+  "name": "Webhook Llamadas Español - DesArroyo Tech",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-llamada",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-llamada-trigger",
+      "name": "Webhook Llamadas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "webhook-llamada-español"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generar TwiML en español para llamadas profesionales\nconst formData = $input.all()[0].body;\nconst fromNumber = formData.From || '';\nconst toNumber = formData.To || '';\nconst callSid = formData.CallSid || '';\n\nconsole.log(`📞 Llamada: ${fromNumber} → ${toNumber}`);\n\n// Mensaje profesional en español\nconst mensaje = `\nHola, buenos días. Soy un agente comercial de DesArroyo Tech, empresa especializada en desarrollo web profesional.\n\nLe llamo porque hemos visto que su negocio tiene potencial para crecer online. \n\nNos especializamos en crear páginas web que ayudan a empresas como la suya a conseguir más clientes a través de internet.\n\nNuestros clientes suelen aumentar sus ventas entre un 30% y un 50% después de tener una web profesional.\n\nEn las próximas 48 horas le enviaremos un ejemplo personalizado de cómo podría ser su página web, completamente gratis y sin compromiso.\n\nEsto le dará una idea clara de cómo podríamos ayudarle a hacer crecer su negocio online.\n`;\n\n// Generar TwiML response\nconst twimlResponse = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n    <Say voice=\"Polly.Lucia\" language=\"es-ES\">\n        ${mensaje}\n    </Say>\n    <Pause length=\"1\"/>\n    <Say voice=\"Polly.Lucia\" language=\"es-ES\">\n        Gracias por su tiempo. Que tenga un buen día.\n    </Say>\n</Response>`;\n\nreturn {\n  statusCode: 200,\n  headers: {\n    'Content-Type': 'application/xml; charset=utf-8',\n    'Access-Control-Allow-Origin': '*'\n  },\n  body: twimlResponse\n};"
+      },
+      "id": "generar-twiml",
+      "name": "Generar TwiML Español",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "responder-twiml",
+      "name": "Responder TwiML",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "📞 **LLAMADA PROCESADA**\n\n🔢 **Desde:** {{ $('Webhook Llamadas').first().json.body.From }}\n📱 **Hacia:** {{ $('Webhook Llamadas').first().json.body.To }}\n🆔 **Call ID:** {{ $('Webhook Llamadas').first().json.body.CallSid }}\n⏰ **Hora:** {{ $now }}\n\n✅ **Estado:** Respuesta enviada en español\n🎯 **Mensaje:** Propuesta profesional DesArroyo Tech\n\n---\n*Sistema automático de llamadas - DesArroyo Tech*",
+        "chatId": "{{ $vars.TELEGRAM_CHAT_ID }}"
+      },
+      "id": "notificar-telegram",
+      "name": "Notificar Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        460,
+        480
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "tu-telegram-credential",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Llamadas": {
+      "main": [
+        [
+          {
+            "node": "Generar TwiML Español",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notificar Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar TwiML Español": {
+      "main": [
+        [
+          {
+            "node": "Responder TwiML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Europe/Madrid"
+  },
+  "staticData": null,
+  "meta": {
+    "instanceId": "arroyo805"
+  },
+  "id": "webhook-llamadas-espanol",
+  "tags": []
+} 

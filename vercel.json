@@ -1,36 +1,15 @@
 {
   "version": 2,
-  "functions": {
-    "api/webhook-llamada.py": {
-      "runtime": "@vercel/python"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/webhook-llamada",
-      "destination": "/api/webhook-llamada.py"
+      "src": "api/webhook-llamada.py",
+      "use": "@vercel/python"
     }
   ],
-  "env": {
-    "WEBSITE_URL": "https://desarroyo.tech"
-  },
-  "headers": [
+  "routes": [
     {
-      "source": "/api/webhook-llamada",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Authorization"
-        }
-      ]
+      "src": "/api/webhook-llamada",
+      "dest": "/api/webhook-llamada.py"
     }
   ]
 } 
