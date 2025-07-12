@@ -8,54 +8,53 @@ Compatible con Vercel Serverless Functions
 import os
 import json
 import urllib.parse
-from datetime import datetime
+from http.server import BaseHTTPRequestHandler
 
-def handler(request, context):
+class handler(BaseHTTPRequestHandler):
     """Handler principal para Vercel - Llamadas en español"""
     
-    # Solo manejar POST requests
-    if request.method != 'POST':
-        return {
-            'statusCode': 405,
-            'body': json.dumps({'error': 'Método no permitido'})
-        }
-    
-    try:
-        # Obtener parámetros de la URL
-        query_string = request.url.split('?')[1] if '?' in request.url else ''
-        query_params = urllib.parse.parse_qs(query_string)
+    def do_GET(self):
+        """Manejar requests GET"""
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Webhook funcionando correctamente')
         
-        sector = query_params.get('sector', ['default'])[0]
-        nombre = query_params.get('nombre', ['Negocio'])[0]
-        ciudad = query_params.get('ciudad', [''])[0]
-        
-        # Configurar TwiML para respuesta en español
-        twiml_response = generar_twiml_espanol(sector, nombre, ciudad)
-        
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/xml',
-                'Cache-Control': 'no-cache'
-            },
-            'body': twiml_response
-        }
-        
-    except Exception as e:
-        # Si hay error, devolver mensaje en español
-        error_response = f"""<?xml version="1.0" encoding="UTF-8"?>
+    def do_POST(self):
+        """Manejar requests POST de Twilio"""
+        try:
+            # Obtener parámetros de la URL
+            query_string = self.path.split('?')[1] if '?' in self.path else ''
+            query_params = urllib.parse.parse_qs(query_string)
+            
+            sector = query_params.get('sector', ['default'])[0]
+            nombre = query_params.get('nombre', ['Negocio'])[0]
+            ciudad = query_params.get('ciudad', [''])[0]
+            
+            # Configurar TwiML para respuesta en español
+            twiml_response = generar_twiml_espanol(sector, nombre, ciudad)
+            
+            # Enviar respuesta
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/xml')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            self.wfile.write(twiml_response.encode('utf-8'))
+            
+        except Exception as e:
+            # Si hay error, devolver mensaje en español
+            error_response = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
     <Say voice="Polly.Lucia" language="es-ES">
         Lo siento, ha ocurrido un error técnico. Por favor, contacte con nosotros por email en alberto@desarroyo.tech. Gracias.
     </Say>
     <Hangup/>
 </Response>"""
-        
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/xml'},
-            'body': error_response
-        }
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/xml')
+            self.end_headers()
+            self.wfile.write(error_response.encode('utf-8'))
 
 def generar_twiml_espanol(sector, nombre, ciudad):
     """Genera respuesta TwiML en español perfecto"""
