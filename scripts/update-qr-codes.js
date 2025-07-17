@@ -38,7 +38,7 @@ async function updateQrCodes() {
                 }
 
                 const shortcut = shortcuts[index];
-                const installUrl = `https://desarroyo-form-ix34m820b-arroyador69s-projects.vercel.app/shortcuts/install/${shortcut.id}`;
+                const installUrl = `https://desarroyo-form-r6mzor4rr-arroyador69s-projects.vercel.app/shortcuts/install/${shortcut.id}`;
                 const newQrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(installUrl)}`;
 
                 console.log(`${index + 1}. Actualizando: ${shortcut.name} (ID: ${shortcut.id})`);
