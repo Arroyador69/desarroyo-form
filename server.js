@@ -572,18 +572,26 @@ if (!fs.existsSync(respuestasDir)) {
 }
 
 // 🎬 Asegurar que las carpetas del sistema de videos existen
+// Definir directorios del sistema de videos
 const videosDir = path.join(__dirname, 'videos');
 const videoClipsDir = path.join(__dirname, 'videos/clips');
 const videoOutputDir = path.join(__dirname, 'videos/output');
 const videoThumbnailsDir = path.join(__dirname, 'videos/thumbnails');
 const videoTempDir = path.join(__dirname, 'videos/temp');
 
-[videosDir, videoClipsDir, videoOutputDir, videoThumbnailsDir, videoTempDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-    console.log(`✅ Carpeta creada: ${dir}`);
-  }
-});
+// Crear directorios necesarios para el sistema de videos (solo en desarrollo local)
+if (process.env.NODE_ENV !== 'production') {
+  [videosDir, videoClipsDir, videoOutputDir, videoThumbnailsDir, videoTempDir].forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(`✅ Carpeta creada: ${dir}`);
+      } catch (error) {
+        console.log(`⚠️ No se pudo crear carpeta ${dir}: ${error.message}`);
+      }
+    }
+  });
+}
 
 // Configuración de DeepSeek
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
