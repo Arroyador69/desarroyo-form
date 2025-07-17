@@ -2019,6 +2019,175 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 🎯 NUEVA SECCIÓN: Generador de Shortcuts con DeepSeek -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-t-lg">
+                        <h3 class="text-xl font-bold mb-2">
+                            🤖 Generador de Shortcuts con IA
+                        </h3>
+                        <p class="text-purple-100">Powered by DeepSeek - Genera shortcuts perfectos para iOS</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Formulario -->
+                            <div>
+                                <form id="deepseek-shortcut-form" class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nombre del Shortcut
+                                        </label>
+                                        <input type="text" id="deepseek-shortcut-name" 
+                                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                               placeholder="Ej: WhatsApp Rápido" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Descripción
+                                        </label>
+                                        <textarea id="deepseek-shortcut-description" rows="2"
+                                                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                  placeholder="Ej: Envía mensajes de WhatsApp con un toque" required></textarea>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Tipo de Shortcut
+                                        </label>
+                                        <select id="deepseek-shortcut-type" 
+                                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                                            <option value="">Selecciona el tipo...</option>
+                                            <option value="whatsapp">📱 WhatsApp</option>
+                                            <option value="url">🌐 URL/Enlace</option>
+                                            <option value="automation">⚡ Automatización</option>
+                                            <option value="custom">🎯 Personalizado</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="deepseek-url-group" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            URL Objetivo
+                                        </label>
+                                        <input type="url" id="deepseek-target-url" 
+                                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                               placeholder="https://ejemplo.com">
+                                    </div>
+                                    
+                                    <div id="deepseek-custom-group" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Acciones Personalizadas
+                                        </label>
+                                        <textarea id="deepseek-custom-actions" rows="3"
+                                                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                                  placeholder="Describe las acciones que debe hacer el shortcut..."></textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Color del Icono
+                                            </label>
+                                            <select id="deepseek-icon-color" 
+                                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                                <option value="blue">🔵 Azul</option>
+                                                <option value="green">🟢 Verde</option>
+                                                <option value="red">🔴 Rojo</option>
+                                                <option value="orange">🟠 Naranja</option>
+                                                <option value="purple">🟣 Morado</option>
+                                                <option value="pink">🩷 Rosa</option>
+                                                <option value="yellow">🟡 Amarillo</option>
+                                                <option value="gray">⚪ Gris</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Icono
+                                            </label>
+                                            <select id="deepseek-icon-glyph" 
+                                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                                <option value="gear">⚙️ Configuración</option>
+                                                <option value="bolt">⚡ Rayo</option>
+                                                <option value="star">⭐ Estrella</option>
+                                                <option value="heart">❤️ Corazón</option>
+                                                <option value="message">💬 Mensaje</option>
+                                                <option value="link">🔗 Enlace</option>
+                                                <option value="home">🏠 Casa</option>
+                                                <option value="person">👤 Persona</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="submit" id="generate-deepseek-shortcut"
+                                            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 font-medium">
+                                        <i class="fas fa-robot"></i> 🤖 Generar con DeepSeek
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <!-- Resultado -->
+                            <div>
+                                <div id="deepseek-result" class="hidden">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0">
+                                                <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h4 class="text-sm font-medium text-green-800">
+                                                    ✅ Shortcut Generado Exitosamente
+                                                </h4>
+                                                <div id="deepseek-shortcut-info" class="text-sm text-green-700 mt-1"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center mb-4">
+                                        <img id="deepseek-qr-code" class="mx-auto" style="max-width: 200px;">
+                                    </div>
+                                    
+                                    <div class="space-y-2">
+                                        <button class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium" 
+                                                id="deepseek-download-btn">
+                                            <i class="fas fa-download"></i> Descargar Shortcut
+                                        </button>
+                                        <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-medium" 
+                                                id="deepseek-copy-link-btn">
+                                            <i class="fas fa-copy"></i> Copiar Enlace
+                                        </button>
+                                        <button class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 font-medium" 
+                                                id="deepseek-test-btn">
+                                            <i class="fas fa-play"></i> Probar Instalación
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="mt-4 text-center">
+                                        <small class="text-gray-500">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Generado con DeepSeek AI - Estructura WFWorkflow completa
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div id="deepseek-loading" class="hidden">
+                                    <div class="text-center py-8">
+                                        <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-purple-600">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            🤖 DeepSeek está generando tu shortcut...
+                                        </div>
+                                        <p class="mt-2 text-sm text-gray-600">Esto puede tomar unos segundos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 🌐 Social Media Tab -->
@@ -7018,6 +7187,7 @@
                 init() {
                     // Verificar autenticación al cargar
                     this.checkAuth();
+                    this.initDeepSeekShortcuts();
                     
                     // Escuchar cambios en el tamaño de ventana
                     window.addEventListener('resize', () => {
@@ -7768,6 +7938,150 @@
                 publishVideo(videoId) {
                     console.log('Publicar video:', videoId);
                     // Implementar publicación en redes sociales
+                },
+
+                // 🤖 === FUNCIONES DE SHORTCUTS CON DEEPSEEK ===
+                
+                // Inicializar el generador de shortcuts con DeepSeek
+                initDeepSeekShortcuts() {
+                    const form = document.getElementById('deepseek-shortcut-form');
+                    const typeSelect = document.getElementById('deepseek-shortcut-type');
+                    
+                    if (form) {
+                        form.addEventListener('submit', (e) => this.generateDeepSeekShortcut(e));
+                    }
+                    
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', (e) => this.handleShortcutTypeChange(e));
+                    }
+                },
+                
+                // Manejar cambio de tipo de shortcut
+                handleShortcutTypeChange(event) {
+                    const type = event.target.value;
+                    const urlGroup = document.getElementById('deepseek-url-group');
+                    const customGroup = document.getElementById('deepseek-custom-group');
+                    
+                    // Ocultar todos los grupos
+                    urlGroup.classList.add('hidden');
+                    customGroup.classList.add('hidden');
+                    
+                    // Mostrar el grupo correspondiente
+                    if (type === 'url') {
+                        urlGroup.classList.remove('hidden');
+                    } else if (type === 'custom') {
+                        customGroup.classList.remove('hidden');
+                    }
+                },
+                
+                // Generar shortcut con DeepSeek
+                async generateDeepSeekShortcut(event) {
+                    event.preventDefault();
+                    
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) {
+                        alert('Debes iniciar sesión primero');
+                        return;
+                    }
+                    
+                    // Obtener datos del formulario
+                    const name = document.getElementById('deepseek-shortcut-name').value;
+                    const description = document.getElementById('deepseek-shortcut-description').value;
+                    const type = document.getElementById('deepseek-shortcut-type').value;
+                    const targetUrl = document.getElementById('deepseek-target-url').value;
+                    const customActions = document.getElementById('deepseek-custom-actions').value;
+                    const iconColor = document.getElementById('deepseek-icon-color').value;
+                    const iconGlyph = document.getElementById('deepseek-icon-glyph').value;
+                    
+                    if (!name || !description || !type) {
+                        alert('Por favor completa todos los campos requeridos');
+                        return;
+                    }
+                    
+                    // Mostrar loading
+                    document.getElementById('deepseek-loading').classList.remove('hidden');
+                    document.getElementById('deepseek-result').classList.add('hidden');
+                    
+                    try {
+                        const response = await fetch('/api/dashboard/generate-ios-shortcut', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                shortcut_name: name,
+                                shortcut_description: description,
+                                shortcut_type: type,
+                                target_url: targetUrl || null,
+                                custom_actions: customActions || null,
+                                icon_color: iconColor,
+                                icon_glyph: iconGlyph
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        // Ocultar loading
+                        document.getElementById('deepseek-loading').classList.add('hidden');
+                        
+                        if (data.success) {
+                            // Mostrar resultado
+                            this.showDeepSeekResult(data.shortcut);
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error generando shortcut con DeepSeek:', error);
+                        document.getElementById('deepseek-loading').classList.add('hidden');
+                        alert('Error de conexión al generar el shortcut');
+                    }
+                },
+                
+                // Mostrar resultado del shortcut generado
+                showDeepSeekResult(shortcut) {
+                    const resultDiv = document.getElementById('deepseek-result');
+                    const infoDiv = document.getElementById('deepseek-shortcut-info');
+                    const qrImg = document.getElementById('deepseek-qr-code');
+                    
+                    // Mostrar información
+                    infoDiv.innerHTML = `
+                        <strong>${shortcut.name}</strong><br>
+                        ${shortcut.description}<br>
+                        <small>Tipo: ${shortcut.type} | Instalaciones: ${shortcut.install_count}</small>
+                    `;
+                    
+                    // Mostrar QR code
+                    qrImg.src = shortcut.qr_code_url;
+                    
+                    // Configurar botones
+                    this.setupDeepSeekButtons(shortcut);
+                    
+                    // Mostrar resultado
+                    resultDiv.classList.remove('hidden');
+                },
+                
+                // Configurar botones del resultado
+                setupDeepSeekButtons(shortcut) {
+                    // Botón de descarga
+                    document.getElementById('deepseek-download-btn').onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = shortcut.download_url;
+                        link.download = `${shortcut.name}.shortcut`;
+                        link.click();
+                    };
+                    
+                    // Botón de copiar enlace
+                    document.getElementById('deepseek-copy-link-btn').onclick = () => {
+                        navigator.clipboard.writeText(shortcut.install_url).then(() => {
+                            alert('Enlace copiado al portapapeles');
+                        });
+                    };
+                    
+                    // Botón de probar instalación
+                    document.getElementById('deepseek-test-btn').onclick = () => {
+                        window.open(shortcut.install_url, '_blank');
+                    };
                 },
 
                 // 🎬 === FUNCIONES DE SUBTÍTULOS AUTOMÁTICOS ===

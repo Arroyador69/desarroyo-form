@@ -6717,6 +6717,153 @@ app.post('/api/dashboard/generate-superpower-shortcut', authenticateToken, async
 });
 
 // Crear nuevo shortcut (nueva ruta para el frontend)
+
+// 🎯 GENERADOR ROBUSTO DE SHORTCUTS CON DEEPSEEK
+app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, res) => {
+    try {
+        const { 
+            shortcut_name, 
+            shortcut_description, 
+            shortcut_type, // 'whatsapp', 'url', 'automation', 'custom'
+            target_url,
+            custom_actions,
+            icon_color = 'blue',
+            icon_glyph = 'gear'
+        } = req.body;
+
+        if (!shortcut_name || !shortcut_description) {
+            return res.status(400).json({ error: 'Nombre y descripción son requeridos' });
+        }
+
+        if (!DEEPSEEK_API_KEY) {
+            return res.status(500).json({ error: 'DeepSeek API no configurada' });
+        }
+
+        console.log(`🤖 Generando shortcut iOS con DeepSeek: ${shortcut_name}`);
+
+        // Prompt específico para DeepSeek con toda la información técnica de iOS Shortcuts
+        const prompt = `
+        Eres un experto en iOS Shortcuts con conocimiento completo de la estructura técnica de archivos .shortcut.
+
+        GENERA un shortcut de iOS PERFECTO para:
+        - Nombre: "${shortcut_name}"
+        - Descripción: "${shortcut_description}"
+        - Tipo: ${shortcut_type}
+        ${target_url ? `- URL objetivo: ${target_url}` : ''}
+        ${custom_actions ? `- Acciones personalizadas: ${custom_actions}` : ''}
+
+        REGLAS TÉCNICAS OBLIGATORIAS:
+        1. Usa la estructura WFWorkflow exacta de iOS Shortcuts
+        2. Incluye WFWorkflowClientVersion: "1200" y WFWorkflowClientRelease: "1230"
+        3. Para WhatsApp: usa WFURLAction con URL "whatsapp://send?text="
+        4. Para URLs: usa WFURLAction con la URL proporcionada
+        5. Para automatizaciones: usa WFGetURLAction + WFURLAction
+        6. Incluye WFWorkflowInputContentItemClasses completos
+        7. Usa icon_color: "${icon_color}" y icon_glyph: "${icon_glyph}"
+        8. Añade WFWorkflowTypes: ["WatchKit", "NCWidget"]
+        9. Incluye WFWorkflowImportQuestions vacío
+
+        ESTRUCTURA REQUERIDA:
+        {
+          "WFWorkflow": {
+            "WFWorkflowClientVersion": "1200",
+            "WFWorkflowClientRelease": "1230",
+            "WFWorkflowIcon": {
+              "WFIconStartColor": "${icon_color}",
+              "WFIconGlyphNumber": "${icon_glyph}"
+            },
+            "WFWorkflowImportQuestions": [],
+            "WFWorkflowTypes": ["WatchKit", "NCWidget"],
+            "WFWorkflowInputContentItemClasses": ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
+            "WFWorkflowActions": [
+              // Aquí van las acciones específicas según el tipo
+            ]
+          }
+        }
+
+        Responde SOLO con el JSON completo del shortcut, sin explicaciones adicionales.
+        `;
+
+        // Llamada a DeepSeek
+        const response = await axios.post(DEEPSEEK_API_URL, {
+            model: 'deepseek-chat',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'Eres un experto técnico en iOS Shortcuts con conocimiento completo de la estructura WFWorkflow. Generas shortcuts perfectos que funcionan al 100%.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ],
+            temperature: 0.3, // Baja temperatura para consistencia técnica
+            max_tokens: 2000
+        }, {
+            headers: {
+                'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const shortcutJson = response.data.choices[0].message.content;
+        
+        // Intentar parsear el JSON generado
+        let shortcutData;
+        try {
+            shortcutData = JSON.parse(shortcutJson);
+        } catch (parseError) {
+            console.error('Error parseando shortcut de DeepSeek:', parseError);
+            return res.status(500).json({ error: 'Error generando shortcut: formato inválido' });
+        }
+
+        // Convertir a base64 para descarga
+        const shortcutBase64 = Buffer.from(JSON.stringify(shortcutData)).toString('base64');
+        const downloadUrl = `data:application/x-shortcut;base64,${shortcutBase64}`;
+
+        // Guardar en base de datos
+        const shortcutId = await new Promise((resolve, reject) => {
+            db.run(
+                `INSERT INTO shortcuts (name, description, type, target_url, shortcut_data, icon_color, icon_glyph, install_count, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, datetime('now'))`,
+                [shortcut_name, shortcut_description, shortcut_type, target_url, JSON.stringify(shortcutData), icon_color, icon_glyph],
+                function(err) {
+                    if (err) reject(err);
+                    else resolve(this.lastID);
+                }
+            );
+        });
+
+        // Generar QR code
+        const installUrl = `https://desarroyo-form.vercel.app/api/install-shortcut/${shortcutId}`;
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(installUrl)}`;
+
+        res.json({
+            success: true,
+            message: '🤖 Shortcut generado con DeepSeek exitosamente',
+            shortcut: {
+                id: shortcutId,
+                name: shortcut_name,
+                description: shortcut_description,
+                type: shortcut_type,
+                download_url: downloadUrl,
+                install_url: installUrl,
+                qr_code_url: qrCodeUrl,
+                install_count: 0,
+                created_at: new Date().toISOString()
+            },
+            generated_by: 'DeepSeek AI',
+            technical_notes: 'Shortcut generado con estructura WFWorkflow completa de iOS'
+        });
+
+    } catch (error) {
+        console.error('Error generando shortcut con DeepSeek:', error);
+        res.status(500).json({ 
+            error: 'Error generando shortcut: ' + error.message,
+            fallback: 'Usando método alternativo...'
+        });
+    }
+});
 app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
     try {
         const { name, description, trigger_phrase, action_type } = req.body;
