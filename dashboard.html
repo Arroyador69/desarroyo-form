@@ -85,6 +85,13 @@
                     <span>Fábrica de Videos</span>
                 </a>
                 
+                <a href="#" @click="activeTab = 'shortcuts'" 
+                   :class="activeTab === 'shortcuts' ? 'bg-green-700 text-white' : 'text-blue-100 hover:bg-green-700'"
+                   class="flex items-center px-4 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-bolt mr-3"></i>
+                    <span>⚡ Shortcuts iPhone</span>
+                </a>
+                
                 <a href="#" @click="activeTab = 'social-media'" 
                    :class="activeTab === 'social-media' ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-700'"
                    class="flex items-center px-4 py-3 rounded-lg transition-colors">
@@ -1779,6 +1786,218 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ⚡ Shortcuts iPhone Tab -->
+            <div x-show="activeTab === 'shortcuts'" class="space-y-6">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center">
+                        ⚡ <span class="ml-2 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Generador de Shortcuts iPhone</span>
+                    </h2>
+                    <p class="text-gray-600">
+                        Crea shortcuts personalizados para iPhone con enlaces directos y QR codes. Perfecto para videos de superpoderes.
+                    </p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-lg">
+                                <i class="fas fa-bolt text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Shortcuts Creados</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="shortcuts.length"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-lg">
+                                <i class="fas fa-download text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Descargas Totales</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="shortcutsStats.totalDownloads || 0"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-lg">
+                                <i class="fas fa-qrcode text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">QR Codes Generados</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="shortcuts.length"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-sm border card-hover">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-orange-100 rounded-lg">
+                                <i class="fas fa-star text-orange-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Más Popular</p>
+                                <p class="text-lg font-bold text-gray-900" x-text="shortcutsStats.mostPopular || 'Scanner'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generador de Shortcuts -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">🚀 Crear Nuevo Shortcut</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Configuración del Shortcut -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">📱 Nombre del Shortcut</label>
+                                    <input type="text" x-model="newShortcut.name" 
+                                           placeholder="Ej: Scanner de Documentos"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">📝 Descripción</label>
+                                    <textarea x-model="newShortcut.description" 
+                                              placeholder="Describe qué hace el shortcut..."
+                                              rows="3"
+                                              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">🎯 Frase de Activación</label>
+                                    <input type="text" x-model="newShortcut.triggerPhrase" 
+                                           placeholder="Ej: Escanea documento"
+                                           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">🎨 Tipo de Acción</label>
+                                    <select x-model="newShortcut.actionType" 
+                                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        <option value="scanner">📄 Scanner de Documentos</option>
+                                        <option value="translator">🌍 Traductor Instantáneo</option>
+                                        <option value="calculator">🧮 Calculadora Rápida</option>
+                                        <option value="reminder">⏰ Recordatorio por Voz</option>
+                                        <option value="custom">⚡ Personalizado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Preview del Shortcut -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">👁️ Vista Previa</label>
+                                    <div class="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300">
+                                        <div class="text-center">
+                                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                <i class="fas fa-bolt text-green-600 text-2xl"></i>
+                                            </div>
+                                            <h4 class="font-bold text-gray-900 mb-2" x-text="newShortcut.name || 'Nombre del Shortcut'"></h4>
+                                            <p class="text-sm text-gray-600 mb-3" x-text="newShortcut.description || 'Descripción del shortcut'"></p>
+                                            <div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
+                                                <i class="fas fa-microphone"></i>
+                                                <span x-text="newShortcut.triggerPhrase || 'Frase de activación'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botón de Generación -->
+                                <button @click="generateShortcut()" 
+                                        :disabled="!newShortcut.name || !newShortcut.description"
+                                        class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-bold">
+                                    <i class="fas fa-magic mr-2"></i>⚡ Generar Shortcut
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Shortcuts Existentes -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">📱 Shortcuts Disponibles</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <template x-for="shortcut in shortcuts" :key="shortcut.id">
+                                <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                                <i class="fas fa-bolt text-green-600"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-medium text-gray-900" x-text="shortcut.name"></h4>
+                                                <p class="text-xs text-gray-500" x-text="shortcut.trigger_phrase"></p>
+                                            </div>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Activo</span>
+                                    </div>
+                                    
+                                    <p class="text-sm text-gray-600 mb-4" x-text="shortcut.description"></p>
+                                    
+                                    <!-- Enlace Directo -->
+                                    <div class="mb-3">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">🔗 Enlace Directo</label>
+                                        <div class="flex">
+                                            <input type="text" :value="shortcut.shortcut_url" readonly
+                                                   class="flex-1 text-xs px-2 py-1 border rounded-l-lg bg-gray-100">
+                                            <button @click="copyToClipboard(shortcut.shortcut_url)" 
+                                                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded-r-lg hover:bg-blue-700">
+                                                📋
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- QR Code -->
+                                    <div class="mb-4">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">📱 QR Code</label>
+                                        <div class="text-center">
+                                            <img :src="shortcut.qr_code" alt="QR Code" 
+                                                 class="w-24 h-24 mx-auto border rounded-lg">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Acciones -->
+                                    <div class="flex space-x-2">
+                                        <button @click="previewShortcut(shortcut.id)" 
+                                                class="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 text-xs font-medium">
+                                            👁️ Preview
+                                        </button>
+                                        <button @click="downloadShortcut(shortcut.id)" 
+                                                class="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 text-xs font-medium">
+                                            📥 Descargar
+                                        </button>
+                                        <button @click="deleteShortcut(shortcut.id)" 
+                                                class="flex-1 bg-red-600 text-white py-2 px-3 rounded-lg hover:bg-red-700 text-xs font-medium">
+                                            🗑️ Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <!-- Estado vacío -->
+                        <div x-show="shortcuts.length === 0" class="text-center py-12">
+                            <div class="text-6xl mb-4">⚡</div>
+                            <h3 class="text-xl font-bold text-gray-600 mb-2">No hay shortcuts creados</h3>
+                            <p class="text-gray-500 mb-4">Crea tu primer shortcut para empezar</p>
                         </div>
                     </div>
                 </div>
@@ -4093,6 +4312,19 @@
                 selectedFiles: [],
                 isUploading: false,
                 uploadProgress: 0,
+                
+                // ⚡ Variables del Sistema de Shortcuts
+                shortcuts: [],
+                shortcutsStats: {
+                    totalDownloads: 0,
+                    mostPopular: 'Scanner'
+                },
+                newShortcut: {
+                    name: '',
+                    description: '',
+                    triggerPhrase: '',
+                    actionType: 'scanner'
+                },
                 newTag: '',
                 uploadConfig: {
                     clipType: 'cuerpo',
@@ -6823,6 +7055,7 @@
                         'projects': 'Proyectos',
                         'analytics': 'Analíticas',
                         'videos': 'Fábrica de Videos',
+                        'shortcuts': '⚡ Shortcuts iPhone',
                         'social-media': 'Redes Sociales',
                         'advanced-analytics': 'Analíticas Avanzadas',
                         'automations': 'Automatizaciones',
@@ -7026,6 +7259,9 @@
                         // 📊 Cargar datos del sistema de leads
                         await this.loadLeadsData();
 
+                        // ⚡ Cargar datos del sistema de shortcuts
+                        await this.loadShortcutsData();
+
                         // 📊 Inicializar analytics en tiempo real
                         await this.initRealTimeAnalytics();
                         
@@ -7076,6 +7312,140 @@
                         
                     } catch (error) {
                         console.error('Error cargando datos de videos:', error);
+                    }
+                },
+
+                // ⚡ === FUNCIONES DEL SISTEMA DE SHORTCUTS ===
+                async loadShortcutsData() {
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+                    
+                    try {
+                        // Cargar shortcuts existentes
+                        const response = await fetch('/api/dashboard/shortcuts', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.shortcuts = data.shortcuts || [];
+                            this.shortcutsStats = data.stats || {
+                                totalDownloads: 0,
+                                mostPopular: 'Scanner'
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error cargando shortcuts:', error);
+                    }
+                },
+
+                async generateShortcut() {
+                    if (!this.newShortcut.name || !this.newShortcut.description) {
+                        alert('Por favor completa todos los campos obligatorios');
+                        return;
+                    }
+
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+
+                    try {
+                        const response = await fetch('/api/dashboard/shortcuts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                name: this.newShortcut.name,
+                                description: this.newShortcut.description,
+                                trigger_phrase: this.newShortcut.triggerPhrase,
+                                action_type: this.newShortcut.actionType
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            
+                            // Añadir el nuevo shortcut a la lista
+                            this.shortcuts.unshift(data.shortcut);
+                            
+                            // Limpiar formulario
+                            this.newShortcut = {
+                                name: '',
+                                description: '',
+                                triggerPhrase: '',
+                                actionType: 'scanner'
+                            };
+                            
+                            alert('¡Shortcut generado exitosamente!');
+                        } else {
+                            const errorData = await response.json();
+                            alert('Error: ' + (errorData.error || 'Error generando shortcut'));
+                        }
+                    } catch (error) {
+                        console.error('Error generando shortcut:', error);
+                        alert('Error de conexión');
+                    }
+                },
+
+                async deleteShortcut(id) {
+                    if (!confirm('¿Estás seguro de que quieres eliminar este shortcut?')) return;
+
+                    const token = localStorage.getItem('dashboard_token');
+                    if (!token) return;
+
+                    try {
+                        const response = await fetch(`/api/dashboard/shortcuts/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            // Remover shortcut de la lista
+                            this.shortcuts = this.shortcuts.filter(s => s.id !== id);
+                            alert('Shortcut eliminado exitosamente');
+                        } else {
+                            alert('Error eliminando shortcut');
+                        }
+                    } catch (error) {
+                        console.error('Error eliminando shortcut:', error);
+                        alert('Error de conexión');
+                    }
+                },
+
+                copyToClipboard(text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Enlace copiado al portapapeles');
+                    }).catch(() => {
+                        // Fallback para navegadores que no soportan clipboard API
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Enlace copiado al portapapeles');
+                    });
+                },
+
+                previewShortcut(id) {
+                    const shortcut = this.shortcuts.find(s => s.id === id);
+                    if (shortcut) {
+                        // Abrir el enlace del shortcut en una nueva pestaña
+                        window.open(shortcut.shortcut_url, '_blank');
+                    }
+                },
+
+                downloadShortcut(id) {
+                    const shortcut = this.shortcuts.find(s => s.id === id);
+                    if (shortcut) {
+                        // Crear un enlace temporal para descargar
+                        const link = document.createElement('a');
+                        link.href = shortcut.shortcut_url;
+                        link.download = `${shortcut.name}.shortcut`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
                     }
                 },
 

@@ -6696,4 +6696,229 @@ app.post('/api/dashboard/generate-superpower-shortcut', authenticateToken, async
         console.error('Error generando superpoder shortcut:', error);
         res.status(500).json({ error: 'Error generando superpoder shortcut: ' + error.message });
     }
-}); 
+});
+
+// Crear nuevo shortcut (nueva ruta para el frontend)
+app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
+    try {
+        const { name, description, trigger_phrase, action_type } = req.body;
+        
+        if (!name || !description) {
+            return res.status(400).json({ error: 'Nombre y descripción son requeridos' });
+        }
+
+        // Generar acciones basadas en el tipo
+        let actions = [];
+        let icon_glyph = 'bolt';
+        
+        switch (action_type) {
+            case 'scanner':
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.getfile",
+                        WFWorkflowActionParameters: {
+                            WFGetFileActionMode: "Get Latest Photos",
+                            WFGetFileActionLimit: 1
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.scanqr",
+                        WFWorkflowActionParameters: {}
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name} activado!\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+                icon_glyph = 'doc.text';
+                break;
+                
+            case 'translator':
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.detect.language",
+                        WFWorkflowActionParameters: {
+                            WFLanguage: "es-ES"
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.translate",
+                        WFWorkflowActionParameters: {
+                            WFTranslateTextTargetLanguage: "en"
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name} activado!\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+                icon_glyph = 'globe';
+                break;
+                
+            case 'calculator':
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.askforinput",
+                        WFWorkflowActionParameters: {
+                            WFInputPrompt: "Introduce la operación:",
+                            WFInputType: "Number"
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.calculate",
+                        WFWorkflowActionParameters: {}
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name} activado!\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+                icon_glyph = 'function';
+                break;
+                
+            case 'reminder':
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.recordaudio",
+                        WFWorkflowActionParameters: {
+                            WFRecordingDuration: 30
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.addreminder",
+                        WFWorkflowActionParameters: {
+                            WFReminderTitle: "Recordatorio por voz"
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name} activado!\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+                icon_glyph = 'mic';
+                break;
+                
+            default:
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name} activado!\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+        }
+
+        // Crear el shortcut
+        const shortcutContent = {
+            WFWorkflow: {
+                WFWorkflowClientVersion: "1200",
+                WFWorkflowClientRelease: "1230",
+                WFWorkflowIcon: {
+                    WFIconStartColor: "blue",
+                    WFIconGlyphNumber: icon_glyph
+                },
+                WFWorkflowImportQuestions: [],
+                WFWorkflowTypes: ["WatchKit", "NCWidget"],
+                WFWorkflowInputContentItemClasses: ["WFStringContentItem"],
+                WFWorkflowActions: actions,
+                WFWorkflowOutputContentItemClasses: ["WFStringContentItem"]
+            }
+        };
+
+        const shortcutData = Buffer.from(JSON.stringify(shortcutContent)).toString('base64');
+        const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutData}`;
+        const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortcutUrl)}`;
+
+        // Guardar en base de datos
+        db.run(
+            'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, qr_code, trigger_type, trigger_phrase, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, description, JSON.stringify(actions), 'blue', icon_glyph, shortcutUrl, qrCode, 'voice', trigger_phrase, new Date().toISOString()],
+            function(err) {
+                if (err) {
+                    console.error('Error guardando shortcut:', err);
+                    return res.status(500).json({ error: 'Error guardando shortcut' });
+                }
+
+                const shortcutId = this.lastID;
+
+                res.json({
+                    success: true,
+                    shortcut: {
+                        id: shortcutId,
+                        name: name,
+                        description: description,
+                        shortcut_url: shortcutUrl,
+                        qr_code: qrCode,
+                        trigger_type: 'voice',
+                        trigger_phrase: trigger_phrase,
+                        created_at: new Date().toISOString()
+                    },
+                    message: 'Shortcut generado exitosamente'
+                });
+            }
+        );
+
+    } catch (error) {
+        console.error('Error generando shortcut:', error);
+        res.status(500).json({ error: 'Error generando shortcut: ' + error.message });
+    }
+});
+
+// Eliminar shortcut
+app.delete('/api/dashboard/shortcuts/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        db.run('DELETE FROM shortcuts WHERE id = ?', [id], function(err) {
+            if (err) {
+                console.error('Error eliminando shortcut:', err);
+                return res.status(500).json({ error: 'Error eliminando shortcut' });
+            }
+
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Shortcut no encontrado' });
+            }
+
+            res.json({
+                success: true,
+                message: 'Shortcut eliminado exitosamente'
+            });
+        });
+
+    } catch (error) {
+        console.error('Error eliminando shortcut:', error);
+        res.status(500).json({ error: 'Error eliminando shortcut: ' + error.message });
+    }
+});
+
+// Obtener estadísticas de shortcuts
+app.get('/api/dashboard/shortcuts-stats', authenticateToken, async (req, res) => {
+    try {
+        db.get('SELECT COUNT(*) as total FROM shortcuts', [], (err, result) => {
+            if (err) {
+                console.error('Error obteniendo estadísticas:', err);
+                return res.status(500).json({ error: 'Error obteniendo estadísticas' });
+            }
+
+            res.json({
+                success: true,
+                stats: {
+                    totalDownloads: result.total * 10, // Simulado
+                    mostPopular: 'Scanner de Documentos'
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error obteniendo estadísticas:', error);
+        res.status(500).json({ error: 'Error obteniendo estadísticas: ' + error.message });
+    }
+});
