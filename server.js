@@ -6840,7 +6840,7 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
 
         // Prompt específico para DeepSeek con toda la información técnica de iOS Shortcuts
         const prompt = `
-        Eres un experto en iOS Shortcuts. Genera un shortcut PERFECTO para iOS.
+        Eres un experto en iOS Shortcuts. Genera un shortcut PERFECTO que funcione al 100% en iPhone.
 
         DATOS DEL SHORTCUT:
         - Nombre: "${shortcut_name}"
@@ -6851,7 +6851,7 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
 
         REGLAS OBLIGATORIAS:
         1. Responde SOLO con JSON válido, sin texto adicional
-        2. Usa esta estructura exacta:
+        2. Usa esta estructura exacta que funciona en iOS:
         {
           "WFWorkflow": {
             "WFWorkflowClientVersion": "1200",
@@ -6865,17 +6865,26 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
             "WFWorkflowInputContentItemClasses": ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
             "WFWorkflowActions": [
               {
-                "WFWorkflowActionIdentifier": "is.workflow.actions.urltask",
+                "WFWorkflowActionIdentifier": "is.workflow.actions.openurl",
                 "WFWorkflowActionParameters": {
-                  "URL": "${shortcut_type === 'whatsapp' ? 'whatsapp://send?text=Hola' : target_url || 'https://desarroyo.tech'}",
-                  "ShowCompletion": true
+                  "WFURLActionURL": "${shortcut_type === 'whatsapp' ? 'whatsapp://send?text=Hola desde DesArroyo.tech' : shortcut_type === 'url' ? (target_url || 'https://desarroyo.tech') : 'https://desarroyo.tech'}"
+                }
+              },
+              {
+                "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+                "WFWorkflowActionParameters": {
+                  "Text": "✅ ${shortcut_name} ejecutado exitosamente!\\n\\n${shortcut_description}\\n\\n⚡ Generado por DesArroyo.tech"
                 }
               }
             ]
           }
         }
 
-        IMPORTANTE: Responde SOLO con el JSON, sin comillas adicionales ni texto explicativo.
+        IMPORTANTE: 
+        - Usa "is.workflow.actions.openurl" para abrir URLs
+        - Usa "WFURLActionURL" como parámetro
+        - Incluye siempre una acción de showresult
+        - Responde SOLO con el JSON, sin comillas adicionales ni texto explicativo.
         `;
 
         // Llamada a DeepSeek
@@ -6909,31 +6918,36 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
         } catch (parseError) {
             console.error('Error parseando shortcut de DeepSeek, usando plantilla predefinida:', parseError);
             
-            // Plantilla predefinida que funciona al 100%
-            shortcutData = {
-                WFWorkflow: {
-                    WFWorkflowClientVersion: "1200",
-                    WFWorkflowClientRelease: "1230",
-                    WFWorkflowIcon: {
-                        WFIconStartColor: icon_color,
-                        WFIconGlyphNumber: icon_glyph
-                    },
-                    WFWorkflowImportQuestions: [],
-                    WFWorkflowTypes: ["WatchKit", "NCWidget"],
-                    WFWorkflowInputContentItemClasses: ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
-                    WFWorkflowActions: [
-                        {
-                            WFWorkflowActionIdentifier: "is.workflow.actions.urltask",
-                            WFWorkflowActionParameters: {
-                                URL: shortcut_type === 'whatsapp' ? 'whatsapp://send?text=Hola desde DesArroyo.tech' : 
-                                     shortcut_type === 'url' ? (target_url || 'https://desarroyo.tech') :
-                                     'https://desarroyo.tech',
-                                ShowCompletion: true
-                            }
+                    // Plantilla predefinida que funciona al 100% en iOS
+        shortcutData = {
+            WFWorkflow: {
+                WFWorkflowClientVersion: "1200",
+                WFWorkflowClientRelease: "1230",
+                WFWorkflowIcon: {
+                    WFIconStartColor: icon_color,
+                    WFIconGlyphNumber: icon_glyph
+                },
+                WFWorkflowImportQuestions: [],
+                WFWorkflowTypes: ["WatchKit", "NCWidget"],
+                WFWorkflowInputContentItemClasses: ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
+                WFWorkflowActions: [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.openurl",
+                        WFWorkflowActionParameters: {
+                            WFURLActionURL: shortcut_type === 'whatsapp' ? 'whatsapp://send?text=Hola desde DesArroyo.tech' : 
+                                          shortcut_type === 'url' ? (target_url || 'https://desarroyo.tech') :
+                                          'https://desarroyo.tech'
                         }
-                    ]
-                }
-            };
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `✅ ${shortcut_name} ejecutado exitosamente!\n\n${shortcut_description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ]
+            }
+        };
         }
 
         // Convertir a base64 para descarga
