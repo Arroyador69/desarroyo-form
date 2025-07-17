@@ -6598,7 +6598,7 @@ app.get('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             // Añadir enlaces de instalación a cada shortcut
             const shortcutsWithInstallUrls = shortcuts.map(shortcut => ({
                 ...shortcut,
-                install_url: `https://desarroyo.tech/shortcuts/install/${shortcut.id}`,
+                install_url: `https://desarroyo-form-ix34m820b-arroyador69s-projects.vercel.app/shortcuts/install/${shortcut.id}`,
                 install_count: shortcut.install_count || 0
             }));
 
@@ -6867,7 +6867,7 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
         const downloadUrl = `/api/dashboard/download-shortcut/${fileName}`;
         
         // Crear enlace de instalación que incrementa el contador
-        const installUrl = `https://desarroyo.tech/shortcuts/install/`;
+        const installUrl = `https://desarroyo-form-ix34m820b-arroyador69s-projects.vercel.app/shortcuts/install/`;
         
         // Generar QR code que apunta al endpoint de instalación
         const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(installUrl)}`;
@@ -6990,7 +6990,7 @@ app.get('/shortcuts/install/:id', async (req, res) => {
                 // Redirigir al enlace real de instalación
                 // Si tiene archivo físico, usar el enlace directo al archivo
                 if (shortcut.download_url) {
-                    const installUrl = `shortcuts://import-shortcut?url=${encodeURIComponent('https://desarroyo.tech' + shortcut.download_url)}`;
+                    const installUrl = `shortcuts://import-shortcut?url=${encodeURIComponent('https://desarroyo-form-ix34m820b-arroyador69s-projects.vercel.app' + shortcut.download_url)}`;
                     res.redirect(installUrl);
                 } else {
                     // Fallback al enlace original
