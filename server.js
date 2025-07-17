@@ -7018,13 +7018,6 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             case 'scanner':
                 actions = [
                     {
-                        WFWorkflowActionIdentifier: "is.workflow.actions.getfile",
-                        WFWorkflowActionParameters: {
-                            WFGetFileActionMode: "Get Latest Photos",
-                            WFGetFileActionLimit: 1
-                        }
-                    },
-                    {
                         WFWorkflowActionIdentifier: "is.workflow.actions.scanqr",
                         WFWorkflowActionParameters: {}
                     },
@@ -7040,12 +7033,6 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                 
             case 'translator':
                 actions = [
-                    {
-                        WFWorkflowActionIdentifier: "is.workflow.actions.detect.language",
-                        WFWorkflowActionParameters: {
-                            WFLanguage: "es-ES"
-                        }
-                    },
                     {
                         WFWorkflowActionIdentifier: "is.workflow.actions.translate",
                         WFWorkflowActionParameters: {
@@ -7138,19 +7125,27 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                 ];
         }
 
-        // Crear el shortcut
+        // Crear el shortcut con formato válido para iOS
         const shortcutContent = {
             WFWorkflow: {
                 WFWorkflowClientVersion: "1200",
                 WFWorkflowClientRelease: "1230",
                 WFWorkflowIcon: {
-                    WFIconStartColor: "blue",
-                    WFIconGlyphNumber: icon_glyph
+                    WFIconStartColor: 4282601983,
+                    WFIconImageData: null,
+                    WFIconGlyphNumber: 59511
                 },
                 WFWorkflowImportQuestions: [],
                 WFWorkflowTypes: ["WatchKit", "NCWidget"],
                 WFWorkflowInputContentItemClasses: ["WFStringContentItem"],
-                WFWorkflowActions: actions,
+                WFWorkflowActions: [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `🎯 ${name}\n\n${description}\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ],
                 WFWorkflowOutputContentItemClasses: ["WFStringContentItem"]
             }
         };
