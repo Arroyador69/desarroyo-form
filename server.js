@@ -172,6 +172,21 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    // 🎬 Tabla de shortcuts de iPhone
+    db.run(`CREATE TABLE IF NOT EXISTS shortcuts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        actions TEXT, -- JSON array de acciones del shortcut
+        icon_color TEXT DEFAULT 'blue',
+        icon_glyph TEXT DEFAULT 'gear',
+        shortcut_url TEXT NOT NULL,
+        qr_code TEXT,
+        trigger_type TEXT DEFAULT 'manual',
+        trigger_phrase TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
     // Tabla de plantillas de video
     db.run(`CREATE TABLE IF NOT EXISTS video_templates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -6491,4 +6506,194 @@ app.listen(PORT, () => {
     console.log(`💳 Sistema de pagos con Stripe configurado`);
     console.log(`📊 Dashboard CRM disponible en /dashboard`);
     console.log(`📧 Contacto: alberto@desarroyo.tech`);
+}); 
+
+// 🎬 ===== APIs DE SHORTCUTS DE IPHONE =====
+
+// Generar enlace directo a shortcut de iPhone
+app.post('/api/dashboard/generate-shortcut-link', authenticateToken, async (req, res) => {
+    try {
+        const { shortcut_name, shortcut_description, actions, icon_color = 'blue', icon_glyph = 'gear' } = req.body;
+        
+        if (!shortcut_name || !shortcut_description || !actions) {
+            return res.status(400).json({ error: 'Nombre, descripción y acciones son requeridos' });
+        }
+
+        // Crear el contenido del shortcut
+        const shortcutContent = {
+            WFWorkflow: {
+                WFWorkflowClientVersion: "1200",
+                WFWorkflowClientRelease: "1230",
+                WFWorkflowIcon: {
+                    WFIconImageData: {
+                        type: "Buffer",
+                        data: [/* datos del icono */]
+                    },
+                    WFIconStartColor: icon_color,
+                    WFIconGlyphNumber: icon_glyph
+                },
+                WFWorkflowImportQuestions: [],
+                WFWorkflowTypes: ["WatchKit", "NCWidget"],
+                WFWorkflowInputContentItemClasses: ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
+                WFWorkflowActions: actions,
+                WFWorkflowOutputContentItemClasses: ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"]
+            }
+        };
+
+        // Convertir a formato base64 para el enlace
+        const shortcutData = Buffer.from(JSON.stringify(shortcutContent)).toString('base64');
+        const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutData}`;
+
+        // Guardar en base de datos
+        db.run(
+            'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [shortcut_name, shortcut_description, JSON.stringify(actions), icon_color, icon_glyph, shortcutUrl, new Date().toISOString()],
+            function(err) {
+                if (err) {
+                    console.error('Error guardando shortcut:', err);
+                    return res.status(500).json({ error: 'Error guardando shortcut' });
+                }
+
+                const shortcutId = this.lastID;
+
+                // Registrar actividad
+                db.run(
+                    'INSERT INTO activity_log (user_id, action, description, entity_type, entity_id) VALUES (?, ?, ?, ?, ?)',
+                    [req.user.id, 'CREATE', `Shortcut creado: ${shortcut_name}`, 'shortcut', shortcutId]
+                );
+
+                res.json({
+                    success: true,
+                    shortcut: {
+                        id: shortcutId,
+                        name: shortcut_name,
+                        description: shortcut_description,
+                        shortcut_url: shortcutUrl,
+                        qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortcutUrl)}`,
+                        created_at: new Date().toISOString()
+                    },
+                    message: 'Shortcut generado exitosamente'
+                });
+            }
+        );
+
+    } catch (error) {
+        console.error('Error generando shortcut:', error);
+        res.status(500).json({ error: 'Error generando shortcut: ' + error.message });
+    }
+});
+
+// Obtener shortcuts existentes
+app.get('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
+    try {
+        db.all('SELECT * FROM shortcuts ORDER BY created_at DESC', [], (err, shortcuts) => {
+            if (err) {
+                console.error('Error obteniendo shortcuts:', err);
+                return res.status(500).json({ error: 'Error obteniendo shortcuts' });
+            }
+
+            res.json({
+                success: true,
+                shortcuts: shortcuts,
+                count: shortcuts.length
+            });
+        });
+    } catch (error) {
+        console.error('Error obteniendo shortcuts:', error);
+        res.status(500).json({ error: 'Error obteniendo shortcuts: ' + error.message });
+    }
+});
+
+// Generar shortcut automático para superpoderes
+app.post('/api/dashboard/generate-superpower-shortcut', authenticateToken, async (req, res) => {
+    try {
+        const { superpower_name, superpower_description, trigger_type = 'voice', trigger_phrase } = req.body;
+        
+        if (!superpower_name || !superpower_description) {
+            return res.status(400).json({ error: 'Nombre y descripción del superpoder son requeridos' });
+        }
+
+        // Generar acciones del shortcut basadas en el tipo de superpoder
+        let actions = [];
+        
+        if (trigger_type === 'voice') {
+            actions = [
+                {
+                    WFWorkflowActionIdentifier: "is.workflow.actions.detect.language",
+                    WFWorkflowActionParameters: {
+                        WFLanguage: "es-ES"
+                    }
+                },
+                {
+                    WFWorkflowActionIdentifier: "is.workflow.actions.conditional",
+                    WFWorkflowActionParameters: {
+                        WFCondition: 0,
+                        Input: {
+                            Type: "Variable",
+                            VariableName: "Texto Detectado"
+                        }
+                    }
+                },
+                {
+                    WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                    WFWorkflowActionParameters: {
+                        Text: `🎯 ${superpower_name} activado!\n\n${superpower_description}`
+                    }
+                }
+            ];
+        }
+
+        // Crear el shortcut
+        const shortcutContent = {
+            WFWorkflow: {
+                WFWorkflowClientVersion: "1200",
+                WFWorkflowClientRelease: "1230",
+                WFWorkflowIcon: {
+                    WFIconStartColor: "blue",
+                    WFIconGlyphNumber: "bolt"
+                },
+                WFWorkflowImportQuestions: [],
+                WFWorkflowTypes: ["WatchKit", "NCWidget"],
+                WFWorkflowInputContentItemClasses: ["WFStringContentItem"],
+                WFWorkflowActions: actions,
+                WFWorkflowOutputContentItemClasses: ["WFStringContentItem"]
+            }
+        };
+
+        const shortcutData = Buffer.from(JSON.stringify(shortcutContent)).toString('base64');
+        const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutData}`;
+
+        // Guardar en base de datos
+        db.run(
+            'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [superpower_name, superpower_description, JSON.stringify(actions), 'blue', 'bolt', shortcutUrl, new Date().toISOString()],
+            function(err) {
+                if (err) {
+                    console.error('Error guardando superpoder shortcut:', err);
+                    return res.status(500).json({ error: 'Error guardando superpoder shortcut' });
+                }
+
+                const shortcutId = this.lastID;
+
+                res.json({
+                    success: true,
+                    superpower_shortcut: {
+                        id: shortcutId,
+                        name: superpower_name,
+                        description: superpower_description,
+                        shortcut_url: shortcutUrl,
+                        qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortcutUrl)}`,
+                        trigger_type: trigger_type,
+                        trigger_phrase: trigger_phrase,
+                        created_at: new Date().toISOString()
+                    },
+                    message: `Superpoder "${superpower_name}" creado exitosamente`
+                });
+            }
+        );
+
+    } catch (error) {
+        console.error('Error generando superpoder shortcut:', error);
+        res.status(500).json({ error: 'Error generando superpoder shortcut: ' + error.message });
+    }
 }); 

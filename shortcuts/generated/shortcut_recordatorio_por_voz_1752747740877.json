@@ -1,0 +1,30 @@
+{
+  "id": 4,
+  "name": "Recordatorio por Voz",
+  "description": "Crea recordatorios rápidos usando solo tu voz. Nunca más olvides una tarea importante.",
+  "shortcut_url": "shortcuts://import-shortcut?url=data:text/plain;base64,eyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnJlY29yZGF1ZGlvIiwiV0ZXb3JrZmxvd0FjdGlvblBhcmFtZXRlcnMiOnsiV0ZSZWNvcmRpbmdEdXJhdGlvbiI6MzB9fSx7IldGV29ya2Zsb3dBY3Rpb25JZGVudGlmaWVyIjoiaXMud29ya2Zsb3cuYWN0aW9ucy5hZGRyZW1pbmRlciIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IldGUmVtaW5kZXJUaXRsZSI6IlJlY29yZGF0b3JpbyBwb3Igdm96In19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNob3dyZXN1bHQiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJUZXh0Ijoi8J+OryBSZWNvcmRhdG9yaW8gcG9yIFZveiBhY3RpdmFkbyFcblxuQ3JlYSByZWNvcmRhdG9yaW9zIHLDoXBpZG9zIHVzYW5kbyBzb2xvIHR1IHZvei4gTnVuY2EgbcOhcyBvbHZpZGVzIHVuYSB0YXJlYSBpbXBvcnRhbnRlLlxuXG7imqEgR2VuZXJhZG8gcG9yIERlc0Fycm95by50ZWNoIn19XSwiV0ZXb3JrZmxvd091dHB1dENvbnRlbnRJdGVtQ2xhc3NlcyI6WyJXRlN0cmluZ0NvbnRlbnRJdGVtIl19fQ==",
+  "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=shortcuts%3A%2F%2Fimport-shortcut%3Furl%3Ddata%3Atext%2Fplain%3Bbase64%2CeyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnJlY29yZGF1ZGlvIiwiV0ZXb3JrZmxvd0FjdGlvblBhcmFtZXRlcnMiOnsiV0ZSZWNvcmRpbmdEdXJhdGlvbiI6MzB9fSx7IldGV29ya2Zsb3dBY3Rpb25JZGVudGlmaWVyIjoiaXMud29ya2Zsb3cuYWN0aW9ucy5hZGRyZW1pbmRlciIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IldGUmVtaW5kZXJUaXRsZSI6IlJlY29yZGF0b3JpbyBwb3Igdm96In19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNob3dyZXN1bHQiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJUZXh0Ijoi8J%2BOryBSZWNvcmRhdG9yaW8gcG9yIFZveiBhY3RpdmFkbyFcblxuQ3JlYSByZWNvcmRhdG9yaW9zIHLDoXBpZG9zIHVzYW5kbyBzb2xvIHR1IHZvei4gTnVuY2EgbcOhcyBvbHZpZGVzIHVuYSB0YXJlYSBpbXBvcnRhbnRlLlxuXG7imqEgR2VuZXJhZG8gcG9yIERlc0Fycm95by50ZWNoIn19XSwiV0ZXb3JrZmxvd091dHB1dENvbnRlbnRJdGVtQ2xhc3NlcyI6WyJXRlN0cmluZ0NvbnRlbnRJdGVtIl19fQ%3D%3D",
+  "trigger_type": "voice",
+  "trigger_phrase": "Recuérdame",
+  "created_at": "2025-07-17T10:22:20.877Z",
+  "actions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.recordaudio",
+      "WFWorkflowActionParameters": {
+        "WFRecordingDuration": 30
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.addreminder",
+      "WFWorkflowActionParameters": {
+        "WFReminderTitle": "Recordatorio por voz"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "Text": "🎯 Recordatorio por Voz activado!\n\nCrea recordatorios rápidos usando solo tu voz. Nunca más olvides una tarea importante.\n\n⚡ Generado por DesArroyo.tech"
+      }
+    }
+  ]
+}

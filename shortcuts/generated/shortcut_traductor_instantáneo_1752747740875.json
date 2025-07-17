@@ -1,0 +1,30 @@
+{
+  "id": 2,
+  "name": "Traductor Instantáneo",
+  "description": "Traduce texto instantáneamente entre múltiples idiomas. Ideal para viajes y comunicación internacional.",
+  "shortcut_url": "shortcuts://import-shortcut?url=data:text/plain;base64,eyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLmRldGVjdC5sYW5ndWFnZSIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IldGTGFuZ3VhZ2UiOiJlcy1FUyJ9fSx7IldGV29ya2Zsb3dBY3Rpb25JZGVudGlmaWVyIjoiaXMud29ya2Zsb3cuYWN0aW9ucy50cmFuc2xhdGUiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJXRlRyYW5zbGF0ZVRleHRUYXJnZXRMYW5ndWFnZSI6ImVuIn19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNob3dyZXN1bHQiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJUZXh0Ijoi8J+OryBUcmFkdWN0b3IgSW5zdGFudMOhbmVvIGFjdGl2YWRvIVxuXG5UcmFkdWNlIHRleHRvIGluc3RhbnTDoW5lYW1lbnRlIGVudHJlIG3Dumx0aXBsZXMgaWRpb21hcy4gSWRlYWwgcGFyYSB2aWFqZXMgeSBjb211bmljYWNpw7NuIGludGVybmFjaW9uYWwuXG5cbuKaoSBHZW5lcmFkbyBwb3IgRGVzQXJyb3lvLnRlY2gifX1dLCJXRldvcmtmbG93T3V0cHV0Q29udGVudEl0ZW1DbGFzc2VzIjpbIldGU3RyaW5nQ29udGVudEl0ZW0iXX19",
+  "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=shortcuts%3A%2F%2Fimport-shortcut%3Furl%3Ddata%3Atext%2Fplain%3Bbase64%2CeyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLmRldGVjdC5sYW5ndWFnZSIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IldGTGFuZ3VhZ2UiOiJlcy1FUyJ9fSx7IldGV29ya2Zsb3dBY3Rpb25JZGVudGlmaWVyIjoiaXMud29ya2Zsb3cuYWN0aW9ucy50cmFuc2xhdGUiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJXRlRyYW5zbGF0ZVRleHRUYXJnZXRMYW5ndWFnZSI6ImVuIn19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNob3dyZXN1bHQiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJUZXh0Ijoi8J%2BOryBUcmFkdWN0b3IgSW5zdGFudMOhbmVvIGFjdGl2YWRvIVxuXG5UcmFkdWNlIHRleHRvIGluc3RhbnTDoW5lYW1lbnRlIGVudHJlIG3Dumx0aXBsZXMgaWRpb21hcy4gSWRlYWwgcGFyYSB2aWFqZXMgeSBjb211bmljYWNpw7NuIGludGVybmFjaW9uYWwuXG5cbuKaoSBHZW5lcmFkbyBwb3IgRGVzQXJyb3lvLnRlY2gifX1dLCJXRldvcmtmbG93T3V0cHV0Q29udGVudEl0ZW1DbGFzc2VzIjpbIldGU3RyaW5nQ29udGVudEl0ZW0iXX19",
+  "trigger_type": "voice",
+  "trigger_phrase": "Traduce esto",
+  "created_at": "2025-07-17T10:22:20.875Z",
+  "actions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.detect.language",
+      "WFWorkflowActionParameters": {
+        "WFLanguage": "es-ES"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.translate",
+      "WFWorkflowActionParameters": {
+        "WFTranslateTextTargetLanguage": "en"
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "Text": "🎯 Traductor Instantáneo activado!\n\nTraduce texto instantáneamente entre múltiples idiomas. Ideal para viajes y comunicación internacional.\n\n⚡ Generado por DesArroyo.tech"
+      }
+    }
+  ]
+}

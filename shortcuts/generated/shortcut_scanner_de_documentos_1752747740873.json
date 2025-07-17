@@ -1,0 +1,29 @@
+{
+  "id": 1,
+  "name": "Scanner de Documentos",
+  "description": "Escanea documentos automáticamente y los convierte en PDF. Perfecto para facturas, contratos y cualquier documento importante.",
+  "shortcut_url": "shortcuts://import-shortcut?url=data:text/plain;base64,eyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLmdldGZpbGUiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJXRkdldEZpbGVBY3Rpb25Nb2RlIjoiR2V0IExhdGVzdCBQaG90b3MiLCJXRkdldEZpbGVBY3Rpb25MaW1pdCI6MX19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNjYW5xciIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7fX0seyJXRldvcmtmbG93QWN0aW9uSWRlbnRpZmllciI6ImlzLndvcmtmbG93LmFjdGlvbnMuc2hvd3Jlc3VsdCIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IlRleHQiOiLwn46vIFNjYW5uZXIgZGUgRG9jdW1lbnRvcyBhY3RpdmFkbyFcblxuRXNjYW5lYSBkb2N1bWVudG9zIGF1dG9tw6F0aWNhbWVudGUgeSBsb3MgY29udmllcnRlIGVuIFBERi4gUGVyZmVjdG8gcGFyYSBmYWN0dXJhcywgY29udHJhdG9zIHkgY3VhbHF1aWVyIGRvY3VtZW50byBpbXBvcnRhbnRlLlxuXG7imqEgR2VuZXJhZG8gcG9yIERlc0Fycm95by50ZWNoIn19XSwiV0ZXb3JrZmxvd091dHB1dENvbnRlbnRJdGVtQ2xhc3NlcyI6WyJXRlN0cmluZ0NvbnRlbnRJdGVtIl19fQ==",
+  "qr_code": "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=shortcuts%3A%2F%2Fimport-shortcut%3Furl%3Ddata%3Atext%2Fplain%3Bbase64%2CeyJXRldvcmtmbG93Ijp7IldGV29ya2Zsb3dDbGllbnRWZXJzaW9uIjoiMTIwMCIsIldGV29ya2Zsb3dDbGllbnRSZWxlYXNlIjoiMTIzMCIsIldGV29ya2Zsb3dJY29uIjp7IldGSWNvblN0YXJ0Q29sb3IiOiJibHVlIiwiV0ZJY29uR2x5cGhOdW1iZXIiOiJib2x0In0sIldGV29ya2Zsb3dJbXBvcnRRdWVzdGlvbnMiOltdLCJXRldvcmtmbG93VHlwZXMiOlsiV2F0Y2hLaXQiLCJOQ1dpZGdldCJdLCJXRldvcmtmbG93SW5wdXRDb250ZW50SXRlbUNsYXNzZXMiOlsiV0ZTdHJpbmdDb250ZW50SXRlbSJdLCJXRldvcmtmbG93QWN0aW9ucyI6W3siV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLmdldGZpbGUiLCJXRldvcmtmbG93QWN0aW9uUGFyYW1ldGVycyI6eyJXRkdldEZpbGVBY3Rpb25Nb2RlIjoiR2V0IExhdGVzdCBQaG90b3MiLCJXRkdldEZpbGVBY3Rpb25MaW1pdCI6MX19LHsiV0ZXb3JrZmxvd0FjdGlvbklkZW50aWZpZXIiOiJpcy53b3JrZmxvdy5hY3Rpb25zLnNjYW5xciIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7fX0seyJXRldvcmtmbG93QWN0aW9uSWRlbnRpZmllciI6ImlzLndvcmtmbG93LmFjdGlvbnMuc2hvd3Jlc3VsdCIsIldGV29ya2Zsb3dBY3Rpb25QYXJhbWV0ZXJzIjp7IlRleHQiOiLwn46vIFNjYW5uZXIgZGUgRG9jdW1lbnRvcyBhY3RpdmFkbyFcblxuRXNjYW5lYSBkb2N1bWVudG9zIGF1dG9tw6F0aWNhbWVudGUgeSBsb3MgY29udmllcnRlIGVuIFBERi4gUGVyZmVjdG8gcGFyYSBmYWN0dXJhcywgY29udHJhdG9zIHkgY3VhbHF1aWVyIGRvY3VtZW50byBpbXBvcnRhbnRlLlxuXG7imqEgR2VuZXJhZG8gcG9yIERlc0Fycm95by50ZWNoIn19XSwiV0ZXb3JrZmxvd091dHB1dENvbnRlbnRJdGVtQ2xhc3NlcyI6WyJXRlN0cmluZ0NvbnRlbnRJdGVtIl19fQ%3D%3D",
+  "trigger_type": "voice",
+  "trigger_phrase": "Escanea documento",
+  "created_at": "2025-07-17T10:22:20.873Z",
+  "actions": [
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.getfile",
+      "WFWorkflowActionParameters": {
+        "WFGetFileActionMode": "Get Latest Photos",
+        "WFGetFileActionLimit": 1
+      }
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.scanqr",
+      "WFWorkflowActionParameters": {}
+    },
+    {
+      "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+      "WFWorkflowActionParameters": {
+        "Text": "🎯 Scanner de Documentos activado!\n\nEscanea documentos automáticamente y los convierte en PDF. Perfecto para facturas, contratos y cualquier documento importante.\n\n⚡ Generado por DesArroyo.tech"
+      }
+    }
+  ]
+}
