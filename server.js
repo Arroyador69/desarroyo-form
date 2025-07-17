@@ -177,10 +177,13 @@ function initDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         description TEXT,
+        type TEXT DEFAULT 'custom', -- Tipo de shortcut: 'whatsapp', 'url', 'automation', 'custom'
+        target_url TEXT, -- URL objetivo para el shortcut
         actions TEXT, -- JSON array de acciones del shortcut
+        shortcut_data TEXT, -- JSON completo del shortcut
         icon_color TEXT DEFAULT 'blue',
         icon_glyph TEXT DEFAULT 'gear',
-        shortcut_url TEXT NOT NULL,
+        shortcut_url TEXT,
         qr_code TEXT,
         trigger_type TEXT DEFAULT 'manual',
         trigger_phrase TEXT,
@@ -189,6 +192,11 @@ function initDatabase() {
         install_count INTEGER DEFAULT 0, -- Contador de instalaciones
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
+    
+    // Añadir columnas faltantes si no existen
+    db.run(`ALTER TABLE shortcuts ADD COLUMN type TEXT DEFAULT 'custom'`);
+    db.run(`ALTER TABLE shortcuts ADD COLUMN target_url TEXT`);
+    db.run(`ALTER TABLE shortcuts ADD COLUMN shortcut_data TEXT`);
 
     // Tabla de plantillas de video
     db.run(`CREATE TABLE IF NOT EXISTS video_templates (
