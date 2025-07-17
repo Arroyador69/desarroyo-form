@@ -6824,6 +6824,24 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                 icon_glyph = 'mic';
                 break;
                 
+            case 'whatsapp':
+                actions = [
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.openurl",
+                        WFWorkflowActionParameters: {
+                            WFURLActionURL: "https://wa.me"
+                        }
+                    },
+                    {
+                        WFWorkflowActionIdentifier: "is.workflow.actions.showresult",
+                        WFWorkflowActionParameters: {
+                            Text: `📱 WhatsApp abierto!\n\nWhatsApp se ha abierto automáticamente. ¡Listo para chatear!\n\n⚡ Generado por DesArroyo.tech`
+                        }
+                    }
+                ];
+                icon_glyph = 'message';
+                break;
+                
             default:
                 actions = [
                     {
@@ -6852,27 +6870,12 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             }
         };
 
-        // Crear directorio para shortcuts si no existe
-        const shortcutsDir = path.join(__dirname, 'shortcuts', 'files');
-        if (!fs.existsSync(shortcutsDir)) {
-            fs.mkdirSync(shortcutsDir, { recursive: true });
-        }
-
-        // Generar nombre de archivo único
-        const timestamp = Date.now();
-        const safeName = name.replace(/[^a-zA-Z0-9]/g, '_');
-        const fileName = `${safeName}_${timestamp}.shortcut`;
-        const filePath = path.join(shortcutsDir, fileName);
-
-        // Guardar archivo físico .shortcut
-        fs.writeFileSync(filePath, JSON.stringify(shortcutContent, null, 2));
-
-        // Crear enlace directo para instalación
+        // Generar shortcut en base64 (sin archivos físicos)
         const shortcutData = Buffer.from(JSON.stringify(shortcutContent)).toString('base64');
         const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutData}`;
         
-        // Crear URL para descargar el archivo físico
-        const downloadUrl = `/api/dashboard/download-shortcut/${fileName}`;
+        // No necesitamos archivos físicos en Vercel
+        const downloadUrl = null;
         
         // Crear enlace de instalación que incrementa el contador
         const installUrl = `https://desarroyo-form-r6mzor4rr-arroyador69s-projects.vercel.app/shortcuts/install/`;
@@ -6883,7 +6886,7 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
         // Guardar en base de datos
         db.run(
             'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, qr_code, trigger_type, trigger_phrase, file_path, download_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, description, JSON.stringify(actions), 'blue', icon_glyph, shortcutUrl, qrCode, 'voice', trigger_phrase, filePath, downloadUrl, new Date().toISOString()],
+            [name, description, JSON.stringify(actions), 'blue', icon_glyph, shortcutUrl, qrCode, 'voice', trigger_phrase, null, downloadUrl, new Date().toISOString()],
             function(err) {
                 if (err) {
                     console.error('Error guardando shortcut:', err);
@@ -6902,7 +6905,7 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                         download_url: downloadUrl,
                         install_url: installUrl + shortcutId, // Enlace de instalación con contador
                         qr_code: qrCode,
-                        file_path: filePath,
+                        file_path: null,
                         trigger_type: 'voice',
                         trigger_phrase: trigger_phrase,
                         install_count: 0,
@@ -6996,14 +6999,8 @@ app.get('/shortcuts/install/:id', async (req, res) => {
                 }
 
                 // Redirigir al enlace real de instalación
-                // Si tiene archivo físico, usar el enlace directo al archivo
-                if (shortcut.download_url) {
-                    const installUrl = `shortcuts://import-shortcut?url=${encodeURIComponent('https://desarroyo-form-r6mzor4rr-arroyador69s-projects.vercel.app' + shortcut.download_url)}`;
-                    res.redirect(installUrl);
-                } else {
-                    // Fallback al enlace original
-                    res.redirect(shortcut.shortcut_url);
-                }
+                // Usar siempre el enlace base64 directo
+                res.redirect(shortcut.shortcut_url);
             });
         });
 
