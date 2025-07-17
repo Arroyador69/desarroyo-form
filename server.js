@@ -73,6 +73,14 @@ const db = new sqlite3.Database('./dashboard.db', (err) => {
 
 // Inicializar tablas de la base de datos
 function initDatabase() {
+    // Verificar y reparar tabla shortcuts si es necesario
+    db.get("PRAGMA table_info(shortcuts)", (err, rows) => {
+        if (err) {
+            console.log('Tabla shortcuts no existe, se creará automáticamente');
+        } else {
+            console.log('✅ Tabla shortcuts verificada');
+        }
+    });
     // Tabla de usuarios (admin)
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -193,10 +201,22 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
     
-    // Añadir columnas faltantes si no existen
-    db.run(`ALTER TABLE shortcuts ADD COLUMN type TEXT DEFAULT 'custom'`);
-    db.run(`ALTER TABLE shortcuts ADD COLUMN target_url TEXT`);
-    db.run(`ALTER TABLE shortcuts ADD COLUMN shortcut_data TEXT`);
+    // Añadir columnas faltantes si no existen (con manejo de errores)
+    db.run(`ALTER TABLE shortcuts ADD COLUMN type TEXT DEFAULT 'custom'`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error añadiendo columna type:', err);
+        }
+    });
+    db.run(`ALTER TABLE shortcuts ADD COLUMN target_url TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error añadiendo columna target_url:', err);
+        }
+    });
+    db.run(`ALTER TABLE shortcuts ADD COLUMN shortcut_data TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error añadiendo columna shortcut_data:', err);
+        }
+    });
 
     // Tabla de plantillas de video
     db.run(`CREATE TABLE IF NOT EXISTS video_templates (
