@@ -6940,28 +6940,9 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
         const shortcutBase64 = Buffer.from(JSON.stringify(shortcutData)).toString('base64');
         const downloadUrl = `data:application/x-shortcut;base64,${shortcutBase64}`;
 
-        // Guardar en base de datos (compatible con estructura actual)
-        const shortcutId = await new Promise((resolve, reject) => {
-            db.run(
-                `INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, install_count, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, 0, datetime('now'))`,
-                [
-                    shortcut_name, 
-                    shortcut_description, 
-                    JSON.stringify(shortcutData), // Guardar en actions
-                    icon_color, 
-                    icon_glyph,
-                    `shortcuts://import-shortcut?url=data:text/plain;base64,${Buffer.from(JSON.stringify(shortcutData)).toString('base64')}`
-                ],
-                function(err) {
-                    if (err) reject(err);
-                    else resolve(this.lastID);
-                }
-            );
-        });
-
-        // Generar QR code
-        const installUrl = `https://desarroyo-form.vercel.app/api/install-shortcut/${shortcutId}`;
+        // Generar shortcut sin guardar en BD (para Vercel)
+        const shortcutId = Date.now(); // ID temporal
+        const installUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutBase64}`;
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(installUrl)}`;
 
         res.json({
