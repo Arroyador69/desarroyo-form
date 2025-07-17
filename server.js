@@ -6606,7 +6606,7 @@ app.get('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             // Añadir enlaces de instalación a cada shortcut
             const shortcutsWithInstallUrls = shortcuts.map(shortcut => ({
                 ...shortcut,
-                install_url: `https://desarroyo-form-r6mzor4rr-arroyador69s-projects.vercel.app/shortcuts/install/${shortcut.id}`,
+                install_url: `https://desarroyo-form-9633rmios-arroyador69s-projects.vercel.app/shortcuts/install/${shortcut.id}`,
                 install_count: shortcut.install_count || 0
             }));
 
@@ -6725,11 +6725,28 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             return res.status(400).json({ error: 'Nombre y descripción son requeridos' });
         }
 
-        // Generar acciones basadas en el tipo
+        // Generar acciones basadas en el tipo y contenido
         let actions = [];
         let icon_glyph = 'bolt';
         
-        switch (action_type) {
+        // Detectar tipo basado en nombre y descripción
+        let detectedType = action_type;
+        const nameLower = name.toLowerCase();
+        const descLower = description.toLowerCase();
+        
+        if (nameLower.includes('whatsapp') || descLower.includes('whatsapp')) {
+            detectedType = 'whatsapp';
+        } else if (nameLower.includes('scanner') || descLower.includes('escane') || descLower.includes('documento')) {
+            detectedType = 'scanner';
+        } else if (nameLower.includes('traduc') || descLower.includes('traduc')) {
+            detectedType = 'translator';
+        } else if (nameLower.includes('calcul') || descLower.includes('calcul')) {
+            detectedType = 'calculator';
+        } else if (nameLower.includes('recordatorio') || descLower.includes('recordatorio') || descLower.includes('voz')) {
+            detectedType = 'reminder';
+        }
+        
+        switch (detectedType) {
             case 'scanner':
                 actions = [
                     {
@@ -6878,7 +6895,7 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
         const downloadUrl = null;
         
         // Crear enlace de instalación que incrementa el contador
-        const installUrl = `https://desarroyo-form-r6mzor4rr-arroyador69s-projects.vercel.app/shortcuts/install/`;
+        const installUrl = `https://desarroyo-form-9633rmios-arroyador69s-projects.vercel.app/shortcuts/install/`;
         
         // Generar QR code que apunta al endpoint de instalación
         const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(installUrl)}`;
