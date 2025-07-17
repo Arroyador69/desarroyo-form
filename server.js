@@ -184,6 +184,9 @@ function initDatabase() {
         qr_code TEXT,
         trigger_type TEXT DEFAULT 'manual',
         trigger_phrase TEXT,
+        file_path TEXT, -- Ruta al archivo físico .shortcut
+        download_url TEXT, -- URL para descargar el archivo
+        install_count INTEGER DEFAULT 0, -- Contador de instalaciones
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
@@ -6592,9 +6595,16 @@ app.get('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                 return res.status(500).json({ error: 'Error obteniendo shortcuts' });
             }
 
+            // Añadir enlaces de instalación a cada shortcut
+            const shortcutsWithInstallUrls = shortcuts.map(shortcut => ({
+                ...shortcut,
+                install_url: `https://desarroyo.tech/shortcuts/install/${shortcut.id}`,
+                install_count: shortcut.install_count || 0
+            }));
+
             res.json({
                 success: true,
-                shortcuts: shortcuts,
+                shortcuts: shortcutsWithInstallUrls,
                 count: shortcuts.length
             });
         });
@@ -6834,14 +6844,38 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
             }
         };
 
+        // Crear directorio para shortcuts si no existe
+        const shortcutsDir = path.join(__dirname, 'shortcuts', 'files');
+        if (!fs.existsSync(shortcutsDir)) {
+            fs.mkdirSync(shortcutsDir, { recursive: true });
+        }
+
+        // Generar nombre de archivo único
+        const timestamp = Date.now();
+        const safeName = name.replace(/[^a-zA-Z0-9]/g, '_');
+        const fileName = `${safeName}_${timestamp}.shortcut`;
+        const filePath = path.join(shortcutsDir, fileName);
+
+        // Guardar archivo físico .shortcut
+        fs.writeFileSync(filePath, JSON.stringify(shortcutContent, null, 2));
+
+        // Crear enlace directo para instalación
         const shortcutData = Buffer.from(JSON.stringify(shortcutContent)).toString('base64');
         const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutData}`;
-        const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortcutUrl)}`;
+        
+        // Crear URL para descargar el archivo físico
+        const downloadUrl = `/api/dashboard/download-shortcut/${fileName}`;
+        
+        // Crear enlace de instalación que incrementa el contador
+        const installUrl = `https://desarroyo.tech/shortcuts/install/`;
+        
+        // Generar QR code que apunta al endpoint de instalación
+        const qrCode = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(installUrl)}`;
 
         // Guardar en base de datos
         db.run(
-            'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, qr_code, trigger_type, trigger_phrase, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, description, JSON.stringify(actions), 'blue', icon_glyph, shortcutUrl, qrCode, 'voice', trigger_phrase, new Date().toISOString()],
+            'INSERT INTO shortcuts (name, description, actions, icon_color, icon_glyph, shortcut_url, qr_code, trigger_type, trigger_phrase, file_path, download_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, description, JSON.stringify(actions), 'blue', icon_glyph, shortcutUrl, qrCode, 'voice', trigger_phrase, filePath, downloadUrl, new Date().toISOString()],
             function(err) {
                 if (err) {
                     console.error('Error guardando shortcut:', err);
@@ -6857,9 +6891,13 @@ app.post('/api/dashboard/shortcuts', authenticateToken, async (req, res) => {
                         name: name,
                         description: description,
                         shortcut_url: shortcutUrl,
+                        download_url: downloadUrl,
+                        install_url: installUrl + shortcutId, // Enlace de instalación con contador
                         qr_code: qrCode,
+                        file_path: filePath,
                         trigger_type: 'voice',
                         trigger_phrase: trigger_phrase,
+                        install_count: 0,
                         created_at: new Date().toISOString()
                     },
                     message: 'Shortcut generado exitosamente'
@@ -6900,10 +6938,77 @@ app.delete('/api/dashboard/shortcuts/:id', authenticateToken, async (req, res) =
     }
 });
 
+// Descargar archivo físico .shortcut
+app.get('/api/dashboard/download-shortcut/:filename', (req, res) => {
+    try {
+        const { filename } = req.params;
+        const filePath = path.join(__dirname, 'shortcuts', 'files', filename);
+        
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Archivo no encontrado' });
+        }
+
+        // Configurar headers para descarga
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        // Enviar archivo
+        res.sendFile(filePath);
+        
+    } catch (error) {
+        console.error('Error descargando shortcut:', error);
+        res.status(500).json({ error: 'Error descargando shortcut' });
+    }
+});
+
+// Endpoint de instalación de shortcuts (incrementa contador y redirige)
+app.get('/shortcuts/install/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Buscar el shortcut en la base de datos
+        db.get('SELECT * FROM shortcuts WHERE id = ?', [id], (err, shortcut) => {
+            if (err) {
+                console.error('Error obteniendo shortcut:', err);
+                return res.status(500).json({ error: 'Error obteniendo shortcut' });
+            }
+
+            if (!shortcut) {
+                return res.status(404).json({ error: 'Shortcut no encontrado' });
+            }
+
+            // Incrementar contador de instalaciones
+            db.run('UPDATE shortcuts SET install_count = install_count + 1 WHERE id = ?', [id], function(err) {
+                if (err) {
+                    console.error('Error incrementando contador:', err);
+                    // No fallamos la instalación por un error en el contador
+                } else {
+                    console.log(`📱 Instalación registrada para shortcut: ${shortcut.name} (ID: ${id})`);
+                }
+
+                // Redirigir al enlace real de instalación
+                // Si tiene archivo físico, usar el enlace directo al archivo
+                if (shortcut.download_url) {
+                    const installUrl = `shortcuts://import-shortcut?url=${encodeURIComponent('https://desarroyo.tech' + shortcut.download_url)}`;
+                    res.redirect(installUrl);
+                } else {
+                    // Fallback al enlace original
+                    res.redirect(shortcut.shortcut_url);
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error('Error en instalación de shortcut:', error);
+        res.status(500).json({ error: 'Error en instalación de shortcut' });
+    }
+});
+
 // Obtener estadísticas de shortcuts
 app.get('/api/dashboard/shortcuts-stats', authenticateToken, async (req, res) => {
     try {
-        db.get('SELECT COUNT(*) as total FROM shortcuts', [], (err, result) => {
+        db.get('SELECT COUNT(*) as total, SUM(install_count) as total_installs FROM shortcuts', [], (err, result) => {
             if (err) {
                 console.error('Error obteniendo estadísticas:', err);
                 return res.status(500).json({ error: 'Error obteniendo estadísticas' });
@@ -6912,8 +7017,9 @@ app.get('/api/dashboard/shortcuts-stats', authenticateToken, async (req, res) =>
             res.json({
                 success: true,
                 stats: {
-                    totalDownloads: result.total * 10, // Simulado
-                    mostPopular: 'Scanner de Documentos'
+                    totalShortcuts: result.total || 0,
+                    totalInstalls: result.total_installs || 0,
+                    avgInstallsPerShortcut: result.total > 0 ? Math.round((result.total_installs || 0) / result.total) : 0
                 }
             });
         });

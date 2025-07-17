@@ -1,0 +1,29 @@
+{
+  "WFWorkflow": {
+    "WFWorkflowClientVersion": "1200",
+    "WFWorkflowClientRelease": "1230",
+    "WFWorkflowIcon": {
+      "WFIconStartColor": "blue",
+      "WFIconGlyphNumber": "bolt"
+    },
+    "WFWorkflowImportQuestions": [],
+    "WFWorkflowTypes": [
+      "WatchKit",
+      "NCWidget"
+    ],
+    "WFWorkflowInputContentItemClasses": [
+      "WFStringContentItem"
+    ],
+    "WFWorkflowActions": [
+      {
+        "WFWorkflowActionIdentifier": "is.workflow.actions.showresult",
+        "WFWorkflowActionParameters": {
+          "Text": "🎯 abrir chatgpt activado!\n\nabrir chatgpt con la voz\n\n⚡ Generado por DesArroyo.tech"
+        }
+      }
+    ],
+    "WFWorkflowOutputContentItemClasses": [
+      "WFStringContentItem"
+    ]
+  }
+}

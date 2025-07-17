@@ -1823,8 +1823,8 @@
                                 <i class="fas fa-download text-blue-600 text-xl"></i>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Descargas Totales</p>
-                                <p class="text-2xl font-bold text-gray-900" x-text="shortcutsStats.totalDownloads || 0"></p>
+                                <p class="text-sm font-medium text-gray-600">Instalaciones Totales</p>
+                                <p class="text-2xl font-bold text-gray-900" x-text="shortcutsStats.totalInstalls || 0"></p>
                             </div>
                         </div>
                     </div>
@@ -1847,8 +1847,8 @@
                                 <i class="fas fa-star text-orange-600 text-xl"></i>
                             </div>
                             <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-600">Más Popular</p>
-                                <p class="text-lg font-bold text-gray-900" x-text="shortcutsStats.mostPopular || 'Scanner'"></p>
+                                <p class="text-sm font-medium text-gray-600">Promedio Instalaciones</p>
+                                <p class="text-lg font-bold text-gray-900" x-text="shortcutsStats.avgInstallsPerShortcut || 0"></p>
                             </div>
                         </div>
                     </div>
@@ -1947,29 +1947,47 @@
                                                 <p class="text-xs text-gray-500" x-text="shortcut.trigger_phrase"></p>
                                             </div>
                                         </div>
-                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Activo</span>
+                                        <div class="text-right">
+                                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Activo</span>
+                                            <div class="mt-1">
+                                                <span class="text-xs text-gray-500">📱 <span x-text="shortcut.install_count || 0"></span> instalaciones</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <p class="text-sm text-gray-600 mb-4" x-text="shortcut.description"></p>
                                     
-                                    <!-- Enlace Directo -->
+                                    <!-- Enlace de Instalación (con contador) -->
                                     <div class="mb-3">
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">🔗 Enlace Directo</label>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">📱 Enlace de Instalación</label>
                                         <div class="flex">
-                                            <input type="text" :value="shortcut.shortcut_url" readonly
+                                            <input type="text" :value="shortcut.install_url" readonly
                                                    class="flex-1 text-xs px-2 py-1 border rounded-l-lg bg-gray-100">
-                                            <button @click="copyToClipboard(shortcut.shortcut_url)" 
-                                                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded-r-lg hover:bg-blue-700">
+                                            <button @click="copyToClipboard(shortcut.install_url)" 
+                                                    class="px-3 py-1 bg-green-600 text-white text-xs rounded-r-lg hover:bg-green-700">
                                                 📋
                                             </button>
                                         </div>
                                     </div>
                                     
-                                    <!-- QR Code -->
+                                    <!-- Descargar Archivo -->
+                                    <div class="mb-3">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">📥 Descargar Archivo</label>
+                                        <div class="flex">
+                                            <input type="text" :value="shortcut.download_url ? ('https://desarroyo.tech' + shortcut.download_url) : 'No disponible'" readonly
+                                                   class="flex-1 text-xs px-2 py-1 border rounded-l-lg bg-gray-100">
+                                            <button @click="downloadShortcutFile(shortcut)" 
+                                                    class="px-3 py-1 bg-green-600 text-white text-xs rounded-r-lg hover:bg-green-700">
+                                                📥
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- QR Code (apunta a instalación) -->
                                     <div class="mb-4">
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">📱 QR Code</label>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">📱 QR Code (Instalación)</label>
                                         <div class="text-center">
-                                            <img :src="shortcut.qr_code" alt="QR Code" 
+                                            <img :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shortcut.install_url)}`" alt="QR Code" 
                                                  class="w-24 h-24 mx-auto border rounded-lg">
                                         </div>
                                     </div>
@@ -7329,9 +7347,19 @@
                         if (response.ok) {
                             const data = await response.json();
                             this.shortcuts = data.shortcuts || [];
-                            this.shortcutsStats = data.stats || {
-                                totalDownloads: 0,
-                                mostPopular: 'Scanner'
+                        }
+
+                        // Cargar estadísticas de shortcuts
+                        const statsResponse = await fetch('/api/dashboard/shortcuts-stats', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        
+                        if (statsResponse.ok) {
+                            const statsData = await statsResponse.json();
+                            this.shortcutsStats = statsData.stats || {
+                                totalShortcuts: 0,
+                                totalInstalls: 0,
+                                avgInstallsPerShortcut: 0
                             };
                         }
                     } catch (error) {
@@ -7431,8 +7459,8 @@
                 previewShortcut(id) {
                     const shortcut = this.shortcuts.find(s => s.id === id);
                     if (shortcut) {
-                        // Abrir el enlace del shortcut en una nueva pestaña
-                        window.open(shortcut.shortcut_url, '_blank');
+                        // Abrir el enlace de instalación en una nueva pestaña
+                        window.open(shortcut.install_url, '_blank');
                     }
                 },
 
@@ -7446,6 +7474,20 @@
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
+                    }
+                },
+
+                downloadShortcutFile(shortcut) {
+                    if (shortcut.download_url) {
+                        // Descargar archivo físico
+                        const link = document.createElement('a');
+                        link.href = 'https://desarroyo.tech' + shortcut.download_url;
+                        link.download = `${shortcut.name}.shortcut`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        alert('Archivo físico no disponible para este shortcut');
                     }
                 },
 

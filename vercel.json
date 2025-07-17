@@ -2,14 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/webhook-llamada.py",
-      "use": "@vercel/python"
+      "src": "api/index.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/webhook-llamada",
-      "dest": "/api/webhook-llamada.py"
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 } 
