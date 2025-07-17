@@ -143,7 +143,7 @@ def diagnostico_completo_acceso():
     print("\n📍 GITHUB SECRETS (para llamadas automáticas):")
     print("   - TWILIO_ACCOUNT_SID")
     print("   - TWILIO_AUTH_TOKEN") 
-    print("   - TWILIO_PHONE_NUMBER (+34617555255)")
+    print("   - TWILIO_PHONE_NUMBER (+18109579712)")
     print("   - TELEGRAM_BOT_TOKEN")
     print("   - DEEPSEEK_API_KEY")
     print("   💡 Estos NO afectan al login del dashboard")
@@ -172,7 +172,7 @@ def diagnostico_completo_acceso():
     print("✅ Sistema de llamadas: FUNCIONANDO")
     print("📞 Próximas llamadas: Automáticas mañana 9:00h")
     print("💰 Presupuesto: 10€ máximo diario")
-    print("🇪🇸 Número español: +34 617 55 52 55 configurado")
+    print("🇺🇸 Número americano: +1 810 957 9712 configurado")
     print("⏰ Horarios: L-V 9-14h, 16-20h")
     
     # 7. VERIFICAR DEPENDENCIAS

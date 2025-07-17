@@ -1,0 +1,34 @@
+# Guión Generado - Superpoder Educativo
+## Plantilla: Superpoder Educativo (educativo)
+## Tema: superpoder con el iphone. shortcur facil 
+## Generado: 7/15/2025, 7:00:29 AM
+
+Aquí tienes el guión optimizado para 59 segundos, con un enfoque claro y sencillo para usuarios no técnicos:
+
+[INTRO - 0:00-0:08]  
+*(Pantalla del iPhone bloqueado → se desliza para abrir)*  
+**Guión:** "¿Sabías que tu iPhone guarda un SUPERPODER oculto? Te enseño a activarlo en 30 segundos."  
+**Texto overlay:** "¡Descubre tu SUPERPODER! 👇"  
+
+[BODY - 0:08-0:50]  
+*(Mostrar iPhone con Safari abierto)*  
+**Guión:** "Paso 1: Abre Safari y ve a este link: [bit.ly/superpoder-iphone]. Paso 2: Toca 'Añadir acceso directo'. ¡Listo! Ahora, cada vez que digas 'Hey Siri, SUPERPODER', tu iPhone hará magia: grabará audio, traducirá textos o incluso enviará tu ubicación. *(Mostrar ejemplos en pantalla)*. ¿Lo mejor? No necesitas saber de tecnología: el shortcut ya está programado. Yo soy Alberto de DesArroyo.tech, y creamos soluciones así para que tú solo disfrutes."  
+**Texto overlay:**  
+- "Paso 1: Abre este link"  
+- "Paso 2: 'Añadir acceso directo'"  
+- "Di: 'Hey Siri, SUPERPODER'"  
+
+[OUTRO - 0:50-0:59]  
+*(Mostrar pantalla de contacto con logo DesArroyo.tech)*  
+**Guión:** "¿Quieres más automatizaciones como esta? Escríbeme a alberto@desarroyo.tech y te ayudo. ¡Ahora ve y celebra tu nuevo superpoder!" *(Gesto de "victoria" con la mano)*  
+**Texto overlay:** "¡Crea, automatiza y vuelve a celebrar! 🏖️"  
+
+**Notas adicionales:**  
+- El link debe ser acortado y fácil de recordar.  
+- En el BODY, mostrar ejemplos visuales rápidos del shortcut en acción (ej: traduciendo texto).  
+- Mantener tono energético pero claro, especialmente al explicar los pasos.  
+
+Duración estimada: 58 segundos.
+
+---
+Generado por DesArroyo.tech Script Generator

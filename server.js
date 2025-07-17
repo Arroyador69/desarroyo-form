@@ -433,6 +433,36 @@ function initDatabase() {
             max_duration: 59
         },
         {
+            name: 'Superpoderes Estandarizado',
+            type: 'superpoderes',
+            description: 'Estructura fija: Intro + Video Muestra + Instalación + Final. Optimizado para eficiencia de producción.',
+            structure: JSON.stringify({
+                clips: ['intro_fijo', 'video_muestra', 'explicacion_instalacion', 'final_fijo'],
+                transitions: ['fade', 'slide'],
+                text_overlay: true,
+                music: true,
+                fixed_structure: true,
+                intro_duration: 8,
+                muestra_duration: 25,
+                instalacion_duration: 20,
+                final_duration: 6
+            }),
+            style_config: JSON.stringify({
+                colors: { primary: '#FF6B35', secondary: '#F7931E', text: '#ffffff', accent: '#00D4AA' },
+                font: 'Arial Black',
+                text_size: 52,
+                logo_position: 'bottom-right',
+                effects: ['zoom', 'fade', 'glow'],
+                superpoder_style: {
+                    intro_color: '#FF6B35',
+                    muestra_color: '#00D4AA', 
+                    instalacion_color: '#F7931E',
+                    final_color: '#667eea'
+                }
+            }),
+            max_duration: 59
+        },
+        {
             name: 'Inspiracional/Storytelling',
             type: 'inspiracional',
             description: 'Video inspiracional con historia/testimonio y enlace a Telegram',
@@ -2859,7 +2889,9 @@ app.post('/api/dashboard/process-video', authenticateToken, async (req, res) => 
                     
                     // Procesar video según el tipo de plantilla
                     let result;
-                    if (template.type === 'educativo') {
+                    if (template.type === 'superpoderes') {
+                        result = await videoProcessor.processSuperpoderesVideo(clips, templateConfig, name);
+                    } else if (template.type === 'educativo') {
                         result = await videoProcessor.processEducationalVideo(clips, templateConfig, name);
                     } else {
                         result = await videoProcessor.processInspirationalVideo(clips, templateConfig, name);
@@ -3180,7 +3212,7 @@ app.delete('/api/dashboard/subtitles/:id', authenticateToken, (req, res) => {
     });
 });
 
-// 🔥 ===== APIs DEL SISTEMA DE ANÁLISIS VIRAL Y TENDENCIAS =====
+// 🔥 ===== APIs DEL SISTEMA DE ANÁLISIS DE TENDENCIAS Y VIRALIDAD =====
 
 // API para obtener tendencias actuales por plataforma
 app.get('/api/dashboard/trends/:platform', authenticateToken, async (req, res) => {

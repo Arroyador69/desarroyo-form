@@ -19,7 +19,7 @@ ADMIN_PASSWORD = tu_contraseña_segura_123
 # Ya tienes estos (verificar que estén):
 TWILIO_ACCOUNT_SID = (tu valor actual)
 TWILIO_AUTH_TOKEN = (tu valor actual) 
-TWILIO_PHONE_NUMBER = +34617555255
+TWILIO_PHONE_NUMBER = +18109579712
 TWILIO_WHATSAPP_NUMBER = (tu valor actual)
 DEEPSEEK_API_KEY = (tu valor actual)
 TELEGRAM_BOT_TOKEN = (tu valor actual)

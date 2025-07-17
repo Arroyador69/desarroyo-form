@@ -8,7 +8,7 @@
 3. Ve a **Phone Numbers** → **Manage** → **Active numbers**
 
 ### **PASO 2: Configurar tu número español**
-1. Click en tu número: **+34617555255**
+1. Click en tu número: **+18109579712**
 2. Busca la sección **"Voice & Fax"**
 3. En **"A call comes in"** cambiar de:
    ```
@@ -31,12 +31,12 @@
 ### **Opción 1: Probar con curl**
 ```bash
 curl -X POST https://arroyo805.app.n8n.cloud/webhook/webhook-llamada \
-  -d "From=%2B34612345678&To=%2B34617555255&CallSid=CAtest123"
+  -d "From=%2B34612345678&To=%2B18109579712&CallSid=CAtest123"
 ```
 
 ### **Opción 2: Hacer llamada real**
 1. Usa tu móvil personal
-2. Llama a: **+34617555255**
+2. Llama a: **+18109579712**
 3. Deberías escuchar el mensaje en español
 
 ## 📋 **MENSAJES ESPERADOS SEGÚN HORARIO**

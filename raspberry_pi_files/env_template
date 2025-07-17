@@ -1,0 +1,55 @@
+# Configuración DesArroyo.tech Webhook - Raspberry Pi
+# IMPORTANTE: Actualizar con tus credenciales reales
+
+# === TWILIO CONFIGURATION ===
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
+TWILIO_PHONE_NUMBER=+18109579712
+
+# === SMS CONFIGURATION (Opcional) ===
+SMS_SERVICE_SID=your_sms_service_sid_here
+
+# === NGROK CONFIGURATION ===
+NGROK_AUTH_TOKEN=your_ngrok_auth_token_here
+
+# === WEBHOOK CONFIGURATION ===
+WEBHOOK_PORT=5000
+WEBHOOK_HOST=0.0.0.0
+
+# === LOGGING CONFIGURATION ===
+LOG_LEVEL=INFO
+LOG_FILE=/home/pi/desarroyo-webhook/webhook.log
+
+# === TIMEZONE CONFIGURATION ===
+TIMEZONE=Europe/Madrid
+
+# === BUSINESS HOURS (24h format) ===
+BUSINESS_START_MORNING=09:00
+BUSINESS_END_MORNING=14:00
+BUSINESS_START_AFTERNOON=16:00
+BUSINESS_END_AFTERNOON=20:00
+
+# === CONTACT INFORMATION ===
+BUSINESS_EMAIL=info@desarroyo.tech
+BUSINESS_WEBSITE=https://desarroyo.tech
+BUSINESS_NAME=DesArroyo.tech
+
+# === PRICING INFORMATION ===
+WEBSITE_PRICE=299
+DEVELOPMENT_TIME=48
+
+# === WEBHOOK SECURITY (Opcional) ===
+WEBHOOK_SECRET=your_webhook_secret_here
+
+# === NOTIFICATION SETTINGS ===
+ENABLE_SMS=true
+ENABLE_EMAIL_NOTIFICATIONS=false
+ADMIN_EMAIL=admin@desarroyo.tech
+
+# === RATE LIMITING ===
+MAX_CALLS_PER_HOUR=100
+MAX_SMS_PER_HOUR=50
+
+# === DEBUG SETTINGS ===
+DEBUG=false
+TEST_MODE=false 

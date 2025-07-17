@@ -358,6 +358,185 @@ class VideoProcessor {
     }
 
     /**
+     * Procesar video de superpoderes con estructura estandarizada
+     * Estructura: INTRO FIJO + VIDEO MUESTRA + EXPLICACIÓN INSTALACIÓN + FINAL FIJO
+     */
+    async processSuperpoderesVideo(clips, template, outputName) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const videoId = uuidv4();
+                const tempFiles = [];
+                const outputPath = path.join(this.videoOutputDir, `${outputName}_${videoId}.mp4`);
+                
+                // Estructura estandarizada para superpoderes
+                const structure = template.structure;
+                const orderedClips = [];
+                
+                // 1. INTRO FIJO (siempre el mismo)
+                const introClips = clips.filter(c => c.type === 'intro_fijo' || c.type === 'intro');
+                if (introClips.length > 0) {
+                    orderedClips.push({
+                        clip: introClips[0],
+                        type: 'intro_fijo',
+                        duration: structure.intro_duration || 8,
+                        color: template.style_config.superpoder_style?.intro_color || '#FF6B35'
+                    });
+                }
+                
+                // 2. VIDEO MUESTRA (contenido específico del superpoder)
+                const muestraClips = clips.filter(c => c.type === 'video_muestra' || c.type === 'body');
+                if (muestraClips.length > 0) {
+                    orderedClips.push({
+                        clip: muestraClips[0],
+                        type: 'video_muestra',
+                        duration: structure.muestra_duration || 25,
+                        color: template.style_config.superpoder_style?.muestra_color || '#00D4AA'
+                    });
+                }
+                
+                // 3. EXPLICACIÓN INSTALACIÓN (cómo instalar el superpoder)
+                const instalacionClips = clips.filter(c => c.type === 'explicacion_instalacion' || c.type === 'body');
+                if (instalacionClips.length > 0) {
+                    orderedClips.push({
+                        clip: instalacionClips[0],
+                        type: 'explicacion_instalacion',
+                        duration: structure.instalacion_duration || 20,
+                        color: template.style_config.superpoder_style?.instalacion_color || '#F7931E'
+                    });
+                }
+                
+                // 4. FINAL FIJO (siempre el mismo)
+                const finalClips = clips.filter(c => c.type === 'final_fijo' || c.type === 'outro');
+                if (finalClips.length > 0) {
+                    orderedClips.push({
+                        clip: finalClips[0],
+                        type: 'final_fijo',
+                        duration: structure.final_duration || 6,
+                        color: template.style_config.superpoder_style?.final_color || '#667eea'
+                    });
+                }
+                
+                // Procesar cada clip con su estilo específico
+                const processedClips = [];
+                
+                for (let i = 0; i < orderedClips.length; i++) {
+                    const clipData = orderedClips[i];
+                    const clip = clipData.clip;
+                    const tempPath = path.join(this.videoTempDir, `temp_${videoId}_${i}.mp4`);
+                    tempFiles.push(tempPath);
+                    
+                    // Redimensionar a formato vertical
+                    await this.resizeToVertical(clip.file_path, tempPath);
+                    
+                    // Añadir overlay específico para cada sección
+                    const textPath = path.join(this.videoTempDir, `text_${videoId}_${i}.mp4`);
+                    tempFiles.push(textPath);
+                    
+                    // Texto específico según la sección
+                    let overlayText = '';
+                    switch (clipData.type) {
+                        case 'intro_fijo':
+                            overlayText = '⚡ SUPERPODER';
+                            break;
+                        case 'video_muestra':
+                            overlayText = '🎯 FUNCIONAMIENTO';
+                            break;
+                        case 'explicacion_instalacion':
+                            overlayText = '🔧 INSTALACIÓN';
+                            break;
+                        case 'final_fijo':
+                            overlayText = '🚀 DesArroyo.tech';
+                            break;
+                    }
+                    
+                    // Aplicar estilo específico de la sección
+                    const sectionStyle = {
+                        ...template.style_config,
+                        colors: {
+                            ...template.style_config.colors,
+                            primary: clipData.color
+                        }
+                    };
+                    
+                    await this.addTextOverlay(tempPath, textPath, overlayText, sectionStyle);
+                    processedClips.push(textPath);
+                }
+
+                // Crear archivo de lista para concatenar
+                const listPath = path.join(this.videoTempDir, `list_${videoId}.txt`);
+                const listContent = processedClips.map(clip => `file '${clip}'`).join('\n');
+                fs.writeFileSync(listPath, listContent);
+                tempFiles.push(listPath);
+
+                // Concatenar clips con transiciones suaves
+                ffmpeg()
+                    .input(listPath)
+                    .inputOptions(['-f', 'concat', '-safe', '0'])
+                    .outputOptions([
+                        '-c', 'copy',
+                        '-filter_complex', 'fade=t=in:st=0:d=0.5,fade=t=out:st=58.5:d=0.5'
+                    ])
+                    .output(outputPath)
+                    .on('end', async () => {
+                        try {
+                            // Verificar duración y recortar si es necesario
+                            const videoInfo = await this.getVideoInfo(outputPath);
+                            
+                            if (videoInfo.duration > template.max_duration) {
+                                const trimmedPath = path.join(this.videoOutputDir, `${outputName}_${videoId}_trimmed.mp4`);
+                                await this.trimVideo(outputPath, trimmedPath, template.max_duration);
+                                
+                                // Eliminar el video original largo
+                                fs.unlinkSync(outputPath);
+                                
+                                // Generar thumbnail
+                                const thumbnailPath = path.join(this.videoThumbnailsDir, `${outputName}_${videoId}.jpg`);
+                                await this.generateThumbnail(trimmedPath, thumbnailPath);
+                                
+                                // Limpiar archivos temporales
+                                this.cleanupTempFiles(tempFiles);
+                                
+                                resolve({
+                                    outputPath: trimmedPath,
+                                    thumbnailPath,
+                                    duration: template.max_duration,
+                                    videoInfo,
+                                    structure: 'superpoderes_estandarizado'
+                                });
+                            } else {
+                                // Generar thumbnail
+                                const thumbnailPath = path.join(this.videoThumbnailsDir, `${outputName}_${videoId}.jpg`);
+                                await this.generateThumbnail(outputPath, thumbnailPath);
+                                
+                                // Limpiar archivos temporales
+                                this.cleanupTempFiles(tempFiles);
+                                
+                                resolve({
+                                    outputPath,
+                                    thumbnailPath,
+                                    duration: videoInfo.duration,
+                                    videoInfo,
+                                    structure: 'superpoderes_estandarizado'
+                                });
+                            }
+                        } catch (error) {
+                            this.cleanupTempFiles(tempFiles);
+                            reject(error);
+                        }
+                    })
+                    .on('error', (error) => {
+                        this.cleanupTempFiles(tempFiles);
+                        reject(error);
+                    })
+                    .run();
+
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    /**
      * Añadir música de fondo
      */
     async addBackgroundMusic(videoPath, musicPath, outputPath, musicVolume = 0.3) {

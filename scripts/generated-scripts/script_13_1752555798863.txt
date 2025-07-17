@@ -1,0 +1,43 @@
+# Guión Generado - Superpoder Educativo
+## Plantilla: Superpoder Educativo (educativo)
+## Tema: superpoder con el iphone. shortcur facil 
+## Generado: 7/15/2025, 7:03:18 AM
+
+Aquí tienes el guión optimizado para 59 segundos, enfocado en un shortcut nativo del iPhone para escanear documentos fácilmente:
+
+[INTRO - 0:00-0:08]  
+*(Close-up de manos sosteniendo iPhone con gesto de frustración)*  
+Guión: "¿Sabías que tu iPhone tiene un superpoder oculto para escanear documentos como profesional? Te lo muestro en 30 segundos."  
+Texto overlay: "📄 ¡ESCANEA DOCUMENTOS EN 1 TOQUE!"  
+
+[BODY - 0:08-0:50]  
+*(Pantalla dividida: izquierda manos reales, derecha pantalla iPhone)*  
+1. [0:08-0:18] *(Mostrar acceso a la app Notas)*  
+"Paso 1: Abre Notas, crea una nueva y toca el ícono de la cámara."  
+Texto overlay: "Notas → Nueva → 📷"  
+
+2. [0:18-0:30] *(Mostrar opción "Escanear documentos")*  
+"Selecciona 'Escanear documentos'. Solo apunta a tu papel y... ¡magia! Ajusta bordes automáticamente."  
+Texto overlay: "📑 Escanea como copiadora profesional"  
+
+3. [0:30-0:40] *(Mostrar guardado como PDF y compartir)*  
+"Guárdalo como PDF y compártelo directamente. Adiós a apps complicadas."  
+Texto overlay: "Exporta a PDF/WhatsApp en 1 toque"  
+
+4. [0:40-0:50] *(Mostrar atajo en pantalla de inicio)*  
+"Bonus: En Ajustes > Accesibilidad > Toque trasero, programa doble toque para abrir escáner al instante."  
+Texto overlay: "⚡ Toque trasero = Superpoder"  
+
+[OUTRO - 0:50-0:59]  
+*(Pantalla completa: iPhone mostrando documento escaneado con logo DesArroyo.tech abajo)*  
+Guión: "¿Quieres más automatizaciones como esta? En DesArroyo.tech convertimos tu teléfono en tu mejor empleado. ¡Escribe a alberto@desarroyo.tech!"  
+Texto overlay: "🚀 DesArroyo.tech | Crea + Automatiza"  
+
+*Duración total: 59 segundos exactos*  
+*Tono: Entusiasta pero claro, con pausas para acciones clave*  
+*Visuales: Primeros planos de gestos y pantalla para máxima claridad*  
+
+¿Necesitas ajustar algún elemento o prefieres explorar otro shortcut?
+
+---
+Generado por DesArroyo.tech Script Generator

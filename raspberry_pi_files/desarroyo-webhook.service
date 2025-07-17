@@ -1,0 +1,34 @@
+[Unit]
+Description=DesArroyo.tech Webhook Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/desarroyo-webhook
+Environment=PATH=/home/pi/desarroyo-webhook/venv/bin
+ExecStart=/home/pi/desarroyo-webhook/venv/bin/python /home/pi/desarroyo-webhook/webhook_raspberry.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Configuración de reinicio
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Variables de entorno
+EnvironmentFile=/home/pi/desarroyo-webhook/.env
+
+# Configuración de recursos
+LimitNOFILE=65536
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+# Configuración de logging
+SyslogIdentifier=desarroyo-webhook
+
+[Install]
+WantedBy=multi-user.target 

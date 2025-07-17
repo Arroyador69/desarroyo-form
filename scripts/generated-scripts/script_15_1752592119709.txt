@@ -1,0 +1,34 @@
+# Guión Generado - Superpoder Educativo
+## Plantilla: Superpoder Educativo (educativo)
+## Tema: Bots de WhatsApp para empresas
+## Generado: 7/15/2025, 5:08:39 PM
+
+Aquí tienes el guión optimizado para la plantilla "Superpoder Educativo":
+
+[INTRO - 0:00-0:08]  
+**Dirección:** Cámara frontal, Alberto señala su teléfono con gesto de "¡atención!"  
+**Guión:** "¿Sabías que el 80% de los clientes prefieren WhatsApp para consultas? Hoy te revelo cómo escalar tu negocio con bots automáticos."  
+**Texto overlay:** "Bots de WhatsApp = Más ventas 💬"  
+
+[BODY - 0:08-0:50]  
+**Dirección:** Pantalla dividida: Izquierda (ejemplo real de bot), derecha (tips animados)  
+**Guión:**  
+1. "Primero: Usa respuestas rápidas para preguntas frecuentes. Ahorra horas al día." (Mostrar bot respondiendo "horario de atención")  
+2. "Segundo: Programa recordatorios de pagos. Reduce morosidad en un 40%." (Ejemplo: "Su factura vence mañana")  
+3. "Tercero: Integra tu catálogo. Los clientes pueden comprar 24/7." (Demo de bot mostrando productos)  
+**Texto overlay:**  
+1. "Automatiza lo repetitivo ⚡"  
+2. "¡Adiós a cobros olvidados!"  
+3. "Vende mientras duermes 💰"  
+
+[OUTRO - 0:50-0:59]  
+**Dirección:** Alberto sonríe a cámara con fondo de playa (branding)  
+**Guión:** "En DesArroyo.tech creamos bots personalizados en 72h. ¿Listo para vender más trabajando menos? Escríbeme: alberto@desarroyo.tech"  
+**Texto overlay:** "Crea, automatiza... y a la playa 🏖️"  
+
+Duración total: 59s  
+Palabras clave integradas: automatización, WhatsApp Business, respuestas rápidas.  
+Tono: Cercano pero experto, con prueba social implícita ("80% de clientes prefieren WhatsApp").
+
+---
+Generado por DesArroyo.tech Script Generator

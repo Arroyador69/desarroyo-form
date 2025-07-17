@@ -1496,7 +1496,7 @@ Encuesta: desarroyo.tech/generador_automatizaciones.html
             print(f"   ✅ Número verificado como Caller ID en Twilio Console")
             print(f"   🎯 Preparado para llamadas salientes")
             
-            # Realizar llamada OPTIMIZADA
+            # Realizar llamada OPTIMIZADA  
             print(f"🚀 INICIANDO LLAMADA...")
             call = self.twilio_client.calls.create(
                 to=telefono,

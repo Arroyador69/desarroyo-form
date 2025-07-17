@@ -96,6 +96,47 @@ Dirección: (describe qué hacer/mostrar)
 Guión: "..."
 Texto overlay: "..."`,
 
+            'superpoderes': `${baseContext}
+
+PLANTILLA: ${templateName}
+TIPO: Superpoderes Estandarizado
+DESCRIPCIÓN: ${templateDescription}
+
+ESTRUCTURA FIJA REQUERIDA (59 segundos total):
+1. INTRO FIJO (0:00-0:08): Hook estándar para superpoderes
+2. VIDEO MUESTRA (0:08-0:33): Demostración del superpoder en acción
+3. EXPLICACIÓN INSTALACIÓN (0:33-0:53): Cómo instalar/configurar el superpoder
+4. FINAL FIJO (0:53-0:59): CTA estándar hacia DesArroyo.tech
+
+TEMA: ${customTopic || 'Superpoder de automatización'}
+
+GENERA UN GUIÓN QUE INCLUYA:
+- INTRO: Hook estándar "¿Sabías que tu [dispositivo] tiene un SUPERPODER oculto?"
+- MUESTRA: Demostración visual del superpoder funcionando
+- INSTALACIÓN: Pasos específicos para activar/instalar el superpoder
+- FINAL: CTA estándar "¿Quieres más superpoderes? alberto@desarroyo.tech"
+
+FORMATO:
+[INTRO FIJO - 0:00-0:08]
+Dirección: (cámara frontal, gesto de "magia")
+Guión: "¿Sabías que tu [dispositivo] tiene un SUPERPODER oculto? Te lo muestro en 30 segundos."
+Texto overlay: "⚡ SUPERPODER OCULTO"
+
+[VIDEO MUESTRA - 0:08-0:33]
+Dirección: (pantalla grabada mostrando el superpoder en acción)
+Guión: "[Descripción específica del superpoder funcionando]"
+Texto overlay: "🎯 FUNCIONAMIENTO"
+
+[EXPLICACIÓN INSTALACIÓN - 0:33-0:53]
+Dirección: (paso a paso de instalación)
+Guión: "Para activarlo: [pasos específicos]"
+Texto overlay: "🔧 INSTALACIÓN"
+
+[FINAL FIJO - 0:53-0:59]
+Dirección: (cámara frontal, sonrisa)
+Guión: "¿Quieres más superpoderes como este? Escríbeme a alberto@desarroyo.tech"
+Texto overlay: "🚀 DesArroyo.tech"`,
+
             'inspiracional': `${baseContext}
 
 PLANTILLA: ${templateName}

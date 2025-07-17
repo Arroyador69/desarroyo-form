@@ -1,0 +1,33 @@
+# Guión Generado - Superpoder Educativo
+## Plantilla: Superpoder Educativo (educativo)
+## Tema: Webs HTML en 48 horas
+## Generado: 7/15/2025, 5:09:04 PM
+
+Aquí tienes el guión optimizado para la plantilla "Superpoder Educativo":
+
+[INTRO - 0:00-0:08]  
+**Dirección:** Cámara frontal, Alberto sonríe y hace gesto de "espera" con las manos.  
+**Guión:** "¿Sabías que el 80% de los clientes juzgan tu negocio por tu web? Pero crear una profesional no tiene que tomar semanas..."  
+**Texto overlay:** "Web HTML en 48h | DesArroyo.tech"  
+
+[BODY - 0:08-0:50]  
+**Dirección:** Pantalla dividida: Izquierda (Alberto hablando), Derecha (ejemplos visuales de cada punto).  
+**Guión:**  
+1. "Usa plantillas modulares: Elige bloques prefabricados y personalízalos (muestra ejemplos). Ahorrarás 20 horas de código."  
+2. "Prioriza mobile-first: El 60% del tráfico viene de móviles (muestra comparativo responsive)."  
+3. "Automatiza tu hosting: Con servicios como Netlify, despliegas con solo arrastrar archivos (muestra demo rápida)."  
+4. "Integra WhatsApp directo: Un botón flotante aumenta consultas un 30% (muestra código snippet)."  
+**Texto overlay:** Consejo 1/4 → "Plantillas modulares = +rápido"  
+
+[OUTRO - 0:50-0:59]  
+**Dirección:** Cámara frontal, Alberto señala a cámara con fondo de playa (referencia a la filosofía).  
+**Guión:** "En DesArroyo.tech creamos tu web HTML lista en 48 horas, con hosting incluido. ¿Listo para dejar de perder clientes? Escríbeme: alberto@desarroyo.tech"  
+**Texto overlay:** "Web en 48h → alberto@desarroyo.tech"  
+
+**Duración total:** 59s  
+**Palabras clave integradas:** "automatiza", "mobile-first", "hosting", "WhatsApp" (coinciden con otros servicios).  
+
+¿Necesitas ajustar algún elemento para alinearlo mejor con casos de uso reales de clientes?
+
+---
+Generado por DesArroyo.tech Script Generator

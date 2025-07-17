@@ -1,0 +1,38 @@
+# Guión Generado - Superpoder Educativo
+## Plantilla: Superpoder Educativo (educativo)
+## Tema: Automatización para restaurantes
+## Generado: 7/15/2025, 5:08:17 PM
+
+Aquí tienes el guión optimizado para la plantilla "Superpoder Educativo":
+
+---
+
+**[INTRO - 0:00-0:08]**  
+*Dirección:* Cámara cercana a Alberto sonriendo, fondo de cocina digital (animación). Gesto con las manos simulando estrés.  
+*Guión:* "¿Sabías que los restaurantes pierden 10 horas semanales en tareas repetitivas? Hoy te revelo cómo recuperarlas con automatización."  
+*Texto overlay:* "¡Automatiza o pierde dinero! 🚀"  
+
+**[BODY - 0:08-0:50]**  
+*Dirección:* Pantalla dividida: Izquierda (problemas reales con iconos), derecha (soluciones con n8n/WhatsApp).  
+*Guión:*  
+1. "Automatiza reservas: Usa un bot de WhatsApp que sincrone con Google Calendar. Texto overlay: "Reservas 24/7 sin esfuerzo 🤖"  
+2. "Pedidos recurrentes: Crea flujos en n8n para enviar recordatorios a clientes habituales." *Texto overlay:* "Fideliza + ahorra tiempo ⏳"  
+3. "Inventario inteligente: Conecta tu POS a hojas de cálculo que alerten cuando falten ingredientes." *Texto overlay:* "0 desperdicios 🛒"  
+*Transición:* "En DesArroyo.tech lo implementamos en 48h para restaurantes como el tuyo."  
+
+**[OUTRO - 0:50-0:59]**  
+*Dirección:* Alberto en primer plano con playa de fondo (animación), señalando a cámara.  
+*Guión:* "¿Quieres que tu restaurante funcione solo? Escríbeme a alberto@desarroyo.tech y vuelve a lo importante: servir platos increíbles."  
+*Texto overlay:* "Crea, automatiza… ¡y a la playa! 🌴 desarroyo.tech"  
+
+--- 
+
+*Duración total:* 59 segundos  
+*Tono:* Cercano pero con autoridad técnica.  
+*CTA reforzado:* Email + filosofía de marca.  
+*Visuales clave:* Contraste problemas/soluciones, animación playa final.  
+
+¿Necesitas ajustar algún elemento para enfatizar más los servicios específicos?
+
+---
+Generado por DesArroyo.tech Script Generator

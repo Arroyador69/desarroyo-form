@@ -697,8 +697,12 @@
                                 class="w-full rounded-lg border-2 border-purple-200 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                             >
                                 <option value="intro">🚀 Intro - Hook Viral</option>
+                                <option value="intro_fijo">⚡ Intro Fijo - Superpoderes</option>
                                 <option value="cuerpo">💡 Cuerpo - Contenido Principal</option>
+                                <option value="video_muestra">🎯 Video Muestra - Superpoderes</option>
+                                <option value="explicacion_instalacion">🔧 Explicación Instalación - Superpoderes</option>
                                 <option value="outro">🎬 Outro - Call to Action</option>
+                                <option value="final_fijo">🚀 Final Fijo - Superpoderes</option>
                                 <option value="transicion">⚡ Transición</option>
                             </select>
                         </div>
@@ -4595,6 +4599,19 @@
                 videoTemplates: [
                     {
                         id: 1,
+                        name: 'Superpoderes Estandarizado',
+                        type: 'superpoderes',
+                        description: 'Estructura fija: Intro + Video Muestra + Instalación + Final. Optimizado para eficiencia de producción.',
+                        icon: '⚡',
+                        max_duration: 59,
+                        clips_count: 4,
+                        viral_score: 95,
+                        uses: 89,
+                        platform: 'tiktok',
+                        structure: ['intro_fijo', 'video_muestra', 'explicacion_instalacion', 'final_fijo']
+                    },
+                    {
+                        id: 2,
                         name: 'Hook + Consejo + CTA',
                         type: 'educativo',
                         description: 'Plantilla perfecta para contenido educativo viral. Empieza con hook, desarrollo y llamada a la acción.',
@@ -4992,6 +5009,7 @@
                 // Obtener icono según tipo de plantilla
                 getTemplateIcon(type) {
                     const icons = {
+                        'superpoderes': '⚡',
                         'educativo': '📚',
                         'inspiracional': '💪',
                         'promocional': '📈',
