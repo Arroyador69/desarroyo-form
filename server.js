@@ -6743,27 +6743,18 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
 
         // Prompt específico para DeepSeek con toda la información técnica de iOS Shortcuts
         const prompt = `
-        Eres un experto en iOS Shortcuts con conocimiento completo de la estructura técnica de archivos .shortcut.
+        Eres un experto en iOS Shortcuts. Genera un shortcut PERFECTO para iOS.
 
-        GENERA un shortcut de iOS PERFECTO para:
+        DATOS DEL SHORTCUT:
         - Nombre: "${shortcut_name}"
         - Descripción: "${shortcut_description}"
         - Tipo: ${shortcut_type}
         ${target_url ? `- URL objetivo: ${target_url}` : ''}
         ${custom_actions ? `- Acciones personalizadas: ${custom_actions}` : ''}
 
-        REGLAS TÉCNICAS OBLIGATORIAS:
-        1. Usa la estructura WFWorkflow exacta de iOS Shortcuts
-        2. Incluye WFWorkflowClientVersion: "1200" y WFWorkflowClientRelease: "1230"
-        3. Para WhatsApp: usa WFURLAction con URL "whatsapp://send?text="
-        4. Para URLs: usa WFURLAction con la URL proporcionada
-        5. Para automatizaciones: usa WFGetURLAction + WFURLAction
-        6. Incluye WFWorkflowInputContentItemClasses completos
-        7. Usa icon_color: "${icon_color}" y icon_glyph: "${icon_glyph}"
-        8. Añade WFWorkflowTypes: ["WatchKit", "NCWidget"]
-        9. Incluye WFWorkflowImportQuestions vacío
-
-        ESTRUCTURA REQUERIDA:
+        REGLAS OBLIGATORIAS:
+        1. Responde SOLO con JSON válido, sin texto adicional
+        2. Usa esta estructura exacta:
         {
           "WFWorkflow": {
             "WFWorkflowClientVersion": "1200",
@@ -6776,12 +6767,18 @@ app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, 
             "WFWorkflowTypes": ["WatchKit", "NCWidget"],
             "WFWorkflowInputContentItemClasses": ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
             "WFWorkflowActions": [
-              // Aquí van las acciones específicas según el tipo
+              {
+                "WFWorkflowActionIdentifier": "is.workflow.actions.urltask",
+                "WFWorkflowActionParameters": {
+                  "URL": "${shortcut_type === 'whatsapp' ? 'whatsapp://send?text=Hola' : target_url || 'https://desarroyo.tech'}",
+                  "ShowCompletion": true
+                }
+              }
             ]
           }
         }
 
-        Responde SOLO con el JSON completo del shortcut, sin explicaciones adicionales.
+        IMPORTANTE: Responde SOLO con el JSON, sin comillas adicionales ni texto explicativo.
         `;
 
         // Llamada a DeepSeek
