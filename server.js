@@ -6718,6 +6718,74 @@ app.post('/api/dashboard/generate-superpower-shortcut', authenticateToken, async
 
 // Crear nuevo shortcut (nueva ruta para el frontend)
 
+// 🎯 ENDPOINT DE INSTALACIÓN DE SHORTCUTS
+app.get('/api/install-shortcut/:id', async (req, res) => {
+    try {
+        const shortcutId = req.params.id;
+        
+        // Obtener el shortcut de la base de datos
+        const shortcut = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM shortcuts WHERE id = ?', [shortcutId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!shortcut) {
+            return res.status(404).json({ error: 'Shortcut no encontrado' });
+        }
+        
+        // Incrementar contador de instalaciones
+        await new Promise((resolve, reject) => {
+            db.run('UPDATE shortcuts SET install_count = install_count + 1 WHERE id = ?', [shortcutId], (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        
+        // Generar URL de descarga directa
+        let shortcutData;
+        try {
+            shortcutData = JSON.parse(shortcut.shortcut_data);
+        } catch (e) {
+            // Fallback si no hay datos
+            shortcutData = {
+                WFWorkflow: {
+                    WFWorkflowClientVersion: "1200",
+                    WFWorkflowClientRelease: "1230",
+                    WFWorkflowIcon: {
+                        WFIconStartColor: shortcut.icon_color || "blue",
+                        WFIconGlyphNumber: shortcut.icon_glyph || "gear"
+                    },
+                    WFWorkflowImportQuestions: [],
+                    WFWorkflowTypes: ["WatchKit", "NCWidget"],
+                    WFWorkflowInputContentItemClasses: ["WFAppStoreAppContentItem", "WFArticleContentItem", "WFContactContentItem", "WFDateContentItem", "WFEmailContentItem", "WFGenericFileContentItem", "WFImageContentItem", "WFiTunesProductContentItem", "WFLocationContentItem", "WFDCMapsLinkContentItem", "WFAVAssetContentItem", "WFPDFContentItem", "WFPhoneNumberContentItem", "WFRichTextContentItem", "WFSafariWebPageContentItem", "WFStringContentItem", "WFURLContentItem"],
+                    WFWorkflowActions: [
+                        {
+                            WFWorkflowActionIdentifier: "is.workflow.actions.urltask",
+                            WFWorkflowActionParameters: {
+                                URL: "https://desarroyo.tech",
+                                ShowCompletion: true
+                            }
+                        }
+                    ]
+                }
+            };
+        }
+        
+        // Convertir a base64 y redirigir a iOS Shortcuts
+        const shortcutBase64 = Buffer.from(JSON.stringify(shortcutData)).toString('base64');
+        const shortcutUrl = `shortcuts://import-shortcut?url=data:text/plain;base64,${shortcutBase64}`;
+        
+        // Redirigir al usuario a iOS Shortcuts
+        res.redirect(shortcutUrl);
+        
+    } catch (error) {
+        console.error('Error en instalación de shortcut:', error);
+        res.status(500).json({ error: 'Error instalando shortcut' });
+    }
+});
+
 // 🎯 GENERADOR ROBUSTO DE SHORTCUTS CON DEEPSEEK
 app.post('/api/dashboard/generate-ios-shortcut', authenticateToken, async (req, res) => {
     try {
