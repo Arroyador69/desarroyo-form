@@ -1896,6 +1896,40 @@
                                         <option value="custom">⚡ Personalizado</option>
                                     </select>
                                 </div>
+
+                                <!-- NUEVA SECCIÓN: Subir Shortcut para Videos -->
+                                <div class="border-t pt-4">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">🎬 Para Videos de Redes Sociales</h4>
+                                    
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">📁 Archivo .shortcut</label>
+                                            <input type="file" accept=".shortcut" 
+                                                   @change="handleShortcutFileUpload($event)"
+                                                   class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">🎥 Número de Video</label>
+                                            <input type="number" x-model="newShortcut.videoNumber" 
+                                                   placeholder="Ej: 1, 2, 3..."
+                                                   class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">🏷️ Etiquetas (separadas por comas)</label>
+                                            <input type="text" x-model="newShortcut.tags" 
+                                                   placeholder="productividad, automatización, iphone"
+                                                   class="w-full text-xs px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                        </div>
+                                        
+                                        <div class="flex items-center">
+                                            <input type="checkbox" x-model="newShortcut.forVideos" 
+                                                   class="mr-2 text-green-600 focus:ring-green-500">
+                                            <label class="text-xs text-gray-600">✅ Incluir en página de redes sociales</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Preview del Shortcut -->
@@ -1912,6 +1946,9 @@
                                             <div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
                                                 <i class="fas fa-microphone"></i>
                                                 <span x-text="newShortcut.triggerPhrase || 'Frase de activación'"></span>
+                                            </div>
+                                            <div x-show="newShortcut.forVideos" class="mt-2">
+                                                <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">🎬 Para Videos</span>
                                             </div>
                                         </div>
                                     </div>

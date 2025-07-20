@@ -945,6 +945,16 @@ app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+// Ruta de redes sociales
+app.get('/redes-sociales', (req, res) => {
+    res.sendFile(path.join(__dirname, 'redes-sociales.html'));
+});
+
+// Ruta de shortcuts
+app.get('/shortcuts', (req, res) => {
+    res.sendFile(path.join(__dirname, 'shortcuts.html'));
+});
+
 // Login del dashboard
 app.post('/api/dashboard/login', (req, res) => {
     const { username, password } = req.body;
