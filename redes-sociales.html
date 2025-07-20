@@ -468,7 +468,7 @@
             <li>Soporte directo</li>
             <li>Contenido exclusivo</li>
           </ul>
-          <a href="https://t.me/desarroyotech" target="_blank" class="social-btn">
+          <a href="https://t.me/+rAtJXuHGH8o4NzRk" target="_blank" class="social-btn">
             📱 Unirse al Tech Hub
           </a>
         </div>
@@ -488,7 +488,7 @@
             <li>Automatizaciones personalizadas</li>
             <li>Soporte 24/7</li>
           </ul>
-          <a href="/" class="social-btn" onclick="openAuraChat()">
+          <a href="#" class="social-btn" onclick="toggleAuraChat()">
             🧠 Hablar con Aura
           </a>
         </div>
@@ -500,6 +500,26 @@
       </a>
     </div>
   </main>
+
+  <!-- Chatbot Aura -->
+  <div id="aura-chat" class="aura-chat" style="display: none;">
+    <div class="chat-header">
+      <div class="chat-title">
+        <span class="chat-icon">🤖</span>
+        <span>Aura IA</span>
+      </div>
+      <button class="close-chat" onclick="toggleAuraChat()">×</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <!-- Los mensajes se añadirán aquí dinámicamente -->
+    </div>
+    <div class="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Escribe tu mensaje..." maxlength="500">
+      <button id="send-button" onclick="sendMessage()">
+        <span>📤</span>
+      </button>
+    </div>
+  </div>
 
   <script>
     // Generar partículas de fondo
@@ -517,11 +537,131 @@
       }
     }
 
-    // Función para abrir chat de Aura
-    function openAuraChat() {
-      // Redirigir a la página principal y abrir el chat
-      window.location.href = '/?openAura=true';
+    // Variables del chatbot
+    let isChatOpen = false;
+    let isProcessing = false;
+
+    // Base de conocimiento de Aura
+    const auraKnowledge = [
+      {
+        keywords: ["hola", "saludos", "buenas", "hey", "hi"],
+        answer: "¡Hola! 👋 Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con automatizaciones, desarrollo web y dar vida a tus ideas digitales. ¿En qué puedo ayudarte hoy?"
+      },
+      {
+        keywords: ["shortcuts", "iphone", "superpoderes", "atajos"],
+        answer: "⚡ <strong>Shortcuts para iPhone</strong> son automatizaciones que te dan superpoderes tecnológicos. Puedes descargar los nuestros en la página de shortcuts. ¿Te gustaría que te explique alguno en particular?"
+      },
+      {
+        keywords: ["telegram", "grupo", "tech hub", "comunidad"],
+        answer: "💬 <strong>Tech Hub</strong> es nuestro grupo de Telegram gratuito donde compartimos las últimas novedades en tecnología, automatizaciones y trucos para iPhone. ¡Únete y forma parte de nuestra comunidad! 🚀"
+      },
+      {
+        keywords: ["web", "pagina", "sitio", "html", "desarrollo"],
+        answer: "🌐 <strong>Nuestras webs:</strong><br>• ⚡ Ultrarrápidas - Carga en menos de 2 segundos<br>• 📱 100% Responsive - Perfectas en móvil y desktop<br>• 🔍 SEO Optimizado - Posicionamiento en Google incluido<br>• 🎨 Diseño personalizado - Único para tu negocio<br><br>¡Desde 149€ y listas en 48 horas! ⏰"
+      },
+      {
+        keywords: ["precio", "cuesta", "cuanto", "presupuesto"],
+        answer: "💰 <strong>Precios y tiempos:</strong><br>• Webs HTML: desde 149€ (48h)<br>• Webs con Astro: desde 449€ (1 semana)<br>• Automatizaciones: desde 90€<br>• Proyectos personalizados: presupuesto a medida<br><br>📧 Escribe a <strong>alberto@desarroyo.tech</strong> para un presupuesto personalizado. ¡Nos encantan los retos! 🎯"
+      },
+      {
+        keywords: ["gracias", "adios", "chau", "bye", "hasta luego"],
+        answer: "¡De nada! 😊 Ha sido un placer ayudarte. Si tienes más preguntas o quieres empezar un proyecto, no dudes en contactarnos. ¡Felices automatizaciones! 🚀✨"
+      }
+    ];
+
+    // Función para abrir/cerrar chat
+    function toggleAuraChat() {
+      const chat = document.getElementById('aura-chat');
+      isChatOpen = !isChatOpen;
+      
+      if (isChatOpen) {
+        chat.style.display = 'block';
+        setTimeout(() => {
+          chat.style.transform = 'translateY(0)';
+          chat.style.opacity = '1';
+        }, 10);
+        
+        // Inicializar chat si es la primera vez
+        if (document.getElementById('chat-body').children.length === 0) {
+          initializeChat();
+        }
+        
+        // Enfocar el input
+        setTimeout(() => {
+          document.getElementById('chat-input').focus();
+        }, 300);
+      } else {
+        chat.style.transform = 'translateY(20px)';
+        chat.style.opacity = '0';
+        setTimeout(() => {
+          chat.style.display = 'none';
+        }, 300);
+      }
     }
+
+    // Inicializar chat
+    function initializeChat() {
+      const welcomeMessage = "¡Hola! 👋 Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con automatizaciones, desarrollo web y dar vida a tus ideas digitales. ¿En qué puedo ayudarte hoy?";
+      addMessage(welcomeMessage, 'bot-message');
+    }
+
+    // Añadir mensaje al chat
+    function addMessage(message, className) {
+      const chatBody = document.getElementById('chat-body');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${className}`;
+      messageDiv.innerHTML = message;
+      chatBody.appendChild(messageDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Enviar mensaje
+    async function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      
+      if (!message || isProcessing) return;
+      
+      // Añadir mensaje del usuario
+      addMessage(message, 'user-message');
+      input.value = '';
+      
+      isProcessing = true;
+      
+      // Simular procesamiento
+      setTimeout(() => {
+        const response = getAuraResponse(message);
+        addMessage(response, 'bot-message');
+        isProcessing = false;
+      }, 1000);
+    }
+
+    // Obtener respuesta de Aura
+    function getAuraResponse(userInput) {
+      const input = userInput.toLowerCase();
+      
+      // Buscar en la base de conocimiento
+      for (const item of auraKnowledge) {
+        for (const keyword of item.keywords) {
+          if (input.includes(keyword)) {
+            return item.answer;
+          }
+        }
+      }
+      
+      // Respuesta por defecto
+      return "🤔 Interesante pregunta. Como IA especializada en tecnología, puedo ayudarte con shortcuts, desarrollo web, automatizaciones y más. ¿Hay algo específico sobre lo que te gustaría saber más? 💡";
+    }
+
+    // Enviar mensaje con Enter
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('chat-input');
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+    });
 
     // Inicializar partículas cuando se carga la página
     document.addEventListener('DOMContentLoaded', function() {
@@ -562,5 +702,169 @@
       typeWriter(title, originalText, 50);
     });
   </script>
+
+  <style>
+    /* Estilos del chatbot Aura */
+    .aura-chat {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      height: 500px;
+      background: linear-gradient(135deg, #181c26 0%, #1a1f2e 100%);
+      border: 2px solid #00fff7;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 255, 247, 0.3);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .chat-header {
+      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+      color: #fff;
+      padding: 15px;
+      border-radius: 18px 18px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+    }
+
+    .chat-icon {
+      font-size: 1.2rem;
+    }
+
+    .close-chat {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .close-chat:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-message {
+      padding: 10px 15px;
+      border-radius: 15px;
+      max-width: 80%;
+      word-wrap: break-word;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    .user-message {
+      background: linear-gradient(90deg, #00fff7 0%, #00cfff 100%);
+      color: #fff;
+      align-self: flex-end;
+      border-bottom-right-radius: 5px;
+    }
+
+    .bot-message {
+      background: rgba(255, 255, 255, 0.1);
+      color: #eafcff;
+      align-self: flex-start;
+      border-bottom-left-radius: 5px;
+    }
+
+    .chat-input-container {
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+      border-top: 1px solid rgba(0, 255, 247, 0.2);
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 2px solid rgba(0, 255, 247, 0.3);
+      border-radius: 25px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #eafcff;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    #chat-input:focus {
+      outline: none;
+      border-color: #00fff7;
+      box-shadow: 0 0 10px rgba(0, 255, 247, 0.3);
+    }
+
+    #chat-input::placeholder {
+      color: rgba(234, 252, 255, 0.6);
+    }
+
+    #send-button {
+      background: linear-gradient(90deg, #00fff7 0%, #a259ff 100%);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #send-button:hover {
+      transform: scale(1.1);
+    }
+
+    #send-button span {
+      font-size: 1.2rem;
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+      .aura-chat {
+        width: calc(100vw - 40px);
+        height: 60vh;
+        bottom: 10px;
+        right: 20px;
+        left: 20px;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </body>
 </html> 
