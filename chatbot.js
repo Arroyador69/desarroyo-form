@@ -445,13 +445,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const message = chatInput.value.trim();
             console.log('Mensaje a enviar:', message);
             
-            if (message !== '') {
+            if (message !== '' && !isProcessing) {
                 const allReplies = document.querySelectorAll('.quick-replies');
                 allReplies.forEach(r => r.remove());
                 
-                await handleUserInput(message);
+                // Añadir mensaje del usuario
+                addMessage(message, 'user-message');
                 chatInput.value = '';
-                chatInput.style.height = 'auto'; // Resetear altura
+                chatInput.style.height = 'auto';
+                
+                isProcessing = true;
+                
+                try {
+                    const response = await fetch('/api/chatbot', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        addMessage(data.message, 'bot-message', true);
+                        
+                        // Actualizar información de límites
+                        if (!data.isPremium) {
+                            userLimitInfo.remainingQueries = data.maxQueries - data.queryCount;
+                            userLimitInfo.isPremium = false;
+                            updateLimitDisplay();
+                            
+                            // Mostrar advertencia si quedan pocas consultas
+                            if (userLimitInfo.remainingQueries <= 3) {
+                                addMessage(`💡 <strong>Uso:</strong> ${data.queryCount}/${data.maxQueries} consultas. ${userLimitInfo.remainingQueries > 0 ? `${userLimitInfo.remainingQueries} restantes.` : 'Límite alcanzado.'}`, 'system-message', true);
+                            }
+                        } else {
+                            userLimitInfo.isPremium = true;
+                            userLimitInfo.remainingQueries = '∞';
+                            updateLimitDisplay();
+                        }
+                    } else {
+                        if (data.limitReached) {
+                            addMessage(`🚫 <strong>Límite alcanzado:</strong> ${data.message}`, 'error-message', true);
+                            showPaymentButton();
+                        } else {
+                            addMessage(`❌ <strong>Error:</strong> ${data.message}`, 'error-message', true);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error en chatbot:', error);
+                    addMessage('❌ <strong>Error de conexión:</strong> No pude procesar tu mensaje. Inténtalo de nuevo.', 'error-message', true);
+                }
+                
+                isProcessing = false;
                 
                 // Actualizar estado del botón
                 sendButton.style.opacity = '0.5';
@@ -459,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('✅ Mensaje enviado correctamente');
             } else {
-                console.log('❌ Mensaje vacío, no se envía');
+                console.log('❌ Mensaje vacío o procesando, no se envía');
             }
         }
 

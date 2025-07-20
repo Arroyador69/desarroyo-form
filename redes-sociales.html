@@ -893,12 +893,40 @@
       
       isProcessing = true;
       
-      // Simular procesamiento
-      setTimeout(() => {
-        const response = getAuraResponse(message);
-        addMessage(response, 'bot-message');
-        isProcessing = false;
-      }, 1000);
+      try {
+        const response = await fetch('/api/chatbot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          addMessage(data.message, 'bot-message');
+          
+          // Mostrar información de uso si no es premium
+          if (!data.isPremium) {
+            const remaining = data.maxQueries - data.queryCount;
+            if (remaining <= 3) {
+              addMessage(`💡 <strong>Uso:</strong> ${data.queryCount}/${data.maxQueries} consultas. ${remaining > 0 ? `${remaining} restantes.` : 'Límite alcanzado.'}`, 'system-message');
+            }
+          }
+        } else {
+          if (data.limitReached) {
+            addMessage(`🚫 <strong>Límite alcanzado:</strong> ${data.message}`, 'error-message');
+          } else {
+            addMessage(`❌ <strong>Error:</strong> ${data.message}`, 'error-message');
+          }
+        }
+      } catch (error) {
+        console.error('Error en chatbot:', error);
+        addMessage('❌ <strong>Error de conexión:</strong> No pude procesar tu mensaje. Inténtalo de nuevo.', 'error-message');
+      }
+      
+      isProcessing = false;
     }
 
     // Obtener respuesta de Aura
@@ -1077,6 +1105,23 @@
       background: rgba(255, 255, 255, 0.1);
       color: #eafcff;
       align-self: flex-start;
+    }
+
+    .system-message {
+      background: rgba(255, 193, 7, 0.2);
+      color: #ffc107;
+      align-self: center;
+      font-size: 0.9rem;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .error-message {
+      background: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+      align-self: center;
+      font-size: 0.9rem;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
       border-bottom-left-radius: 5px;
     }
 

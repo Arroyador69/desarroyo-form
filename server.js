@@ -7323,3 +7323,10 @@ app.get('/api/dashboard/shortcuts-stats', authenticateToken, async (req, res) =>
         res.status(500).json({ error: 'Error obteniendo estadísticas: ' + error.message });
     }
 });
+
+// Importar módulos del chatbot
+const chatbotAPI = require('./api/chatbot');
+
+// Rutas del chatbot
+app.post('/api/chatbot', chatbotAPI.handleChatbotRequest);
+app.get('/api/chatbot/stats', chatbotAPI.getUsageStats);
