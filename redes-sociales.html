@@ -330,28 +330,186 @@
       background: linear-gradient(90deg, #FF9800 0%, #FFB74D 100%);
     }
 
-    /* Responsive Design */
+    /* Responsive Design Mejorado */
+    @media (max-width: 1200px) {
+      .social-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+      
+      .container {
+        padding: 1.5rem;
+      }
+    }
+
     @media (max-width: 768px) {
       .container {
         padding: 1rem;
       }
       
+      .logo-img {
+        max-width: 250px;
+        padding: 0.8rem;
+      }
+      
+      h1 {
+        font-size: 2rem !important;
+        line-height: 1.2;
+      }
+      
       .social-grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.2rem;
+        margin: 1.5rem auto;
       }
       
       .social-card {
-        padding: 1.5rem;
+        padding: 1.2rem;
+        margin: 0 0.5rem;
       }
       
       .social-icon {
-        font-size: 3rem;
+        font-size: 2.5rem;
+        margin-bottom: 0.8rem;
       }
       
       .social-title {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
       }
+      
+      .social-description {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+      
+      .feature-list li {
+        font-size: 0.85rem;
+        padding: 0.4rem 0;
+        padding-left: 1.2rem;
+      }
+      
+      .social-btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+        margin-top: 0.8rem;
+      }
+      
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+      }
+      
+      .back-btn {
+        margin-top: 1.5rem;
+        padding: 0.7rem 1.2rem;
+        font-size: 0.95rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.8rem;
+      }
+      
+      .logo-img {
+        max-width: 200px;
+        padding: 0.6rem;
+      }
+      
+      h1 {
+        font-size: 1.8rem !important;
+        margin-bottom: 0.8rem;
+      }
+      
+      p {
+        font-size: 1rem !important;
+        margin-bottom: 2rem;
+      }
+      
+      .social-card {
+        padding: 1rem;
+        margin: 0 0.3rem;
+      }
+      
+      .social-icon {
+        font-size: 2.2rem;
+      }
+      
+      .social-title {
+        font-size: 1.1rem;
+      }
+      
+      .social-description {
+        font-size: 0.9rem;
+      }
+      
+      .feature-list li {
+        font-size: 0.8rem;
+        padding: 0.3rem 0;
+        padding-left: 1rem;
+      }
+      
+      .social-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: center;
+      }
+    }
+
+    /* Optimizaciones para tablets */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .social-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.8rem;
+      }
+      
+      .social-card {
+        padding: 1.8rem;
+      }
+      
+      .social-icon {
+        font-size: 3.5rem;
+      }
+    }
+
+    /* Optimizaciones para pantallas grandes */
+    @media (min-width: 1201px) {
+      .social-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 1200px;
+        gap: 2.5rem;
+      }
+      
+      .social-card {
+        padding: 2.5rem;
+      }
+      
+      .social-icon {
+        font-size: 4.5rem;
+      }
+    }
+
+    /* Mejoras de accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+      .social-card,
+      .particle,
+      .btn,
+      .social-btn {
+        animation: none;
+        transition: none;
+      }
+    }
+
+    /* Optimizaciones de rendimiento */
+    .social-card {
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+
+    .particle {
+      will-change: transform;
     }
 
     /* Animaciones de entrada */
@@ -546,10 +704,14 @@
   </div>
 
   <script>
-    // Generar partículas de fondo
+    // Generar partículas de fondo optimizado
     function createParticles() {
       const particlesContainer = document.getElementById('particles');
-      const particleCount = 50;
+      const isMobile = window.innerWidth <= 768;
+      const particleCount = isMobile ? 25 : 50; // Menos partículas en móvil para mejor rendimiento
+
+      // Limpiar partículas existentes
+      particlesContainer.innerHTML = '';
 
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
@@ -561,9 +723,47 @@
       }
     }
 
+    // Optimización de rendimiento para móviles
+    function optimizeForMobile() {
+      const isMobile = window.innerWidth <= 768;
+      
+      if (isMobile) {
+        // Reducir animaciones en móvil
+        document.body.style.setProperty('--animation-duration', '0.3s');
+        // Optimizar partículas
+        createParticles();
+      }
+    }
+
     // Variables del chatbot
     let isChatOpen = false;
     let isProcessing = false;
+    let chatHistory = [];
+
+    // Sistema de almacenamiento local para escalabilidad
+    function saveChatHistory() {
+      try {
+        localStorage.setItem('aura_chat_history', JSON.stringify(chatHistory));
+      } catch (error) {
+        console.log('No se pudo guardar el historial del chat');
+      }
+    }
+
+    function loadChatHistory() {
+      try {
+        const saved = localStorage.getItem('aura_chat_history');
+        if (saved) {
+          chatHistory = JSON.parse(saved);
+          // Mostrar solo los últimos 10 mensajes para no sobrecargar
+          const recentMessages = chatHistory.slice(-10);
+          recentMessages.forEach(msg => {
+            addMessage(msg.text, msg.type, false, false);
+          });
+        }
+      } catch (error) {
+        console.log('No se pudo cargar el historial del chat');
+      }
+    }
 
     // Base de conocimiento de Aura
     const auraKnowledge = [
@@ -629,18 +829,55 @@
 
     // Inicializar chat
     function initializeChat() {
-      const welcomeMessage = "¡Hola! 👋 Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con automatizaciones, desarrollo web y dar vida a tus ideas digitales. ¿En qué puedo ayudarte hoy?";
-      addMessage(welcomeMessage, 'bot-message');
+      // Cargar historial existente
+      loadChatHistory();
+      
+      // Si no hay historial, mostrar mensaje de bienvenida
+      if (chatHistory.length === 0) {
+        const welcomeMessage = "¡Hola! 👋 Soy Aura, tu asistente personal de DesArroyo.Tech. Estoy aquí para ayudarte con automatizaciones, desarrollo web y dar vida a tus ideas digitales. ¿En qué puedo ayudarte hoy?";
+        addMessage(welcomeMessage, 'bot-message');
+      }
     }
 
-    // Añadir mensaje al chat
-    function addMessage(message, className) {
+    // Añadir mensaje al chat con almacenamiento
+    function addMessage(message, className, saveToHistory = true, animate = true) {
       const chatBody = document.getElementById('chat-body');
       const messageDiv = document.createElement('div');
       messageDiv.className = `chat-message ${className}`;
       messageDiv.innerHTML = message;
+      
+      if (animate) {
+        messageDiv.style.opacity = '0';
+        messageDiv.style.transform = 'translateY(10px)';
+      }
+      
       chatBody.appendChild(messageDiv);
+      
+      if (animate) {
+        setTimeout(() => {
+          messageDiv.style.transition = 'all 0.3s ease';
+          messageDiv.style.opacity = '1';
+          messageDiv.style.transform = 'translateY(0)';
+        }, 10);
+      }
+      
       chatBody.scrollTop = chatBody.scrollHeight;
+      
+      // Guardar en historial
+      if (saveToHistory) {
+        chatHistory.push({
+          text: message,
+          type: className,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Mantener solo los últimos 50 mensajes para escalabilidad
+        if (chatHistory.length > 50) {
+          chatHistory = chatHistory.slice(-50);
+        }
+        
+        saveChatHistory();
+      }
     }
 
     // Enviar mensaje
@@ -693,19 +930,39 @@
 
     // Inicializar partículas cuando se carga la página
     document.addEventListener('DOMContentLoaded', function() {
+      // Optimizar para el dispositivo
+      optimizeForMobile();
       createParticles();
       
-      // Añadir efecto de hover a las tarjetas
-      const cards = document.querySelectorAll('.social-card');
-      cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateY(-5px) scale(1.02)';
+      // Añadir efecto de hover a las tarjetas (solo en desktop)
+      if (window.innerWidth > 768) {
+        const cards = document.querySelectorAll('.social-card');
+        cards.forEach(card => {
+          card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+          });
+          
+          card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+          });
         });
-        
-        card.addEventListener('mouseleave', function() {
-          this.style.transform = 'translateY(0) scale(1)';
-        });
-      });
+      }
+      
+      // Optimización de scroll para móviles
+      if (window.innerWidth <= 768) {
+        document.addEventListener('touchstart', function() {}, {passive: true});
+        document.addEventListener('touchmove', function() {}, {passive: true});
+      }
+    });
+
+    // Optimización al cambiar tamaño de ventana
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(function() {
+        optimizeForMobile();
+        createParticles();
+      }, 250);
     });
 
     // Efecto de typing en el título
@@ -875,11 +1132,91 @@
     /* Responsive para móviles */
     @media (max-width: 768px) {
       .aura-chat {
-        width: calc(100vw - 40px);
-        height: 60vh;
+        width: calc(100vw - 20px);
+        height: 70vh;
         bottom: 10px;
-        right: 20px;
-        left: 20px;
+        right: 10px;
+        left: 10px;
+        border-radius: 15px;
+      }
+      
+      .chat-header {
+        padding: 12px;
+        border-radius: 13px 13px 0 0;
+      }
+      
+      .chat-title {
+        font-size: 0.9rem;
+      }
+      
+      .chat-body {
+        padding: 12px;
+      }
+      
+      .chat-message {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        max-width: 85%;
+      }
+      
+      .chat-input-container {
+        padding: 12px;
+      }
+      
+      #chat-input {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+      
+      #send-button {
+        width: 35px;
+        height: 35px;
+      }
+      
+      #send-button span {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .aura-chat {
+        width: calc(100vw - 10px);
+        height: 75vh;
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+      }
+      
+      .chat-header {
+        padding: 10px;
+      }
+      
+      .chat-title {
+        font-size: 0.85rem;
+      }
+      
+      .chat-body {
+        padding: 10px;
+      }
+      
+      .chat-message {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        max-width: 90%;
+      }
+      
+      .chat-input-container {
+        padding: 10px;
+      }
+      
+      #chat-input {
+        padding: 6px 10px;
+        font-size: 0.85rem;
+      }
+      
+      #send-button {
+        width: 32px;
+        height: 32px;
       }
     }
 
