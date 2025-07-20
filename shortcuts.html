@@ -448,6 +448,47 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    /* Estilos para QR codes y acciones */
+    .shortcut-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .qr-section {
+      text-align: center;
+    }
+
+    .qr-code {
+      width: 120px;
+      height: 120px;
+      border-radius: 10px;
+      border: 2px solid #00fff7;
+      box-shadow: 0 0 15px rgba(0, 255, 247, 0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .qr-text {
+      color: #00fff7;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 0 0 5px #00fff7;
+    }
+
+    .download-section {
+      text-align: center;
+    }
+
+    .download-info {
+      color: #b8c5d1;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -486,67 +527,27 @@
   </main>
 
   <script>
-    // Datos de shortcuts (simulados por ahora)
+    // Datos de shortcuts reales con enlaces de iCloud
     const shortcutsData = [
       {
         id: 1,
-        title: "Calculadora Rápida",
-        description: "Acceso instantáneo a una calculadora avanzada con funciones científicas y conversiones de unidades.",
-        icon: "🧮",
-        features: ["Cálculos científicos", "Conversiones de unidades", "Historial de operaciones", "Modo oscuro"],
-        badge: "popular",
-        downloadUrl: "/shortcuts/calculadora-rapida",
-        qrCode: "/qr/calculadora-rapida.png"
+        title: "Scanner de Documentos",
+        description: "Escanea documentos, facturas y textos con la cámara de tu iPhone. Convierte automáticamente a PDF y comparte fácilmente.",
+        icon: "📄",
+        features: ["Escaneo automático", "Conversión a PDF", "Compartir fácilmente", "Organización inteligente"],
+        badge: "nuevo",
+        downloadUrl: "https://www.icloud.com/shortcuts/e5d51eab436044faa62f9402d5f96195",
+        qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.icloud.com/shortcuts/e5d51eab436044faa62f9402d5f96195"
       },
       {
         id: 2,
-        title: "Scanner de Documentos",
-        description: "Escanea documentos, facturas y tarjetas de visita con IA para extraer texto automáticamente.",
-        icon: "📄",
-        features: ["Escaneo automático", "Extracción de texto", "Organización por carpetas", "Compartir PDF"],
-        badge: "nuevo",
-        downloadUrl: "/shortcuts/scanner-documentos",
-        qrCode: "/qr/scanner-documentos.png"
-      },
-      {
-        id: 3,
-        title: "Traductor Instantáneo",
-        description: "Traduce texto y voz en tiempo real con soporte para más de 100 idiomas.",
-        icon: "🌍",
-        features: ["Traducción de voz", "100+ idiomas", "Modo offline", "Historial de traducciones"],
-        badge: "gratis",
-        downloadUrl: "/shortcuts/traductor-instantaneo",
-        qrCode: "/qr/traductor-instantaneo.png"
-      },
-      {
-        id: 4,
-        title: "Recordatorio por Voz",
-        description: "Crea recordatorios y notas de voz que se convierten automáticamente en texto.",
-        icon: "🎤",
-        features: ["Reconocimiento de voz", "Conversión a texto", "Recordatorios automáticos", "Sincronización iCloud"],
-        badge: "nuevo",
-        downloadUrl: "/shortcuts/recordatorio-voz",
-        qrCode: "/qr/recordatorio-voz.png"
-      },
-      {
-        id: 5,
-        title: "Control de Hogar",
-        description: "Controla todos tus dispositivos smart home desde un solo lugar con automatizaciones.",
-        icon: "🏠",
-        features: ["Control de luces", "Temperatura automática", "Escenas personalizadas", "Geolocalización"],
-        badge: "",
-        downloadUrl: "/shortcuts/control-hogar",
-        qrCode: "/qr/control-hogar.png"
-      },
-      {
-        id: 6,
-        title: "Productividad Máxima",
-        description: "Automatiza tareas repetitivas y optimiza tu flujo de trabajo diario.",
-        icon: "⚡",
-        features: ["Automatización de emails", "Gestión de tareas", "Pomodoro timer", "Estadísticas de productividad"],
+        title: "Añadir Alarma Rápida",
+        description: "Crea alarmas de forma rápida y eficiente. Configura múltiples alarmas con un solo toque.",
+        icon: "⏰",
+        features: ["Configuración rápida", "Múltiples alarmas", "Personalización", "Sincronización iCloud"],
         badge: "popular",
-        downloadUrl: "/shortcuts/productividad-maxima",
-        qrCode: "/qr/productividad-maxima.png"
+        downloadUrl: "https://www.icloud.com/shortcuts/116bd99c22d04b3190d9dc498b635564",
+        qrCode: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.icloud.com/shortcuts/116bd99c22d04b3190d9dc498b635564"
       }
     ];
 
@@ -586,9 +587,25 @@
           <ul class="shortcut-features">
             ${shortcut.features.map(feature => `<li>${feature}</li>`).join('')}
           </ul>
-          <a href="${shortcut.downloadUrl}" class="shortcut-btn" onclick="downloadShortcut(${shortcut.id})">
-            📱 Descargar Shortcut
-          </a>
+          
+          <!-- QR Code y Enlaces -->
+          <div class="shortcut-actions">
+            <div class="qr-section">
+              <img src="${shortcut.qrCode}" 
+                   alt="QR ${shortcut.title}" 
+                   class="qr-code">
+              <p class="qr-text">¡ESCANEA EL SUPERPODER!</p>
+            </div>
+            
+            <div class="download-section">
+              <a href="${shortcut.downloadUrl}" 
+                 target="_blank" 
+                 class="shortcut-btn">
+                📱 Instalar en iPhone
+              </a>
+              <p class="download-info">Toca para abrir en la app Shortcuts</p>
+            </div>
+          </div>
         `;
         
         grid.appendChild(card);
@@ -599,11 +616,10 @@
     function downloadShortcut(id) {
       const shortcut = shortcutsData.find(s => s.id === id);
       if (shortcut) {
-        // Aquí se implementaría la lógica real de descarga
-        console.log(`Descargando shortcut: ${shortcut.title}`);
+        console.log(`Abriendo shortcut: ${shortcut.title}`);
         
-        // Simular descarga
-        alert(`¡Descargando ${shortcut.title}! En una implementación real, aquí se abriría el enlace de descarga.`);
+        // Abrir enlace de iCloud en nueva pestaña
+        window.open(shortcut.downloadUrl, '_blank');
       }
     }
 
