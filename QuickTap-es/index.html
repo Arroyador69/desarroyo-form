@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="QuickTap es la app móvil más simple para controlar gastos, dividir dinero en cajas y llevar tus pagos mensuales. Funciona offline, es privada y está disponible en 12 idiomas."
+    />
+    <meta name="author" content="DesArroyo Tech" />
+    <title>QuickTap | Control total de tus finanzas personales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: only light;
+        --primary: #6366f1;
+        --primary-dark: #5145cd;
+        --secondary: #8b5cf6;
+        --accent: #facc15;
+        --bg: #f8f9fd;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475467;
+        --success: #22c55e;
+        --danger: #ef4444;
+        font-size: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem clamp(1rem, 5vw, 3rem) 4rem;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+      }
+
+      .logo svg {
+        width: 42px;
+        height: 42px;
+      }
+
+      nav {
+        display: flex;
+        gap: 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      nav a {
+        color: var(--muted);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        font-weight: 600;
+        padding: 0.85rem 1.75rem;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: transform 180ms ease, box-shadow 180ms ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+      }
+
+      .btn-outline {
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: var(--primary);
+        background: transparent;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 3rem;
+        align-items: center;
+        padding: 3rem 0 4rem;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.2rem, 4vw, 3.5rem);
+        margin-bottom: 1rem;
+        line-height: 1.1;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .cta-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .phone-stack {
+        position: relative;
+        min-height: 520px;
+      }
+
+      .phone {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: min(320px, 85%);
+        border-radius: 32px;
+        padding: 1rem;
+        background: var(--card);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+        border: 10px solid rgba(15, 23, 42, 0.85);
+      }
+
+      .phone::after {
+        content: "";
+        position: absolute;
+        inset: 0.5rem;
+        border-radius: 24px;
+        pointer-events: none;
+        border: 1px solid rgba(99, 102, 241, 0.08);
+      }
+
+      .hero-screen {
+        background: #f5f6ff;
+        border-radius: 24px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        height: 100%;
+      }
+
+      .summary-card {
+        background: #fff;
+        padding: 1.25rem;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      }
+
+      .summary-card h3 {
+        margin: 0 0 0.75rem;
+        font-size: 1.05rem;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        font-size: 0.8rem;
+      }
+
+      .summary-grid span {
+        display: block;
+        color: var(--muted);
+      }
+
+      .summary-grid strong {
+        display: block;
+        font-size: 1.05rem;
+      }
+
+      .summary-grid .income strong {
+        color: var(--success);
+      }
+
+      .summary-grid .expense strong {
+        color: var(--danger);
+      }
+
+      .transaction {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.85rem 1rem;
+        background: #fff;
+        border-radius: 18px;
+        margin-bottom: 0.6rem;
+        align-items: center;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+      }
+
+      .transaction h4 {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      .transaction span {
+        font-weight: 600;
+      }
+
+      .transaction span.positive {
+        color: var(--success);
+      }
+
+      .transaction span.negative {
+        color: var(--danger);
+      }
+
+      .section-label {
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+
+      section {
+        margin-bottom: 4rem;
+      }
+
+      .section-title {
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        margin-bottom: 1rem;
+      }
+
+      .section-desc {
+        color: var(--muted);
+        max-width: 720px;
+        margin-bottom: 2.5rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.75rem;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 24px;
+        padding: 1.75rem;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(99, 102, 241, 0.08);
+      }
+
+      .card h3 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .card p {
+        color: var(--muted);
+        margin: 0 0 0.75rem;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(99, 102, 241, 0.08);
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: rgba(99, 102, 241, 0.12);
+        color: var(--primary);
+        font-size: 1.35rem;
+      }
+
+      .split-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+        align-items: center;
+      }
+
+      .list-check {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0 0;
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .list-check li {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+
+      .list-check li::before {
+        content: "✔";
+        color: var(--success);
+        font-weight: 700;
+      }
+
+      .pill-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .pill {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--text);
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+      }
+
+      .plan {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        padding: 2.5rem;
+        border-radius: 32px;
+        box-shadow: 0 30px 60px rgba(99, 102, 241, 0.35);
+      }
+
+      .plan h3 {
+        margin-top: 0;
+        font-size: 2rem;
+      }
+
+      .plan ul {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .plan li {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+
+      .plan li::before {
+        content: "★";
+        color: var(--accent);
+      }
+
+      details {
+        background: var(--card);
+        border-radius: 18px;
+        padding: 1rem 1.25rem;
+        border: 1px solid rgba(99, 102, 241, 0.1);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      details summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      details + details {
+        margin-top: 1rem;
+      }
+
+      footer {
+        padding: 3rem 0 1.5rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      footer a {
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      @media (max-width: 640px) {
+        header {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        nav {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .cta-group {
+          flex-direction: column;
+        }
+
+        .phone-stack {
+          min-height: 480px;
+        }
+
+        .plan {
+          padding: 1.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="logo" href="#top">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect width="120" height="120" rx="30" fill="#361f8b" />
+            <circle cx="60" cy="60" r="38" fill="#ffd44f" />
+            <circle cx="60" cy="60" r="26" fill="#ffb224" />
+            <path
+              d="M63 30 42 70h14l-8 22 29-39H61l7-23z"
+              fill="#f04848"
+              stroke="#f04848"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="4"
+            />
+            <path
+              d="M85 67c0 12.15-9.85 22-22 22"
+              fill="none"
+              stroke="#24d1b5"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+          </svg>
+          QuickTap
+        </a>
+        <nav>
+          <a href="#features">Características</a>
+          <a href="#security">Seguridad</a>
+          <a href="#premium">Premium</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </header>
+
+      <section class="hero" id="top">
+        <div>
+          <p class="tag">Gestión financiera personal</p>
+          <h1>QuickTap · Controla tus finanzas de forma simple, segura e inteligente</h1>
+          <p>
+            Registra ingresos, gastos, cajas de dinero y pagos mensuales desde una única app
+            móvil. Funciona offline, protege tus datos y está disponible en 12 idiomas con
+            detección automática de región.
+          </p>
+          <div class="cta-group">
+            <a class="btn btn-primary" href="#descargar">Descargar · Prueba 7 días gratis</a>
+            <a class="btn btn-outline" href="#features">Ver características</a>
+          </div>
+          <p style="margin-top: 1.25rem; color: var(--muted); font-size: 0.95rem">
+            Disponible para iOS y Android · Versión 1.0.0
+          </p>
+        </div>
+        <div class="phone-stack" aria-hidden="true">
+          <div class="phone">
+            <div class="hero-screen">
+              <div class="summary-card">
+                <div class="section-label">Resumen · Noviembre 2025</div>
+                <h3>Ingresos y Gastos</h3>
+                <div class="summary-grid">
+                  <div class="income">
+                    <span>Ingresos</span>
+                    <strong>$1.258</strong>
+                  </div>
+                  <div class="expense">
+                    <span>Gastos</span>
+                    <strong>$212</strong>
+                  </div>
+                  <div>
+                    <span>Balance</span>
+                    <strong>$1.046</strong>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="transaction">
+                  <div>
+                    <h4>Cost · 19/11</h4>
+                    <small style="color: var(--muted)">Gasto rápido</small>
+                  </div>
+                  <span class="negative">- $25</span>
+                </div>
+                <div class="transaction">
+                  <div>
+                    <h4>Lunch · 19/11</h4>
+                    <small style="color: var(--muted)">Ingreso compartido</small>
+                  </div>
+                    <span class="positive">+ $50</span>
+                </div>
+                <div class="transaction">
+                  <div>
+                    <h4>Train · 19/11</h4>
+                    <small style="color: var(--muted)">Transporte</small>
+                  </div>
+                  <span class="negative">- $69</span>
+                </div>
+                <div class="transaction">
+                  <div>
+                    <h4>Income · 19/11</h4>
+                    <small style="color: var(--muted)">Proyecto</small>
+                  </div>
+                  <span class="positive">+ $45</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <p class="section-label">Características principales</p>
+        <h2 class="section-title">Todo lo que necesitas para dominar tus finanzas personales</h2>
+        <p class="section-desc">
+          QuickTap reúne registro de transacciones, cajas de dinero, pagos mensuales, multiidioma y
+          privacidad total en una sola interfaz inspirada en las capturas oficiales de la app. Estas
+          son las funciones que amarás desde el primer día:
+        </p>
+        <div class="feature-grid">
+          <article class="card">
+            <div class="icon-circle">💰</div>
+            <h3>Gastos y Ganancias</h3>
+            <p>
+              Registro rápido, vista calendario, filtros inteligentes y balance automático en tiempo
+              real. Tus movimientos siempre claros.
+            </p>
+            <ul class="list-check">
+              <li>Historial completo siempre disponible</li>
+              <li>Categorización personalizada</li>
+              <li>Funcionamiento offline</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="icon-circle">📦</div>
+            <h3>Cajas de Dinero</h3>
+            <p>
+              Divide tu dinero en múltiples cajas o ubicaciones físicas. Visualiza el total y mueve
+              fondos con un tap.
+            </p>
+            <ul class="list-check">
+              <li>Distribución inteligente de ingresos</li>
+              <li>Recordatorios de asignación</li>
+              <li>Vista consolidada instantánea</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="icon-circle">📅</div>
+            <h3>Pagos Mensuales</h3>
+            <p>
+              Organiza suscripciones, facturas y servicios recurrentes con calendario visual y
+              cálculo automático del próximo pago.
+            </p>
+            <ul class="list-check">
+              <li>Notas personalizadas</li>
+              <li>Historial y registro inicial</li>
+              <li>Alertas sin conexión</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="icon-circle">🌍</div>
+            <h3>Multiidioma Inteligente</h3>
+            <p>
+              12 idiomas, detección automática de país, divisa por región y UI totalmente
+              traducida. Cambia de idioma cuando quieras.
+            </p>
+            <div class="pill-group" style="margin-top: 1rem">
+              <span class="pill">🇪🇸 Español</span>
+              <span class="pill">🇬🇧 English</span>
+              <span class="pill">🇫🇷 Français</span>
+              <span class="pill">🇧🇷 Português</span>
+              <span class="pill">🇯🇵 日本語</span>
+              <span class="pill">🇸🇦 العربية</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="split-layout">
+        <div>
+          <p class="section-label">Experiencia real</p>
+          <h2 class="section-title">Diseñada para tus hábitos diarios</h2>
+          <p class="section-desc">
+            Inspirada en las pantallas oficiales de QuickTap, la landing recrea los componentes
+            principales para que sepas exactamente qué obtienes al descargar la app.
+          </p>
+          <ul class="list-check">
+            <li>Pantalla de transacciones con lista y calendario interactivo.</li>
+            <li>Cajas de dinero con total consolidado visible al instante.</li>
+            <li>Pagos mensuales con modo calendario y detalle por servicio.</li>
+            <li>Panel de configuración donde controlas idioma, divisa y cuenta Premium.</li>
+          </ul>
+        </div>
+        <div class="card" style="padding: 0">
+          <div
+            style="
+              background: linear-gradient(145deg, #fef3c7, #ffe4e6);
+              border-radius: 24px 24px 0 0;
+              padding: 2rem 2rem 0;
+            "
+          >
+            <div class="section-label">Vista de Cajas</div>
+            <h3 style="margin-top: 0;">$8.175 · Total guardado</h3>
+          </div>
+          <div style="padding: 1.75rem; display: grid; gap: 1rem;">
+            <div class="transaction" style="box-shadow: none; background: #f8fafc;">
+              <div>
+                <h4 style="margin-bottom: 0.25rem;">Bitcoin</h4>
+                <small style="color: var(--muted)">Caja digital</small>
+              </div>
+              <span class="positive">$5.325</span>
+            </div>
+            <div class="transaction" style="box-shadow: none; background: #f8fafc;">
+              <div>
+                <h4 style="margin-bottom: 0.25rem;">Point A</h4>
+                <small style="color: var(--muted)">Oficina</small>
+              </div>
+              <span class="positive">$1.943</span>
+            </div>
+            <div class="transaction" style="box-shadow: none; background: #f8fafc;">
+              <div>
+                <h4 style="margin-bottom: 0.25rem;">Cash</h4>
+                <small style="color: var(--muted)">Casa</small>
+              </div>
+              <span class="positive">$907</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="security">
+        <p class="section-label">Privacidad primero</p>
+        <h2 class="section-title">Tus datos financieros siempre son tuyos</h2>
+        <div class="split-layout">
+          <div class="card">
+            <h3>🔒 Seguridad y privacidad</h3>
+            <p>
+              QuickTap almacena toda la información en tu dispositivo. No compartimos datos con
+              terceros, no rastreamos tu actividad y no incluimos anuncios.
+            </p>
+            <ul class="list-check">
+              <li>Almacenamiento 100% local</li>
+              <li>Funcionamiento offline total</li>
+              <li>Encriptación AES-256 para backups Premium</li>
+              <li>Cumplimiento con normativas de protección de datos</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>💾 Backup automático (Premium)</h3>
+            <p>
+              Activa el respaldo semanal cifrado para sincronizar entre dispositivos, restaurar tu
+              información y mantenerla siempre protegida.
+            </p>
+            <ul class="list-check">
+              <li>Sincronización segura multi-dispositivo</li>
+              <li>Compresión y limpieza automática</li>
+              <li>Restauración con contraseña personal</li>
+            </ul>
+            <p style="margin-top: 1rem; color: var(--muted); font-size: 0.9rem;">
+              Los backups se alojan en la nube solo si decides activar Premium. Nadie excepto tú
+              puede leerlos.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="premium">
+        <p class="section-label">Plan Premium</p>
+        <div class="split-layout">
+          <div>
+            <h2 class="section-title">Prueba gratis 7 días · Pago único de por vida</h2>
+            <p class="section-desc">
+              Disfruta de todas las funciones sin limitaciones. Al terminar la prueba, desbloquea
+              QuickTap Premium con un único pago de <strong>3,69 €</strong> (o equivalente en tu
+              divisa). Sin suscripciones, sin cargos ocultos, con soporte prioritario.
+            </p>
+          </div>
+          <div class="plan">
+            <h3>Incluye</h3>
+            <ul>
+              <li>Backup automático cifrado AES-256</li>
+              <li>Sincronización entre dispositivos</li>
+              <li>Soporte prioritario en < 24 h</li>
+              <li>Acceso ilimitado y actualizaciones gratis</li>
+              <li>Sin anuncios ni rastreadores</li>
+            </ul>
+            <a class="btn btn-primary" href="#descargar" style="width: 100%; justify-content: center"
+              >Empezar prueba gratis</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <p class="section-label">Beneficios</p>
+        <div class="feature-grid">
+          <article class="card">
+            <div class="icon-circle">👤</div>
+            <h3>Usuarios personales</h3>
+            <p>Organización sencilla, control total del presupuesto y privacidad absoluta.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle">👨‍👩‍👧</div>
+            <h3>Familias</h3>
+            <p>Divide gastos por categorías, planifica pagos recurrentes y revisa el historial.</p>
+          </article>
+          <article class="card">
+            <div class="icon-circle">⚡</div>
+            <h3>Por qué QuickTap</h3>
+            <p>Simple, offline, multiplataforma, sin suscripciones y con soporte multidioma.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq">
+        <p class="section-label">Preguntas frecuentes</p>
+        <h2 class="section-title">Todo lo que necesitas saber</h2>
+        <div class="section-desc">
+          ¿Tienes dudas? Aquí respondemos las más comunes sobre la app, privacidad, idiomas, divisas
+          y modelo de negocio.
+        </div>
+        <details open>
+          <summary>¿QuickTap es gratuita?</summary>
+          <p>
+            Sí. Tienes 7 días con todas las funciones. Después, puedes seguir con un pago único de
+            por vida que desbloquea Premium, backups y sincronización.
+          </p>
+        </details>
+        <details>
+          <summary>¿Necesito internet para usar la app?</summary>
+          <p>
+            No. Todo funciona offline. Solo necesitarás conexión para registrarte, activar Premium o
+            sincronizar tu backup.
+          </p>
+        </details>
+        <details>
+          <summary>¿Qué tan seguros están mis datos?</summary>
+          <p>
+            Los datos viven en tu dispositivo. Los backups Premium se cifran con AES-256 y solo tú
+            puedes descifrarlos.
+          </p>
+        </details>
+        <details>
+          <summary>¿Puedo usarla en varios dispositivos?</summary>
+          <p>
+            Sí, al activar Premium puedes restaurar tu backup en cualquier dispositivo iOS o Android
+            y mantenerlos sincronizados.
+          </p>
+        </details>
+        <details>
+          <summary>¿Qué divisas e idiomas soporta?</summary>
+          <p>
+            Más de 15 divisas (USD, EUR, MXN, ARS, COP, etc.) y 12 idiomas con detección automática.
+          </p>
+        </details>
+      </section>
+
+      <section id="descargar" class="split-layout" style="align-items: stretch;">
+        <div>
+          <p class="section-label">Descarga</p>
+          <h2 class="section-title">¿Listo para controlar tus finanzas?</h2>
+          <p class="section-desc">
+            Descarga QuickTap, prueba 7 días sin tarjeta y descubre por qué es la app de finanzas
+            personales favorita de la comunidad DesArroyo.
+          </p>
+          <div class="cta-group">
+            <a class="btn btn-primary" href="#" aria-label="Descargar en App Store">Descargar en App Store</a>
+            <a class="btn btn-outline" href="#" aria-label="Descargar en Google Play">Descargar en Google Play</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Soporte y contacto</h3>
+          <p style="margin-bottom: 1rem;">
+            ¿Necesitas ayuda? Escríbenos y responderemos en menos de 24 horas.
+          </p>
+          <p>📧 Email: <a href="mailto:tu-email@quicktap.com">tu-email@quicktap.com</a></p>
+          <p>💬 Soporte in-app para usuarios Premium</p>
+          <p>📱 Twitter: <a href="https://twitter.com/QuickTapApp" target="_blank">@QuickTapApp</a></p>
+          <p>🕘 Lunes a Viernes · 9:00 - 18:00 CET</p>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          © 2024 QuickTap · Desarrollado por Arroyador69 · Versión 1.0.0 ·
+          <a href="#">Política de Privacidad</a> · <a href="#">Términos</a> ·
+          <a href="#">Aviso Legal</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
+
