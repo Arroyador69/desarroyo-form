@@ -853,55 +853,186 @@
       box-shadow: 0 0 20px #00fff733;
     }
 
-    /* Galería de Trabajos */
-    .trabajos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2.5rem;
-      margin-top: 3rem;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
+    /* Galería de Trabajos - Carrusel */
+    .trabajos-carousel {
+      position: relative;
+      max-width: 1000px;
+      margin: 3rem auto 0;
+      padding: 0 80px;
     }
 
-    .trabajo-item {
-      background: rgba(24, 28, 38, 0.8);
-      border-radius: 16px;
+    .trabajos-carousel-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
       overflow: hidden;
-      border: 1px solid rgba(0, 255, 247, 0.3);
-      box-shadow: 0 0 20px rgba(0, 255, 247, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: 500px;
     }
 
-    .trabajo-item:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 30px rgba(0, 255, 247, 0.3);
+    .trabajo-slide {
+      position: absolute;
+      width: 600px;
+      height: 450px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(24, 28, 38, 0.9);
+      border: 2px solid rgba(0, 255, 247, 0.3);
+      box-shadow: 0 10px 40px rgba(0, 255, 247, 0.2);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0.4;
+      transform: scale(0.85);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .trabajo-slide.prev {
+      left: -200px;
+      transform: scale(0.75) translateX(-50px);
+      opacity: 0.3;
+    }
+
+    .trabajo-slide.next {
+      right: -200px;
+      transform: scale(0.75) translateX(50px);
+      opacity: 0.3;
+    }
+
+    .trabajo-slide.active {
+      position: relative;
+      opacity: 1;
+      transform: scale(1);
+      z-index: 3;
+      pointer-events: all;
       border-color: #00fff7;
+      box-shadow: 0 20px 60px rgba(0, 255, 247, 0.4);
     }
 
-    .trabajo-image {
+    .trabajo-slide-image {
       width: 100%;
-      height: 220px;
+      height: 350px;
       object-fit: cover;
       display: block;
-      background: linear-gradient(135deg, rgba(0, 255, 247, 0.1), rgba(162, 89, 255, 0.1));
+      background: linear-gradient(135deg, rgba(0, 255, 247, 0.15), rgba(162, 89, 255, 0.15));
     }
 
-    .trabajo-link {
+    .trabajo-slide-link {
       display: block;
-      padding: 1.25rem;
+      padding: 1.5rem;
       text-align: center;
       color: #00fff7;
       text-decoration: none;
       font-weight: 600;
-      font-size: 0.95rem;
-      transition: color 0.3s ease;
+      font-size: 1rem;
+      transition: all 0.3s ease;
       border-top: 1px solid rgba(0, 255, 247, 0.2);
+      background: rgba(0, 255, 247, 0.05);
     }
 
-    .trabajo-link:hover {
+    .trabajo-slide-link:hover {
       color: #a259ff;
+      background: rgba(162, 89, 255, 0.1);
       text-shadow: 0 0 8px rgba(162, 89, 255, 0.5);
+    }
+
+    .carousel-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(24, 28, 38, 0.9);
+      border: 2px solid rgba(0, 255, 247, 0.5);
+      color: #00fff7;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .carousel-nav:hover {
+      background: rgba(0, 255, 247, 0.2);
+      border-color: #00fff7;
+      box-shadow: 0 0 20px rgba(0, 255, 247, 0.5);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .carousel-nav.prev {
+      left: 10px;
+    }
+
+    .carousel-nav.next {
+      right: 10px;
+    }
+
+    .carousel-counter {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #eafcff;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 3rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .carousel-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(0, 255, 247, 0.3);
+      border: 2px solid rgba(0, 255, 247, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-dot.active {
+      background: #00fff7;
+      border-color: #00fff7;
+      box-shadow: 0 0 10px rgba(0, 255, 247, 0.8);
+      transform: scale(1.2);
+    }
+
+    .carousel-dot:hover {
+      background: rgba(0, 255, 247, 0.6);
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 900px) {
+      .trabajos-carousel {
+        padding: 0 60px;
+      }
+
+      .trabajo-slide {
+        width: 100%;
+        max-width: 500px;
+        height: 400px;
+      }
+
+      .trabajo-slide.prev,
+      .trabajo-slide.next {
+        display: none;
+      }
+
+      .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
     }
 
     /* Footer */
@@ -1895,38 +2026,41 @@
       <p style="max-width: 800px; margin: 1.5rem auto; color: #eafcff; font-size: 1.05rem;">
         Descubre algunos de los proyectos que hemos desarrollado. Cada uno representa nuestra pasión por crear soluciones digitales que marcan la diferencia.
       </p>
-      <div class="trabajos-grid">
-        <div class="trabajo-item">
-          <div style="position: relative; height: 220px; overflow: hidden; background: linear-gradient(135deg, rgba(0, 255, 247, 0.15), rgba(162, 89, 255, 0.15));">
-            <img src="img/trabajos/delfincheckin.jpg" alt="Delfín Check-in - Sistema de gestión hotelera" class="trabajo-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.2rem;font-weight:600;\'>🐬 Delfín Check-in</div>';">
+      <div class="trabajos-carousel">
+        <button class="carousel-nav prev" aria-label="Proyecto anterior">‹</button>
+        <div class="trabajos-carousel-container" id="trabajos-carousel">
+          <div class="trabajo-slide" data-index="0">
+            <img src="img/trabajos/delfincheckin.jpg" alt="Delfín Check-in - Sistema de gestión hotelera" class="trabajo-slide-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:350px;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.5rem;font-weight:600;background:linear-gradient(135deg,rgba(0,255,247,0.2),rgba(162,89,255,0.2));\'>🐬 Delfín Check-in</div><a href=\'https://delfincheckin.com\' target=\'_blank\' rel=\'noopener noreferrer\' class=\'trabajo-slide-link\'>Ver proyecto → delfincheckin.com</a>';">
+            <a href="https://delfincheckin.com" target="_blank" rel="noopener noreferrer" class="trabajo-slide-link">
+              Ver proyecto → delfincheckin.com
+            </a>
           </div>
-          <a href="https://delfincheckin.com" target="_blank" rel="noopener noreferrer" class="trabajo-link">
-            Ver proyecto → delfincheckin.com
-          </a>
+          <div class="trabajo-slide" data-index="1">
+            <img src="img/trabajos/thellsol.jpg" alt="ThellSol Real Estate - Inmobiliaria Costa del Sol" class="trabajo-slide-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:350px;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.5rem;font-weight:600;background:linear-gradient(135deg,rgba(0,255,247,0.2),rgba(162,89,255,0.2));\'>🏖️ ThellSol Real Estate</div><a href=\'https://thellsol.com\' target=\'_blank\' rel=\'noopener noreferrer\' class=\'trabajo-slide-link\'>Ver proyecto → thellsol.com</a>';">
+            <a href="https://thellsol.com" target="_blank" rel="noopener noreferrer" class="trabajo-slide-link">
+              Ver proyecto → thellsol.com
+            </a>
+          </div>
+          <div class="trabajo-slide" data-index="2">
+            <img src="img/trabajos/rafaromera.jpg" alt="Rafa Romera - Músico y artista" class="trabajo-slide-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:350px;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.5rem;font-weight:600;background:linear-gradient(135deg,rgba(0,255,247,0.2),rgba(162,89,255,0.2));\'>🎵 Rafa Romera</div><a href=\'https://rafaromera.info\' target=\'_blank\' rel=\'noopener noreferrer\' class=\'trabajo-slide-link\'>Ver proyecto → rafaromera.info</a>';">
+            <a href="https://rafaromera.info" target="_blank" rel="noopener noreferrer" class="trabajo-slide-link">
+              Ver proyecto → rafaromera.info
+            </a>
+          </div>
+          <div class="trabajo-slide" data-index="3">
+            <img src="img/trabajos/quicktap.jpg" alt="QuickTap - App de gestión financiera personal" class="trabajo-slide-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:350px;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.5rem;font-weight:600;background:linear-gradient(135deg,rgba(0,255,247,0.2),rgba(162,89,255,0.2));\'>⚡ QuickTap</div><a href=\'https://desarroyo.tech/QuickTap-es/\' target=\'_blank\' rel=\'noopener noreferrer\' class=\'trabajo-slide-link\'>Ver proyecto → QuickTap</a>';">
+            <a href="https://desarroyo.tech/QuickTap-es/" target="_blank" rel="noopener noreferrer" class="trabajo-slide-link">
+              Ver proyecto → QuickTap
+            </a>
+          </div>
         </div>
-        <div class="trabajo-item">
-          <div style="position: relative; height: 220px; overflow: hidden; background: linear-gradient(135deg, rgba(0, 255, 247, 0.15), rgba(162, 89, 255, 0.15));">
-            <img src="img/trabajos/thellsol.jpg" alt="ThellSol Real Estate - Inmobiliaria Costa del Sol" class="trabajo-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.2rem;font-weight:600;\'>🏖️ ThellSol Real Estate</div>';">
-          </div>
-          <a href="https://thellsol.com" target="_blank" rel="noopener noreferrer" class="trabajo-link">
-            Ver proyecto → thellsol.com
-          </a>
-        </div>
-        <div class="trabajo-item">
-          <div style="position: relative; height: 220px; overflow: hidden; background: linear-gradient(135deg, rgba(0, 255, 247, 0.15), rgba(162, 89, 255, 0.15));">
-            <img src="img/trabajos/rafaromera.jpg" alt="Rafa Romera - Músico y artista" class="trabajo-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.2rem;font-weight:600;\'>🎵 Rafa Romera</div>';">
-          </div>
-          <a href="https://rafaromera.info" target="_blank" rel="noopener noreferrer" class="trabajo-link">
-            Ver proyecto → rafaromera.info
-          </a>
-        </div>
-        <div class="trabajo-item">
-          <div style="position: relative; height: 220px; overflow: hidden; background: linear-gradient(135deg, rgba(0, 255, 247, 0.15), rgba(162, 89, 255, 0.15));">
-            <img src="img/trabajos/quicktap.jpg" alt="QuickTap - App de gestión financiera personal" class="trabajo-image" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<div style=\'height:100%;display:flex;align-items:center;justify-content:center;color:#00fff7;font-size:1.2rem;font-weight:600;\'>⚡ QuickTap</div>';">
-          </div>
-          <a href="https://desarroyo.tech/QuickTap-es/" target="_blank" rel="noopener noreferrer" class="trabajo-link">
-            Ver proyecto → QuickTap
-          </a>
+        <button class="carousel-nav next" aria-label="Proyecto siguiente">›</button>
+        <div class="carousel-counter" id="carousel-counter">1 / 4</div>
+        <div class="carousel-dots" id="carousel-dots">
+          <span class="carousel-dot active" data-index="0"></span>
+          <span class="carousel-dot" data-index="1"></span>
+          <span class="carousel-dot" data-index="2"></span>
+          <span class="carousel-dot" data-index="3"></span>
         </div>
       </div>
     </div>
@@ -2216,6 +2350,82 @@
     document.querySelectorAll('.menu-mobile-items a, .menu-desktop-items a').forEach(link => {
       link.addEventListener('click', addHapticFeedback);
     });
+
+    // Carrusel de Trabajos
+    (function() {
+      const carousel = document.getElementById('trabajos-carousel');
+      if (!carousel) return;
+
+      const slides = carousel.querySelectorAll('.trabajo-slide');
+      const prevBtn = document.querySelector('.carousel-nav.prev');
+      const nextBtn = document.querySelector('.carousel-nav.next');
+      const dots = document.querySelectorAll('.carousel-dot');
+      const counter = document.getElementById('carousel-counter');
+      
+      let currentIndex = 0;
+      const totalSlides = slides.length;
+
+      function updateCarousel() {
+        slides.forEach((slide, index) => {
+          slide.classList.remove('active', 'prev', 'next');
+          
+          if (index === currentIndex) {
+            slide.classList.add('active');
+          } else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
+            slide.classList.add('prev');
+          } else if (index === (currentIndex + 1) % totalSlides) {
+            slide.classList.add('next');
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          dot.classList.toggle('active', index === currentIndex);
+        });
+
+        if (counter) {
+          counter.textContent = `${currentIndex + 1} / ${totalSlides}`;
+        }
+      }
+
+      function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateCarousel();
+      }
+
+      function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+      }
+
+      function goToSlide(index) {
+        currentIndex = index;
+        updateCarousel();
+      }
+
+      if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+      if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => goToSlide(index));
+      });
+
+      // Navegación con teclado
+      document.addEventListener('keydown', (e) => {
+        if (document.querySelector('#trabajos').offsetParent !== null) {
+          if (e.key === 'ArrowLeft') prevSlide();
+          if (e.key === 'ArrowRight') nextSlide();
+        }
+      });
+
+      // Auto-play opcional (comentado por defecto)
+      // let autoPlayInterval = setInterval(nextSlide, 5000);
+      // carousel.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+      // carousel.addEventListener('mouseleave', () => {
+      //   autoPlayInterval = setInterval(nextSlide, 5000);
+      // });
+
+      updateCarousel();
+    })();
 
     // Lazy loading para imágenes
     if ('IntersectionObserver' in window) {
