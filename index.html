@@ -856,9 +856,10 @@
     /* Galería de Trabajos - Carrusel */
     .trabajos-carousel {
       position: relative;
-      max-width: 1000px;
+      max-width: 1400px;
       margin: 3rem auto 0;
-      padding: 0 80px;
+      padding: 0 100px;
+      overflow: visible;
     }
 
     .trabajos-carousel-container {
@@ -866,8 +867,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1.5rem;
-      overflow: hidden;
+      gap: 0;
+      overflow: visible;
       height: 500px;
     }
 
@@ -881,32 +882,37 @@
       border: 2px solid rgba(0, 255, 247, 0.3);
       box-shadow: 0 10px 40px rgba(0, 255, 247, 0.2);
       transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-      opacity: 0.4;
-      transform: scale(0.85);
       z-index: 1;
       pointer-events: none;
     }
 
     .trabajo-slide.prev {
-      left: -200px;
-      transform: scale(0.75) translateX(-50px);
-      opacity: 0.3;
+      left: -280px;
+      transform: scale(0.7);
+      opacity: 0.5;
+      filter: brightness(0.4);
+      z-index: 2;
     }
 
     .trabajo-slide.next {
-      right: -200px;
-      transform: scale(0.75) translateX(50px);
-      opacity: 0.3;
+      right: -280px;
+      transform: scale(0.7);
+      opacity: 0.5;
+      filter: brightness(0.4);
+      z-index: 2;
     }
 
     .trabajo-slide.active {
       position: relative;
+      left: auto;
+      right: auto;
       opacity: 1;
       transform: scale(1);
       z-index: 3;
       pointer-events: all;
       border-color: #00fff7;
       box-shadow: 0 20px 60px rgba(0, 255, 247, 0.4);
+      filter: brightness(1);
     }
 
     .trabajo-slide-image {
@@ -971,16 +977,6 @@
       right: 10px;
     }
 
-    .carousel-counter {
-      position: absolute;
-      bottom: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #eafcff;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
     .carousel-dots {
       display: flex;
       justify-content: center;
@@ -1015,6 +1011,7 @@
     @media (max-width: 900px) {
       .trabajos-carousel {
         padding: 0 60px;
+        max-width: 100%;
       }
 
       .trabajo-slide {
@@ -2055,7 +2052,6 @@
           </div>
         </div>
         <button class="carousel-nav next" aria-label="Proyecto siguiente">›</button>
-        <div class="carousel-counter" id="carousel-counter">1 / 4</div>
         <div class="carousel-dots" id="carousel-dots">
           <span class="carousel-dot active" data-index="0"></span>
           <span class="carousel-dot" data-index="1"></span>
@@ -2360,7 +2356,6 @@
       const prevBtn = document.querySelector('.carousel-nav.prev');
       const nextBtn = document.querySelector('.carousel-nav.next');
       const dots = document.querySelectorAll('.carousel-dot');
-      const counter = document.getElementById('carousel-counter');
       
       let currentIndex = 0;
       const totalSlides = slides.length;
@@ -2381,10 +2376,6 @@
         dots.forEach((dot, index) => {
           dot.classList.toggle('active', index === currentIndex);
         });
-
-        if (counter) {
-          counter.textContent = `${currentIndex + 1} / ${totalSlides}`;
-        }
       }
 
       function nextSlide() {
