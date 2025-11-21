@@ -881,25 +881,27 @@
       background: rgba(24, 28, 38, 0.9);
       border: 2px solid rgba(0, 255, 247, 0.3);
       box-shadow: 0 10px 40px rgba(0, 255, 247, 0.2);
-      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 1;
       pointer-events: none;
+      transform-origin: center center;
+      will-change: transform, opacity, filter;
     }
 
     .trabajo-slide.prev {
-      left: -280px;
-      transform: scale(0.7);
-      opacity: 0.5;
-      filter: brightness(0.4);
-      z-index: 2;
+      left: -450px;
+      transform: scale(0.6) translateX(-80px);
+      opacity: 0.25;
+      filter: brightness(0.25) blur(3px);
+      z-index: 1;
     }
 
     .trabajo-slide.next {
-      right: -280px;
-      transform: scale(0.7);
-      opacity: 0.5;
-      filter: brightness(0.4);
-      z-index: 2;
+      right: -450px;
+      transform: scale(0.6) translateX(80px);
+      opacity: 0.25;
+      filter: brightness(0.25) blur(3px);
+      z-index: 1;
     }
 
     .trabajo-slide.active {
@@ -907,13 +909,14 @@
       left: auto;
       right: auto;
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translateX(0) translateZ(0);
       z-index: 3;
       pointer-events: all;
       border-color: #00fff7;
       box-shadow: 0 20px 60px rgba(0, 255, 247, 0.4);
-      filter: brightness(1);
+      filter: brightness(1) blur(0);
     }
+
 
     .trabajo-slide-image {
       width: 100%;
@@ -2362,13 +2365,17 @@
 
       function updateCarousel() {
         slides.forEach((slide, index) => {
+          // Remover todas las clases de estado
           slide.classList.remove('active', 'prev', 'next');
+          
+          const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+          const nextIndex = (currentIndex + 1) % totalSlides;
           
           if (index === currentIndex) {
             slide.classList.add('active');
-          } else if (index === (currentIndex - 1 + totalSlides) % totalSlides) {
+          } else if (index === prevIndex) {
             slide.classList.add('prev');
-          } else if (index === (currentIndex + 1) % totalSlides) {
+          } else if (index === nextIndex) {
             slide.classList.add('next');
           }
         });
