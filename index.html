@@ -858,7 +858,7 @@
       position: relative;
       max-width: 1400px;
       margin: 3rem auto 0;
-      padding: 0 100px;
+      padding: 0 120px;
       overflow: visible;
     }
 
@@ -890,6 +890,15 @@
       margin-top: -225px;
     }
 
+    /* Slide oculto (detrás) - completamente invisible */
+    .trabajo-slide:not(.active):not(.prev):not(.next) {
+      opacity: 0;
+      visibility: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Slide previo (izquierda) - se desliza hacia la izquierda mientras se hace pequeño y oscuro */
     .trabajo-slide.prev {
       left: -600px;
       right: auto;
@@ -897,8 +906,10 @@
       opacity: 0.2;
       filter: brightness(0.2) blur(3px);
       z-index: 1;
+      visibility: visible;
     }
 
+    /* Slide siguiente (derecha) - viene desde la derecha (inverso de esconderse) */
     .trabajo-slide.next {
       left: auto;
       right: -600px;
@@ -906,8 +917,10 @@
       opacity: 0.2;
       filter: brightness(0.2) blur(3px);
       z-index: 1;
+      visibility: visible;
     }
 
+    /* Slide activo (centro) - aparece desde el lado (animación inversa de esconderse) */
     .trabajo-slide.active {
       left: 50%;
       right: auto;
@@ -918,6 +931,7 @@
       border-color: #00fff7;
       box-shadow: 0 20px 60px rgba(0, 255, 247, 0.4);
       filter: brightness(1) blur(0);
+      visibility: visible;
     }
 
 
@@ -963,7 +977,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      z-index: 20;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
     }
@@ -976,11 +990,11 @@
     }
 
     .carousel-nav.prev {
-      left: 10px;
+      left: -70px;
     }
 
     .carousel-nav.next {
-      right: 10px;
+      right: -70px;
     }
 
     .carousel-dots {
@@ -1016,7 +1030,7 @@
 
     @media (max-width: 900px) {
       .trabajos-carousel {
-        padding: 0 60px;
+        padding: 0 70px;
         max-width: 100%;
       }
 
@@ -1035,6 +1049,14 @@
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
+      }
+
+      .carousel-nav.prev {
+        left: -50px;
+      }
+
+      .carousel-nav.next {
+        right: -50px;
       }
     }
 
