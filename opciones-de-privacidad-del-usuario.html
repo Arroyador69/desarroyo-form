@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Opciones de Privacidad y Gestión de Datos - QuickTap. Aprenda cómo gestionar, exportar y eliminar sus datos personales."
+    />
+    <meta name="author" content="DesArroyo.tech" />
+    <title>Opciones de Privacidad - QuickTap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: only light;
+        --primary: #6366f1;
+        --primary-dark: #5145cd;
+        --secondary: #8b5cf6;
+        --accent: #facc15;
+        --bg: #f8f9fd;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475467;
+        --success: #22c55e;
+        --danger: #ef4444;
+        font-size: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem clamp(1rem, 5vw, 3rem) 4rem;
+      }
+
+      header {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 2.5rem);
+        margin: 1rem 0 0.5rem;
+        color: var(--text);
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      section {
+        margin-bottom: 3rem;
+      }
+
+      h2 {
+        font-size: 1.75rem;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+      }
+
+      h3 {
+        font-size: 1.35rem;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      h4 {
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      p {
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      ul, ol {
+        margin: 1rem 0;
+        padding-left: 2rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+
+      strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .contact-box {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        border: 2px solid var(--primary);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .contact-box h3 {
+        margin-top: 0;
+        color: var(--primary);
+      }
+
+      .contact-box a {
+        font-size: 1.1rem;
+      }
+
+      .step {
+        background: rgba(99, 102, 241, 0.05);
+        border-left: 4px solid var(--primary);
+        padding: 1rem 1.5rem;
+        margin: 1rem 0;
+        border-radius: 8px;
+      }
+
+      .step-number {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 28px;
+        font-weight: 700;
+        margin-right: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-copy {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .btn-copy:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      }
+
+      .warning-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 2px solid var(--danger);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 1.5rem 0;
+      }
+
+      .warning-box strong {
+        color: var(--danger);
+      }
+
+      .info-box {
+        background: rgba(34, 197, 94, 0.1);
+        border: 2px solid var(--success);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 1.5rem 0;
+      }
+
+      footer {
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 2px solid rgba(99, 102, 241, 0.2);
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      footer a {
+        margin: 0 0.5rem;
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 1.5rem 1rem 3rem;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+        }
+
+        h3 {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="logo" href="/QuickTap-es/">
+          <svg viewBox="0 0 120 120" aria-hidden="true" style="width: 42px; height: 42px;">
+            <rect width="120" height="120" rx="30" fill="#361f8b" />
+            <circle cx="60" cy="60" r="38" fill="#ffd44f" />
+            <circle cx="60" cy="60" r="26" fill="#ffb224" />
+            <path
+              d="M63 30 42 70h14l-8 22 29-39H61l7-23z"
+              fill="#f04848"
+              stroke="#f04848"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="4"
+            />
+            <path
+              d="M85 67c0 12.15-9.85 22-22 22"
+              fill="none"
+              stroke="#24d1b5"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+          </svg>
+          QuickTap
+        </a>
+        <h1>Opciones de Privacidad y Gestión de Datos</h1>
+        <p class="subtitle">Cómo gestionar, exportar y eliminar sus datos personales</p>
+      </header>
+
+      <main>
+        <section>
+          <h2>1. Introducción</h2>
+          <p>Esta página le explica cómo puede gestionar sus datos personales en QuickTap. Como usuario, tiene control total sobre sus datos y puede ejercer sus derechos en cualquier momento.</p>
+          <div class="contact-box">
+            <h3>Contacto para solicitudes de privacidad:</h3>
+            <p><strong>Email:</strong> <a href="mailto:alberto@desarroyo.tech" id="contact-email">alberto@desarroyo.tech</a></p>
+            <button class="btn-copy" onclick="copyEmail()">📋 Copiar email</button>
+            <p><strong>Tiempo de respuesta:</strong> Máximo 30 días hábiles</p>
+          </div>
+        </section>
+
+        <section>
+          <h2>2. Gestión de Datos desde la Aplicación</h2>
+
+          <h3>2.1. Ver sus datos:</h3>
+          <p><strong>Todos sus datos están visibles directamente en la aplicación:</strong></p>
+          <ul>
+            <li><strong>Transacciones:</strong> Pantalla "Transacciones" - puede ver, editar y eliminar cualquier transacción</li>
+            <li><strong>Cajas de dinero:</strong> Pantalla "Cajas de Dinero" - puede ver, editar y eliminar cajas</li>
+            <li><strong>Pagos mensuales:</strong> Pantalla "Pagos Mensuales" - puede ver, editar y eliminar servicios y pagos</li>
+            <li><strong>Configuración:</strong> Pantalla "Configuración" - puede ver y modificar su perfil, preferencias, idioma y moneda</li>
+          </ul>
+
+          <h3>2.2. Editar sus datos:</h3>
+          <p><strong>Puede editar cualquier dato directamente en la aplicación:</strong></p>
+          <ul>
+            <li>Toque cualquier elemento (transacción, caja, servicio) para editarlo</li>
+            <li>Modifique la información y guarde los cambios</li>
+            <li>Los cambios se guardan inmediatamente</li>
+          </ul>
+
+          <h3>2.3. Eliminar datos individuales:</h3>
+          <p><strong>Puede eliminar datos específicos:</strong></p>
+          <ul>
+            <li><strong>Transacciones:</strong> Deslizar hacia la izquierda o usar el botón de eliminar</li>
+            <li><strong>Cajas de dinero:</strong> Acceder a la caja y usar la opción de eliminar</li>
+            <li><strong>Servicios:</strong> Acceder al servicio y usar la opción de eliminar</li>
+          </ul>
+          <div class="warning-box">
+            <p><strong>⚠️ Nota:</strong> La eliminación es permanente e irreversible.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2>3. Exportar sus Datos</h2>
+
+          <h3>3.1. Exportación manual (formato JSON):</h3>
+          
+          <h4>Cómo exportar:</h4>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Abra la aplicación QuickTap</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Vaya a "Configuración"</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Busque la opción "Exportar datos" o "Backup manual"</span>
+          </div>
+          <div class="step">
+            <span class="step-number">4</span>
+            <span>Seleccione exportar</span>
+          </div>
+          <div class="step">
+            <span class="step-number">5</span>
+            <span>El archivo JSON se generará y podrá compartirlo o guardarlo</span>
+          </div>
+
+          <h4>Qué incluye la exportación:</h4>
+          <ul>
+            <li>Todas sus transacciones (ingresos y gastos)</li>
+            <li>Todas sus cajas de dinero</li>
+            <li>Todos sus servicios mensuales</li>
+            <li>Todos los pagos realizados</li>
+            <li>Fecha de exportación</li>
+            <li>Versión del formato de datos</li>
+          </ul>
+
+          <h4>Formato del archivo:</h4>
+          <ul>
+            <li>Formato: JSON (JavaScript Object Notation)</li>
+            <li>Codificación: UTF-8</li>
+            <li>Estructura: Datos organizados por categorías</li>
+            <li>Tamaño: Depende de la cantidad de datos (generalmente muy pequeño)</li>
+          </ul>
+
+          <h4>Uso del archivo exportado:</h4>
+          <ul>
+            <li>Puede guardarlo en su dispositivo</li>
+            <li>Puede compartirlo por email o almacenamiento en la nube</li>
+            <li>Puede importarlo en otra instancia de QuickTap (si reinstala la app)</li>
+            <li>Puede usarlo para sus propios registros o análisis</li>
+          </ul>
+
+          <h3>3.2. Exportación de backups encriptados (usuarios premium):</h3>
+          <p><strong>Solo disponible para usuarios con suscripción premium que tienen backups habilitados.</strong></p>
+
+          <h4>Cómo descargar backups:</h4>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Asegúrese de estar registrado y tener suscripción premium activa</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Vaya a "Configuración" > "Backup y Restauración"</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Los backups se crean automáticamente cada semana</span>
+          </div>
+          <div class="step">
+            <span class="step-number">4</span>
+            <span>Puede descargar cualquier backup desde la nube</span>
+          </div>
+          <div class="step">
+            <span class="step-number">5</span>
+            <span>Necesitará su contraseña para desencriptar el backup</span>
+          </div>
+
+          <h4>Características de los backups:</h4>
+          <ul>
+            <li>Formato: Encriptado con AES-256</li>
+            <li>Contraseña: Su contraseña de cuenta (necesaria para desencriptar)</li>
+            <li>Contenido: Todos sus datos financieros comprimidos y encriptados</li>
+            <li>Frecuencia: Automática semanal (si está habilitado)</li>
+            <li>Retención: Se mantienen los últimos 6 backups</li>
+          </ul>
+
+          <h4>Cómo usar un backup descargado:</h4>
+          <ul>
+            <li>El backup está encriptado, necesita su contraseña para desencriptarlo</li>
+            <li>Puede restaurarlo en la aplicación usando la función "Restaurar desde nube"</li>
+            <li>O puede guardarlo como respaldo de seguridad</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Eliminar su Cuenta y Datos</h2>
+
+          <h3>4.1. Eliminación de cuenta (usuarios registrados):</h3>
+
+          <h4>Cómo eliminar su cuenta:</h4>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Envíe un email a: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Incluya en el asunto: "Solicitud de eliminación de cuenta"</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Proporcione su email de cuenta para verificación</span>
+          </div>
+          <div class="step">
+            <span class="step-number">4</span>
+            <span>Confirme que desea eliminar todos sus datos</span>
+          </div>
+
+          <h4>Qué se elimina al borrar su cuenta:</h4>
+          <ul>
+            <li>✅ Su cuenta de usuario en Supabase</li>
+            <li>✅ Todos sus datos de autenticación</li>
+            <li>✅ Todos sus backups en la nube</li>
+            <li>✅ Toda su información de perfil</li>
+            <li>✅ Toda su información de suscripción</li>
+            <li>✅ Todos los registros asociados a su cuenta</li>
+          </ul>
+
+          <h4>Tiempo de procesamiento:</h4>
+          <ul>
+            <li>Eliminación inmediata de acceso a la cuenta</li>
+            <li>Eliminación completa de datos: Máximo 30 días</li>
+            <li>Confirmación por email cuando se complete</li>
+          </ul>
+
+          <div class="warning-box">
+            <p><strong>⚠️ Importante:</strong></p>
+            <ul>
+              <li>La eliminación es <strong>permanente e irreversible</strong></li>
+              <li>Asegúrese de exportar sus datos antes de eliminar la cuenta si desea conservarlos</li>
+              <li>Los datos locales en su dispositivo NO se eliminan automáticamente (debe desinstalar la app)</li>
+            </ul>
+          </div>
+
+          <h3>4.2. Eliminación de datos locales (no registrados):</h3>
+          <p><strong>Si NO está registrado:</strong></p>
+          <ul>
+            <li>Sus datos solo están en su dispositivo</li>
+            <li>Para eliminar todos los datos: Desinstale la aplicación</li>
+            <li>O elimine manualmente cada dato desde la aplicación</li>
+          </ul>
+
+          <h4>Cómo desinstalar:</h4>
+          <ul>
+            <li><strong>iOS:</strong> Mantenga presionado el icono de la app > Eliminar app</li>
+            <li><strong>Android:</strong> Configuración > Aplicaciones > QuickTap > Desinstalar</li>
+          </ul>
+
+          <h3>4.3. Eliminación parcial de datos:</h3>
+          <p><strong>Puede eliminar datos específicos sin eliminar su cuenta:</strong></p>
+          <ul>
+            <li>Elimine transacciones individuales desde la app</li>
+            <li>Elimine cajas de dinero individuales</li>
+            <li>Elimine servicios mensuales individuales</li>
+          </ul>
+          <div class="info-box">
+            <p><strong>ℹ️ Nota:</strong> Esto NO elimina su cuenta, solo los datos seleccionados.</p>
+          </div>
+        </section>
+
+        <section>
+          <h2>5. Gestionar Preferencias de Privacidad</h2>
+
+          <h3>5.1. Sincronización en la nube:</h3>
+          <p><strong>Control de sincronización:</strong></p>
+          <ul>
+            <li>Si está registrado: Sus datos se sincronizan automáticamente con Supabase</li>
+            <li>Puede dejar de sincronizar: Elimine su cuenta (esto eliminará los datos de la nube)</li>
+            <li>Los datos locales siempre permanecen en su dispositivo</li>
+          </ul>
+
+          <h4>Backups automáticos (solo premium):</h4>
+          <ul>
+            <li>Se activan automáticamente cuando adquiere suscripción premium</li>
+            <li>Se ejecutan semanalmente de forma automática</li>
+            <li>Puede desactivarlos: Contacte a soporte o elimine su cuenta premium</li>
+          </ul>
+
+          <h3>5.2. Configuración de privacidad en la app:</h3>
+          <p><strong>Desde la aplicación puede:</strong></p>
+          <ul>
+            <li>Cambiar su nombre de usuario</li>
+            <li>Modificar su email (requiere verificación)</li>
+            <li>Cambiar su contraseña</li>
+            <li>Configurar preferencias de idioma y moneda</li>
+            <li>Gestionar qué datos se sincronizan</li>
+          </ul>
+
+          <h3>5.3. Permisos de la aplicación:</h3>
+          <p><strong>Permisos que solicita QuickTap:</strong></p>
+          <ul>
+            <li><strong>Almacenamiento (Android):</strong> Para guardar backups exportados</li>
+            <li><strong>Internet:</strong> Para sincronización y autenticación (solo si está registrado)</li>
+            <li><strong>Cámara (iOS):</strong> No se utiliza, pero puede aparecer por dependencias de librerías</li>
+          </ul>
+
+          <h4>Cómo gestionar permisos:</h4>
+          <ul>
+            <li><strong>iOS:</strong> Configuración > QuickTap > Permisos</li>
+            <li><strong>Android:</strong> Configuración > Aplicaciones > QuickTap > Permisos</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Derechos Específicos del Usuario</h2>
+
+          <h3>6.1. Derecho de acceso:</h3>
+          <p><strong>Qué puede solicitar:</strong></p>
+          <ul>
+            <li>Una copia de todos sus datos personales</li>
+            <li>Información sobre qué datos tenemos sobre usted</li>
+            <li>Detalles sobre cómo se procesan sus datos</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Email a: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></li>
+            <li>Asunto: "Solicitud de acceso a datos"</li>
+            <li>Incluya su email de cuenta</li>
+          </ul>
+          <p><strong>Tiempo de respuesta:</strong> Máximo 30 días</p>
+
+          <h3>6.2. Derecho de rectificación:</h3>
+          <p><strong>Qué puede solicitar:</strong></p>
+          <ul>
+            <li>Corrección de datos inexactos</li>
+            <li>Actualización de información obsoleta</li>
+            <li>Completar información incompleta</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Puede hacerlo directamente desde la aplicación (editar datos)</li>
+            <li>O contactarnos por email si necesita ayuda</li>
+          </ul>
+
+          <h3>6.3. Derecho de supresión ("Derecho al olvido"):</h3>
+          <p><strong>Qué puede solicitar:</strong></p>
+          <ul>
+            <li>Eliminación completa de su cuenta</li>
+            <li>Eliminación de datos específicos</li>
+            <li>Eliminación de backups</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Ver sección 4 "Eliminar su cuenta y datos"</li>
+            <li>Email a: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></li>
+          </ul>
+
+          <h3>6.4. Derecho a la portabilidad de datos:</h3>
+          <p><strong>Qué puede solicitar:</strong></p>
+          <ul>
+            <li>Exportación de sus datos en formato estructurado</li>
+            <li>Transferencia de datos a otro servicio</li>
+            <li>Copia de sus backups</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Use la función de exportación en la app (sección 3)</li>
+            <li>O solicite una copia por email</li>
+          </ul>
+
+          <h3>6.5. Derecho de oposición:</h3>
+          <p><strong>Qué puede solicitar:</strong></p>
+          <ul>
+            <li>Oponerse al procesamiento de sus datos para ciertos fines</li>
+            <li>Desactivar funciones específicas</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Puede desactivar sincronización eliminando su cuenta</li>
+            <li>Puede usar la app sin registrarse (datos solo locales)</li>
+            <li>Contacte a soporte para otras solicitudes</li>
+          </ul>
+
+          <h3>6.6. Derecho a retirar el consentimiento:</h3>
+          <p><strong>Qué significa:</strong></p>
+          <ul>
+            <li>Puede retirar su consentimiento para el procesamiento de datos</li>
+            <li>Puede eliminar su cuenta en cualquier momento</li>
+            <li>Puede dejar de usar la aplicación</li>
+          </ul>
+          <p><strong>Cómo ejercerlo:</strong></p>
+          <ul>
+            <li>Elimine su cuenta (sección 4)</li>
+            <li>O simplemente deje de usar la aplicación y desinstálela</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>7. Seguridad de sus Datos</h2>
+
+          <h3>7.1. Medidas de seguridad implementadas:</h3>
+
+          <h4>Encriptación:</h4>
+          <ul>
+            <li>Backups encriptados con AES-256</li>
+            <li>Contraseñas hasheadas (nunca en texto plano)</li>
+            <li>Comunicaciones mediante HTTPS/TLS</li>
+          </ul>
+
+          <h4>Almacenamiento seguro:</h4>
+          <ul>
+            <li>Datos locales protegidos por permisos del sistema</li>
+            <li>Datos en la nube con políticas de seguridad (RLS)</li>
+            <li>Credenciales en almacenamiento seguro del dispositivo</li>
+          </ul>
+
+          <h3>7.2. Qué puede hacer usted:</h3>
+
+          <h4>Buenas prácticas:</h4>
+          <ul>
+            <li>Use una contraseña segura (mínimo 8 caracteres, con mayúsculas, minúsculas, números)</li>
+            <li>No comparta su contraseña</li>
+            <li>Mantenga su dispositivo actualizado</li>
+            <li>Use bloqueo de pantalla en su dispositivo</li>
+            <li>Exporte sus datos regularmente como respaldo</li>
+          </ul>
+
+          <h4>Si sospecha una brecha de seguridad:</h4>
+          <ul>
+            <li>Cambie su contraseña inmediatamente desde la app</li>
+            <li>Contacte a soporte: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></li>
+            <li>Revise sus datos por actividad sospechosa</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>8. Transferencia de Datos a Otro Servicio</h2>
+
+          <h3>8.1. Exportar para usar en otro servicio:</h3>
+
+          <h4>Formato de exportación:</h4>
+          <ul>
+            <li>Los datos se exportan en formato JSON estándar</li>
+            <li>Estructura clara y legible</li>
+            <li>Puede ser importado en otros servicios que acepten este formato</li>
+          </ul>
+
+          <h4>Proceso:</h4>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Exporte sus datos desde QuickTap (sección 3.1)</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Obtenga el archivo JSON</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Contacte al nuevo servicio para instrucciones de importación</span>
+          </div>
+          <div class="step">
+            <span class="step-number">4</span>
+            <span>Proporcione el archivo JSON al nuevo servicio</span>
+          </div>
+
+          <h3>8.2. Migración completa:</h3>
+          <p><strong>Si desea migrar todos sus datos:</strong></p>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Exporte todos sus datos (sección 3)</span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Elimine su cuenta de QuickTap si lo desea (sección 4)</span>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <span>Importe los datos en el nuevo servicio</span>
+          </div>
+        </section>
+
+        <section>
+          <h2>9. Preguntas Frecuentes sobre Privacidad</h2>
+
+          <h3>¿Puedo usar QuickTap sin registrarme?</h3>
+          <p><strong>Sí.</strong> Puede usar la aplicación completamente sin registrarse. Todos sus datos se almacenarán solo localmente en su dispositivo.</p>
+
+          <h3>¿Qué datos se envían a servidores si no me registro?</h3>
+          <p><strong>Ninguno.</strong> Si no se registra, ningún dato sale de su dispositivo. Todo se almacena localmente.</p>
+
+          <h3>¿Puedo eliminar solo algunos datos?</h3>
+          <p><strong>Sí.</strong> Puede eliminar transacciones, cajas o servicios individuales directamente desde la aplicación.</p>
+
+          <h3>¿Cómo sé que mis datos están seguros?</h3>
+          <ul>
+            <li>Utilizamos encriptación AES-256 para backups</li>
+            <li>Todas las comunicaciones son mediante HTTPS</li>
+            <li>Las contraseñas nunca se almacenan en texto plano</li>
+            <li>Políticas de seguridad Row Level Security en la base de datos</li>
+          </ul>
+
+          <h3>¿Puedo recuperar datos eliminados?</h3>
+          <p><strong>No.</strong> La eliminación es permanente. Por eso recomendamos hacer backups regulares si tiene datos importantes.</p>
+
+          <h3>¿Qué pasa con mis datos si desinstalo la app?</h3>
+          <ul>
+            <li>Si NO está registrado: Todos los datos se eliminan al desinstalar</li>
+            <li>Si está registrado: Los datos en la nube permanecen, pero puede eliminarlos eliminando su cuenta</li>
+          </ul>
+
+          <h3>¿Puedo cambiar mi email?</h3>
+          <p><strong>Sí.</strong> Puede cambiar su email desde la aplicación o contactando a soporte. Requerirá verificación del nuevo email.</p>
+
+          <h3>¿Puedo tener múltiples cuentas?</h3>
+          <p><strong>Sí.</strong> Puede crear múltiples cuentas con diferentes emails. Cada cuenta es independiente.</p>
+
+          <h3>¿Cómo puedo verificar qué datos tienen sobre mí?</h3>
+          <ul>
+            <li>Puede ver todos sus datos directamente en la aplicación</li>
+            <li>Puede exportar sus datos para revisarlos</li>
+            <li>Puede solicitar un informe completo por email</li>
+          </ul>
+
+          <h3>¿Qué hago si olvidé mi contraseña?</h3>
+          <ul>
+            <li>Use la función "¿Olvidó su contraseña?" en la pantalla de login</li>
+            <li>O contacte a soporte: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>10. Contacto y Soporte</h2>
+
+          <h3>10.1. Para solicitudes de privacidad:</h3>
+          <div class="contact-box">
+            <p><strong>Email:</strong> <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></p>
+            <button class="btn-copy" onclick="copyEmail()">📋 Copiar email</button>
+            <p><strong>Incluya en su solicitud:</strong></p>
+            <ul>
+              <li>Su email de cuenta (si está registrado)</li>
+              <li>Tipo de solicitud (acceso, eliminación, rectificación, etc.)</li>
+              <li>Descripción detallada de su solicitud</li>
+              <li>Cualquier información adicional relevante</li>
+            </ul>
+            <p><strong>Tiempo de respuesta:</strong></p>
+            <ul>
+              <li>Confirmación de recepción: 2-3 días hábiles</li>
+              <li>Resolución completa: Máximo 30 días hábiles</li>
+            </ul>
+          </div>
+
+          <h3>10.2. Para preguntas generales:</h3>
+          <p><strong>Email:</strong> <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></p>
+          <p><strong>Asuntos que podemos ayudar:</strong></p>
+          <ul>
+            <li>Cómo exportar sus datos</li>
+            <li>Cómo eliminar su cuenta</li>
+            <li>Cómo cambiar su contraseña</li>
+            <li>Problemas técnicos</li>
+            <li>Preguntas sobre privacidad</li>
+          </ul>
+
+          <h3>10.3. Para reclamaciones:</h3>
+          <p>Si considera que el tratamiento de sus datos viola sus derechos:</p>
+          <div class="step">
+            <span class="step-number">1</span>
+            <span>Contacte primero a: <a href="mailto:alberto@desarroyo.tech">alberto@desarroyo.tech</a></span>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <span>Si no está satisfecho, puede presentar una reclamación ante:</span>
+          </div>
+          <ul>
+            <li><strong>España:</strong> Agencia Española de Protección de Datos (AEPD)</li>
+            <li><strong>Website:</strong> <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer">https://www.aepd.es</a></li>
+            <li><strong>Email:</strong> internacional@aepd.es</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>11. Actualizaciones de esta Página</h2>
+          <p>Esta página se actualiza periódicamente para reflejar:</p>
+          <ul>
+            <li>Cambios en las funcionalidades de la aplicación</li>
+            <li>Nuevas opciones de gestión de datos</li>
+            <li>Actualizaciones en los procesos de privacidad</li>
+          </ul>
+          <p><strong>Última actualización:</strong> 20 de noviembre de 2025</p>
+          <p>Le notificaremos de cambios significativos mediante la aplicación o por email.</p>
+        </section>
+
+        <section>
+          <h2>12. Enlaces Relacionados</h2>
+          <ul>
+            <li><a href="politica-de-privacidad.html">Política de Privacidad Completa</a></li>
+            <li><a href="/QuickTap-es/">Volver a QuickTap</a></li>
+            <li><a href="mailto:alberto@desarroyo.tech">Contacto</a></li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <p>© 2025 QuickTap · Desarrollado por DesArroyo.tech</p>
+        <p>
+          <a href="/QuickTap-es/">Inicio</a> ·
+          <a href="politica-de-privacidad.html">Política de Privacidad</a> ·
+          <a href="mailto:alberto@desarroyo.tech">Contacto</a>
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      function copyEmail() {
+        const email = 'alberto@desarroyo.tech';
+        navigator.clipboard.writeText(email).then(() => {
+          const btn = event.target;
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Copiado!';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+          }, 2000);
+        }).catch(() => {
+          alert('Email: ' + email);
+        });
+      }
+    </script>
+  </body>
+</html>
+
