@@ -1,0 +1,72 @@
+name: 🚀 Procesar Encuesta y Generar Web HTML
+
+on:
+  repository_dispatch:
+    types: [encuesta-recibida]
+  workflow_dispatch:
+    inputs:
+      encuesta_data:
+        description: 'Datos de la encuesta en JSON'
+        required: true
+        type: string
+
+jobs:
+  procesar-encuesta:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Instalar dependencias
+        run: npm ci
+        working-directory: ./desarroyo-form
+      
+      - name: 🔧 Configurar variables de entorno
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> $GITHUB_ENV
+          echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> $GITHUB_ENV
+          echo "PUBLIC_BASE_URL=https://desarroyo.tech" >> $GITHUB_ENV
+      
+      - name: 📋 Obtener datos de la encuesta
+        id: get-data
+        run: |
+          if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "${{ github.event.client_payload.encuesta_data }}" > /tmp/encuesta.json
+            ENCUESTA_DATA=$(cat /tmp/encuesta.json)
+          else
+            ENCUESTA_DATA='${{ github.event.inputs.encuesta_data }}'
+          fi
+          echo "ENCUESTA_DATA=${ENCUESTA_DATA}" >> $GITHUB_ENV
+          echo "✅ Datos de encuesta recibidos"
+      
+      - name: 🎨 Procesar encuesta y generar HTML
+        id: procesar
+        run: |
+          cd desarroyo-form
+          node scripts/procesar-encuesta.js
+        env:
+          ENCUESTA_DATA: ${{ env.ENCUESTA_DATA }}
+      
+      - name: 📤 Subir HTML generado como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-generada
+          path: desarroyo-form/webs_generadas/*.html
+          retention-days: 7
+      
+      - name: ✅ Notificar éxito
+        run: |
+          echo "🎉 ¡Encuesta procesada exitosamente!"
+          echo "📄 Archivo: ${{ steps.procesar.outputs.file_name }}"
+          echo "🌐 URL: ${{ steps.procesar.outputs.absolute_url }}"
+
