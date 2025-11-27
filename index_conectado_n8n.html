@@ -1254,21 +1254,32 @@
 
       // Enviar datos al backend
       try {
-        const response = await fetch('https://arroyo805.app.n8n.cloud/webhook/desarroyo-webhook', {
+        const response = await fetch('/api/encuesta', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
         
-        if (response.ok) {
+        const result = await response.json();
+        
+        if (response.ok && result.ok) {
           document.getElementById('encuesta').reset();
-          document.getElementById('mensaje-confirmacion').style.display = 'block';
-          document.getElementById('mensaje-confirmacion').innerHTML = '✅ ¡Ya tenemos tus gustos para crear la web!<br>Ya has hecho lo primero, ahora solo queda que la hagamos realidad.<br><br>🟢 Tus respuestas han sido enviadas correctamente.';
+          const mensaje = document.getElementById('mensaje-confirmacion');
+          mensaje.style.display = 'block';
+          
+          let enlaceWeb = '';
+          const previewUrl = result.absoluteUrl || (result.previewUrl ? new URL(result.previewUrl, window.location.origin).href : null);
+          
+          if (previewUrl) {
+            enlaceWeb = `<br><br>🌐 <a href="${previewUrl}" target="_blank" rel="noopener noreferrer">Abrir boceto generado</a>`;
+          }
+          
+          mensaje.innerHTML = '✅ ¡Listo! Hemos recibido tus respuestas y ya estamos construyendo la versión base de tu web.<br>En unos minutos la tendrás lista para revisar.' + enlaceWeb;
         } else {
-          alert('Hubo un error al enviar tus respuestas. Intenta de nuevo.');
+          throw new Error(result?.message || 'Hubo un error al enviar tus respuestas. Inténtalo de nuevo.');
         }
       } catch (err) {
-        alert('No se pudo conectar con el servidor. ¿Está iniciado el backend?');
+        alert(err.message || 'No se pudo conectar con el servidor. ¿Está iniciado el backend?');
       }
     });
 

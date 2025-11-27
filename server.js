@@ -13,7 +13,529 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const FormData = require('form-data');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
+
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL) {
+    console.warn('⚠️  SUPABASE_URL no está configurada. Configura la variable de entorno para habilitar la persistencia en la base de datos.');
+}
+
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY no está configurada. Las operaciones de escritura en Supabase no funcionarán hasta que la proporciones.');
+}
+
+const supabase =
+    SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+        ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+        : null;
+
+if (supabase) {
+    console.log('✅ Cliente de Supabase inicializado correctamente.');
+} else {
+    console.log('⏸️  Supabase no se ha inicializado. Solo se generarán los HTMLs locales.');
+}
+
+const GENERATED_SITES_DIR = path.join(__dirname, 'webs_generadas');
+const fsPromises = fs.promises;
+
+const parseBooleanField = (value) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value === 1;
+    if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        return ['true', '1', 'on', 'si', 'sí', 'yes'].includes(normalized);
+    }
+    return false;
+};
+
+const buildColorPalette = (payload = {}) => {
+    const palette = {
+        color1: payload.color1_hex || payload.color1 || null,
+        color2: payload.color2_hex || payload.color2 || null,
+        color3: payload.color3_hex || payload.color3 || null
+    };
+
+    const hasValue = Object.values(palette).some((value) => !!value);
+    return hasValue ? palette : null;
+};
+
+const stringOrNull = (value) => {
+    if (value === undefined || value === null) return null;
+    const trimmed = typeof value === 'string' ? value.trim() : value;
+    return trimmed === '' ? null : trimmed;
+};
+
+if (!fs.existsSync(GENERATED_SITES_DIR)) {
+    fs.mkdirSync(GENERATED_SITES_DIR, { recursive: true });
+}
+
+const isHexColor = (value = '') => /^#([0-9A-F]{3}){1,2}$/i.test(value.trim());
+const slugify = (value = '') =>
+    value
+        .toString()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .toLowerCase() || 'landing';
+
+const escapeHtml = (value = '') =>
+    String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+const formatMultiline = (value = '') => escapeHtml(value).replace(/\n/g, '<br>');
+const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+const sanitizeUrl = (value = '') => {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+};
+
+const supabaseDisponible = () => Boolean(supabase);
+
+const upsertClienteSupabase = async (payload = {}) => {
+    if (!supabaseDisponible() || !payload.email) return null;
+
+    const clientePayload = {
+        nombre_completo: stringOrNull(payload.nombre_completo),
+        email: payload.email,
+        telefono: stringOrNull(payload.telefono),
+        fuente_descubrimiento: stringOrNull(payload.fuente_descubrimiento),
+        fuente_descubrimiento_otro: stringOrNull(payload.fuente_descubrimiento_otro),
+        autoriza_portafolio: parseBooleanField(payload.autoriza_portafolio),
+        publicar_testimonio: parseBooleanField(payload.publicar_testimonio)
+    };
+
+    const { data, error } = await supabase
+        .from('clientes')
+        .upsert(clientePayload, { onConflict: 'email' })
+        .select()
+        .single();
+
+    if (error) {
+        throw new Error(`Supabase clientes: ${error.message}`);
+    }
+
+    return data?.id || null;
+};
+
+const crearProyectoSupabase = async (payload = {}, clienteId) => {
+    if (!supabaseDisponible() || !clienteId) return null;
+
+    const record = {
+        cliente_id: clienteId,
+        nombre_proyecto:
+            stringOrNull(payload.nombre_proyecto) ||
+            stringOrNull(payload.nombre_completo) ||
+            'Proyecto sin nombre',
+        sector: stringOrNull(payload.sector),
+        sector_otro: stringOrNull(payload.sector_otro),
+        plan: stringOrNull(payload.plan),
+        presupuesto_estimado: stringOrNull(payload.presupuesto),
+        extras: toArray(payload.extras).length ? toArray(payload.extras) : null,
+        estilos: toArray(payload.estilos).length ? toArray(payload.estilos) : null,
+        colores: buildColorPalette(payload),
+        fuentes: toArray(payload.fuentes).length ? toArray(payload.fuentes) : null,
+        secciones: toArray(payload.secciones).length ? toArray(payload.secciones) : null,
+        secciones_extra: stringOrNull(payload.secciones_extra),
+        menu_estilo: stringOrNull(payload.menu_seleccionado),
+        plantilla_estilo: stringOrNull(payload.plantilla_seleccionada),
+        footer_estilo: stringOrNull(payload.footer_seleccionado),
+        objetivo: stringOrNull(payload.objetivo),
+        redes_sociales: stringOrNull(payload.redes),
+        referencia_visual_1: stringOrNull(payload.ref1),
+        referencia_visual_2: stringOrNull(payload.ref2),
+        referencia_visual_3: stringOrNull(payload.ref3),
+        logo_idea: stringOrNull(payload.logo_idea),
+        observaciones: stringOrNull(payload.observaciones),
+        estado: 'pendiente',
+        fecha_entrega_deseada: stringOrNull(payload.fecha_entrega_deseada),
+        referencia: stringOrNull(payload.referencia),
+        cliente_categoria: stringOrNull(payload.cliente_categoria),
+        datos_encuesta_completos: payload
+    };
+
+    const { data, error } = await supabase.from('proyectos').insert(record).select().single();
+
+    if (error) {
+        throw new Error(`Supabase proyectos: ${error.message}`);
+    }
+
+    return data?.id || null;
+};
+
+const registrarWebGeneradaSupabase = async (
+    proyectoId,
+    { fileName, previewUrl, absoluteUrl, relativeFilePath }
+) => {
+    if (!supabaseDisponible() || !proyectoId) return null;
+
+    const webRecord = {
+        proyecto_id: proyectoId,
+        nombre_archivo: fileName,
+        ruta_archivo: relativeFilePath || fileName,
+        url_preview: previewUrl,
+        url_absoluta: absoluteUrl,
+        version_numero: 1,
+        estado: 'generada'
+    };
+
+    const { data, error } = await supabase
+        .from('webs_generadas')
+        .insert(webRecord)
+        .select()
+        .single();
+
+    if (error) {
+        throw new Error(`Supabase webs_generadas: ${error.message}`);
+    }
+
+    return data?.id || null;
+};
+
+const persistSurveyInSupabase = async (payload, metadata = {}) => {
+    if (!supabaseDisponible()) return null;
+
+    const clienteId = await upsertClienteSupabase(payload);
+    const proyectoId = await crearProyectoSupabase(payload, clienteId);
+    const webId = await registrarWebGeneradaSupabase(proyectoId, metadata);
+
+    return { clienteId, proyectoId, webId };
+};
+
+const getColorsFromData = (data = {}) => {
+    const candidates = [
+        data.color1_hex,
+        data.color2_hex,
+        data.color3_hex,
+        data.color1,
+        data.color2,
+        data.color3
+    ].filter((color) => typeof color === 'string' && isHexColor(color));
+
+    if (!candidates.length) {
+        return ['#6366f1', '#0f172a', '#facc15'];
+    }
+
+    return candidates.slice(0, 3);
+};
+
+const buildQuickLandingHTML = (data = {}) => {
+    const colors = getColorsFromData(data);
+    const [primaryColor, secondaryColor, accentColor] = [
+        colors[0] || '#6366f1',
+        colors[1] || '#0f172a',
+        colors[2] || '#facc15'
+    ];
+
+    const styles = toArray(data.estilos).map(escapeHtml);
+    const fonts = toArray(data.fuentes).map(escapeHtml);
+    const extras = toArray(data.extras).map(escapeHtml);
+    const sections = toArray(data.secciones).map(escapeHtml);
+    if (data.secciones_extra) sections.push(escapeHtml(data.secciones_extra));
+
+    const redes = (data.redes || '')
+        .split(/,|\n/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .map((url) => ({
+            text: escapeHtml(url),
+            href: sanitizeUrl(url)
+        }));
+
+    const referencias = [data.ref1, data.ref2, data.ref3]
+        .filter(Boolean)
+        .map((url) => ({
+            text: escapeHtml(url),
+            href: sanitizeUrl(url)
+        }));
+
+    const catalogoSecciones =
+        sections.length > 0
+            ? sections.map((section) => `<li>${section}</li>`).join('')
+            : '<li>Secciones por definir</li>';
+
+    const estilosHTML = styles.length
+        ? styles.map((style) => `<span class="chip">${style}</span>`).join('')
+        : '<span class="chip">Personalizar</span>';
+
+    const fuentesHTML = fonts.length
+        ? fonts.map((font) => `<span class="chip">${font}</span>`).join('')
+        : '<span class="chip">Fuentes a definir</span>';
+
+    const extrasHTML = extras.length
+        ? extras.map((extra) => `<li>${extra}</li>`).join('')
+        : '<li>Sin extras seleccionados</li>';
+
+    const redesHTML = redes.length
+        ? redes
+              .map(
+                  (item, index) =>
+                      `<li><a href="${item.href}" target="_blank" rel="noopener noreferrer">Red ${index + 1}</a> — ${item.text}</li>`
+              )
+              .join('')
+        : '<li>El cliente no dejó redes sociales</li>';
+
+    const referenciasHTML = referencias.length
+        ? referencias
+              .map(
+                  (item, index) =>
+                      `<li><a href="${item.href}" target="_blank" rel="noopener noreferrer">Referencia ${index + 1}</a></li>`
+              )
+              .join('')
+        : '<li>Sin referencias enviadas</li>';
+
+    const paletteHTML = colors
+        .map(
+            (color) =>
+                `<span class="color-pill" style="background:${color};">${color.toUpperCase()}</span>`
+        )
+        .join('');
+
+    const descripcionProyecto = formatMultiline(data.observaciones || 'Este espacio está listo para añadir una historia breve del proyecto, tono de voz y mensajes clave.');
+
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(
+      data.nombre_proyecto || 'Concepto digital'
+  )} · Borrador generado automáticamente</title>
+  <style>
+    :root {
+      --primary: ${primaryColor};
+      --secondary: ${secondaryColor};
+      --accent: ${accentColor};
+      --bg: #f8fafc;
+      --text: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+    }
+    main {
+      max-width: 960px;
+      margin: -80px auto 3rem;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.15);
+    }
+    section {
+      margin-bottom: 2.5rem;
+    }
+    section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--secondary);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .card {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 18px;
+      padding: 1.5rem;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+    .chip {
+      display: inline-block;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--primary);
+      font-weight: 600;
+      margin: 0.25rem;
+      font-size: 0.9rem;
+    }
+    .color-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      color: #fff;
+      margin: 0.25rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      min-width: 130px;
+    }
+    ul {
+      padding-left: 1.2rem;
+      margin: 0;
+    }
+    .cta {
+      background: var(--secondary);
+      color: #fff;
+      padding: 2rem;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+    }
+    .cta a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+    }
+    footer {
+      text-align: center;
+      color: rgba(15, 23, 42, 0.5);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 600px) {
+      main { padding: 1.5rem; margin-top: -60px; }
+      header { padding: 3rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p style="font-weight:600; letter-spacing:0.1em;">Concepto generado automáticamente</p>
+    <h1>${escapeHtml(
+        data.nombre_proyecto || data.nombre_completo || 'Web sin título'
+    )}</h1>
+    <p style="max-width:720px; margin: 1rem auto 0; font-size:1.2rem;">${escapeHtml(
+        data.objetivo || 'Creamos experiencias digitales memorables en 48 horas.'
+    )}</p>
+  </header>
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>Cliente</h2>
+        <p><strong>Nombre:</strong> ${escapeHtml(data.nombre_completo || 'No especificado')}</p>
+        <p><strong>Sector:</strong> ${escapeHtml(data.sector_otro || data.sector || 'General')}</p>
+        <p><strong>Plan elegido:</strong> ${escapeHtml(data.plan || 'Sin plan')}</p>
+        <p><strong>Extras:</strong></p>
+        <ul>${extrasHTML}</ul>
+      </div>
+      <div class="card">
+        <h2>Estética</h2>
+        <p><strong>Estilos preferidos:</strong></p>
+        <div>${estilosHTML}</div>
+        <p><strong>Fuentes:</strong></p>
+        <div>${fuentesHTML}</div>
+      </div>
+      <div class="card">
+        <h2>Componentes seleccionados</h2>
+        <p><strong>Menú:</strong> ${escapeHtml(data.menu_seleccionado || 'Por definir')}</p>
+        <p><strong>Plantilla:</strong> ${escapeHtml(data.plantilla_seleccionada || 'Por definir')}</p>
+        <p><strong>Footer:</strong> ${escapeHtml(data.footer_seleccionado || 'Por definir')}</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Paleta sugerida</h2>
+      ${paletteHTML}
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Estructura</h2>
+        <ul>${catalogoSecciones}</ul>
+      </div>
+      <div class="card">
+        <h2>Historial y notas</h2>
+        <p>${descripcionProyecto}</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Redes sociales</h2>
+        <ul>${redesHTML}</ul>
+      </div>
+      <div class="card">
+        <h2>Referencias visuales</h2>
+        <ul>${referenciasHTML}</ul>
+      </div>
+    </section>
+
+    <section class="cta">
+      <h2>Contacto directo</h2>
+      <p>📧 ${escapeHtml(data.email || 'Sin correo')}</p>
+      <p>📞 ${escapeHtml(data.telefono || 'Sin teléfono')}</p>
+      <p style="margin-top:1rem;">Este borrador se genera automáticamente con los datos de la encuesta inteligente. Nos sirve como punto de partida para trabajar la versión profesional.</p>
+    </section>
+  </main>
+  <footer>
+    <p>Generado automáticamente el ${new Date().toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    })}</p>
+    <p>DesArroyo.Tech · Borrador interno</p>
+  </footer>
+</body>
+</html>`;
+};
+
+const sendLandingToTelegram = async (filePath, data, previewUrl) => {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+        console.warn('⚠️ Telegram no configurado. Skipping notification.');
+        return;
+    }
+
+    try {
+        const form = new FormData();
+        form.append('chat_id', TELEGRAM_CHAT_ID);
+
+        const absoluteLink =
+            previewUrl && PUBLIC_BASE_URL ? new URL(previewUrl, PUBLIC_BASE_URL).href : null;
+
+        const captionLines = [
+            '🚀 Nueva encuesta completada',
+            `👤 ${data.nombre_completo || 'Sin nombre'}`,
+            `📧 ${data.email || 'Sin correo'}`,
+            `📱 ${data.telefono || 'Sin teléfono'}`,
+            `🏷️ Proyecto: ${data.nombre_proyecto || 'Sin título'}`,
+            `🎯 Objetivo: ${data.objetivo || 'Sin objetivo'}`,
+            absoluteLink ? `🌐 Vista previa: ${absoluteLink}` : null
+        ].filter(Boolean);
+
+        form.append('caption', captionLines.join('\n').slice(0, 1024));
+        form.append('document', fs.createReadStream(filePath));
+
+        await axios.post(
+            `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`,
+            form,
+            { headers: form.getHeaders() }
+        );
+    } catch (error) {
+        console.error('Error enviando a Telegram:', error.message);
+    }
+};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +544,52 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
+
+app.post('/api/encuesta', async (req, res) => {
+    try {
+        const payload = req.body || {};
+        const slugBase = slugify(payload.nombre_proyecto || payload.nombre_completo || 'proyecto');
+        const fileName = `${slugBase}-${Date.now()}.html`;
+        const filePath = path.join(GENERATED_SITES_DIR, fileName);
+        const relativeFilePath = path.relative(__dirname, filePath);
+
+        const htmlContent = buildQuickLandingHTML(payload);
+        await fsPromises.writeFile(filePath, htmlContent, 'utf-8');
+
+        const previewUrl = `/webs_generadas/${fileName}`;
+        const absoluteUrl = PUBLIC_BASE_URL
+            ? new URL(previewUrl, PUBLIC_BASE_URL).href
+            : null;
+
+        if (supabaseDisponible()) {
+            try {
+                await persistSurveyInSupabase(payload, {
+                    fileName,
+                    previewUrl,
+                    absoluteUrl,
+                    relativeFilePath
+                });
+            } catch (dbError) {
+                console.error('Error guardando datos en Supabase:', dbError.message || dbError);
+            }
+        }
+
+        await sendLandingToTelegram(filePath, payload, previewUrl);
+
+        res.json({
+            ok: true,
+            previewUrl,
+            absoluteUrl,
+            message: 'Encuesta recibida. Hemos generado un borrador base para comenzar a trabajar.'
+        });
+    } catch (error) {
+        console.error('Error procesando encuesta:', error);
+        res.status(500).json({
+            ok: false,
+            message: 'No pudimos procesar la encuesta. Inténtalo de nuevo en unos minutos.'
+        });
+    }
+});
 
 // Inicializar el gestor de componentes
 const gestorComponentes = new GestorComponentes();
