@@ -35,6 +35,7 @@
   },
   "homepage": "https://github.com/Arroyador69/desarroyo-form#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.86.0",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
