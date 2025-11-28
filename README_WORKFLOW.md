@@ -2,9 +2,10 @@
 
 ## 📋 ¿Cómo funciona?
 
-1. **Usuario rellena el formulario** → El formulario activa directamente el workflow de GitHub Actions
-2. **GitHub Actions se ejecuta** → Genera HTML, guarda en Supabase, envía a Telegram
-3. **Usuario recibe confirmación** → La web está lista
+1. **Usuario rellena el formulario** → Envía POST a `/api/encuesta`
+2. **Webhook activador recibe el POST** → Activa workflow de GitHub Actions
+3. **GitHub Actions ejecuta el script** → Genera HTML, guarda en Supabase, envía a Telegram
+4. **Usuario recibe confirmación** → La web está lista
 
 ## 🔧 Configuración Requerida
 
@@ -17,41 +18,74 @@ Ya las tienes configuradas:
 - ✅ `TELEGRAM_BOT_TOKEN`
 - ✅ `TELEGRAM_CHAT_ID`
 
-### 2. Token de GitHub para activar workflows desde el frontend
+### 2. Token de GitHub para activar workflows
 
-**⚠️ IMPORTANTE:** Para que el formulario active el workflow directamente, necesitas un token de GitHub.
-
-**Opción A: Token con permisos limitados (Recomendado para desarrollo)**
+Necesitas crear un **Personal Access Token** con permisos para activar workflows:
 
 1. Ve a: https://github.com/settings/tokens
 2. Click en "Generate new token" → "Generate new token (classic)"
-3. Dale un nombre: `workflow-activator-frontend`
+3. Dale un nombre: `workflow-activator`
 4. Selecciona el scope: `repo` (permiso completo)
-5. Genera el token y **cópialo**
+5. Genera el token y **cópialo** (solo se muestra una vez)
 
-6. **Configurar el token en el formulario:**
-   - Edita `index_conectado_n8n.html`
-   - Busca la línea: `const GITHUB_TOKEN = window.GITHUB_TOKEN || prompt(...);`
-   - Cámbiala por: `const GITHUB_TOKEN = 'tu_token_aqui';`
-   - **⚠️ ADVERTENCIA:** Esto expone el token en el frontend. Solo para desarrollo o con permisos muy limitados.
+### 3. Configurar el Webhook Activador
 
-**Opción B: GitHub App (Recomendado para producción)**
+Tienes 2 opciones:
 
-Para producción, considera usar un GitHub App con permisos limitados en lugar de un token personal.
+#### Opción A: Servidor Simple (Recomendado)
 
-### 3. Actualizar el Formulario
+Ejecuta el webhook activador en tu PC o servidor:
 
-El formulario ya está configurado para activar el workflow directamente. Solo necesitas:
+```bash
+cd desarroyo-form
+npm install express axios
+```
 
-1. Añadir el token de GitHub en `index_conectado_n8n.html` (línea ~1218)
-2. El formulario llamará directamente a la GitHub API para activar el workflow
+Crea un archivo `.env` con:
+```env
+GH_TOKEN=tu_token_de_github_aqui
+GITHUB_OWNER=Arroyador69
+GITHUB_REPO=desarroyo-form
+PORT=3001
+```
+
+Ejecuta:
+```bash
+node scripts/webhook-activador.js
+```
+
+**⚠️ IMPORTANTE:** Este servidor debe estar **siempre corriendo** para recibir los POST del formulario.
+
+#### Opción B: Servicio en la Nube (Railway, Render, etc.)
+
+1. Despliega `scripts/webhook-activador.js` en Railway/Render
+2. Configura las variables de entorno
+3. Obtén la URL pública (ej: `https://tu-webhook.railway.app`)
+4. Actualiza el formulario para que apunte a esa URL
+
+### 4. Actualizar el Formulario
+
+En `index_conectado_n8n.html`, cambia la línea 1257:
+
+```javascript
+// ANTES:
+const response = await fetch('/api/encuesta', {
+
+// DESPUÉS (si usas servidor local):
+const response = await fetch('http://localhost:3001/api/encuesta', {
+
+// O (si usas servicio en la nube):
+const response = await fetch('https://tu-webhook.railway.app/api/encuesta', {
+```
 
 ## 🎯 Flujo Completo
 
 ```
 Usuario → Formulario HTML
     ↓
-GitHub API (repository_dispatch) → Activa workflow "procesar-encuesta"
+POST /api/encuesta → Webhook Activador (siempre activo)
+    ↓
+GitHub API → Activa workflow "procesar-encuesta"
     ↓
 GitHub Actions → Ejecuta procesar-encuesta.js
     ↓
@@ -60,15 +94,15 @@ Genera HTML → Guarda en Supabase → Envía a Telegram
 ✅ ¡Listo!
 ```
 
-## 📝 Archivos
+## 📝 Archivos Creados
 
 1. **`scripts/procesar-encuesta.js`** - Script que hace todo el trabajo
 2. **`.github/workflows/procesar-encuesta.yml`** - Workflow de GitHub Actions
-3. **`index_conectado_n8n.html`** - Formulario que activa el workflow directamente
+3. **`scripts/webhook-activador.js`** - Servidor que recibe POST y activa workflow
 
 ## ✅ Verificación
 
-1. Configura el token de GitHub en el formulario
+1. Inicia el webhook activador: `node scripts/webhook-activador.js`
 2. Rellena el formulario y envía
 3. Ve a GitHub → Actions → Deberías ver el workflow ejecutándose
 4. Revisa Telegram → Deberías recibir el HTML generado
@@ -76,25 +110,22 @@ Genera HTML → Guarda en Supabase → Envía a Telegram
 ## 🔍 Troubleshooting
 
 ### El workflow no se activa
-- Verifica que el token tenga permisos `repo`
-- Verifica que el token esté correctamente configurado en el formulario
-- Revisa la consola del navegador para ver errores
-
-### Error 401 (Unauthorized)
-- El token no tiene permisos suficientes
-- El token ha expirado
-- Verifica que el token esté correctamente configurado
+- Verifica que el `GH_TOKEN` tenga permisos `repo`
+- Verifica que el webhook activador esté corriendo
+- Revisa los logs del webhook activador
 
 ### Error en Supabase
 - Verifica que las variables estén en GitHub Secrets
 - Verifica que el schema de Supabase esté creado
 
 ### No llega a Telegram
-- Verifica `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en GitHub Secrets
+- Verifica `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`
 - Verifica que el bot tenga permisos para enviar archivos
 
 ## 💡 Notas
 
-- **Seguridad:** Exponer un token en el frontend no es ideal. Para producción, considera usar un GitHub App o un servicio intermedio.
+- El webhook activador **debe estar siempre activo** (24/7)
+- Si se cae, las encuestas no se procesarán
+- Considera usar un servicio en la nube (Railway, Render) para mayor estabilidad
 - Los HTMLs generados se guardan en `webs_generadas/` y también se suben como artifacts en GitHub Actions
-- El workflow se ejecuta en GitHub Actions, no requiere servidor adicional
+
