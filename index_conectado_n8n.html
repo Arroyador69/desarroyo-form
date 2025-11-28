@@ -1215,6 +1215,11 @@
     </div>
   </div>
   <script>
+    // 🔗 URL del webhook activador (cambiar por tu URL de Railway/Render)
+    // Ejemplo Railway: https://webhook-activador.up.railway.app/api/encuesta
+    // Ejemplo Render: https://webhook-activador.onrender.com/api/encuesta
+    const WEBHOOK_URL = window.WEBHOOK_URL || 'https://tu-webhook-aqui.com/api/encuesta';
+    
     document.getElementById('encuesta').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -1254,7 +1259,7 @@
 
       // Enviar datos al backend
       try {
-        const response = await fetch('/api/encuesta', {
+        const response = await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

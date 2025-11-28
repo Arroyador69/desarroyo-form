@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: webhook-activador
+    env: node
+    buildCommand: npm install
+    startCommand: npm run webhook
+    envVars:
+      - key: GH_TOKEN
+        sync: false
+      - key: GITHUB_OWNER
+        value: Arroyador69
+      - key: GITHUB_REPO
+        value: desarroyo-form
+      - key: PORT
+        value: 3001
+
