@@ -43,7 +43,7 @@ npm install express axios
 
 Crea un archivo `.env` con:
 ```env
-GITHUB_TOKEN=tu_token_de_github_aqui
+GH_TOKEN=tu_token_de_github_aqui
 GITHUB_OWNER=Arroyador69
 GITHUB_REPO=desarroyo-form
 PORT=3001
@@ -110,7 +110,7 @@ Genera HTML → Guarda en Supabase → Envía a Telegram
 ## 🔍 Troubleshooting
 
 ### El workflow no se activa
-- Verifica que el `GITHUB_TOKEN` tenga permisos `repo`
+- Verifica que el `GH_TOKEN` tenga permisos `repo`
 - Verifica que el webhook activador esté corriendo
 - Revisa los logs del webhook activador
 
