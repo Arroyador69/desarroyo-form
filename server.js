@@ -13,35 +13,41 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const FormData = require('form-data');
-const { createClient } = require('@supabase/supabase-js');
+const { Pool } = require('pg');
 require('dotenv').config();
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || '';
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Neon usa DATABASE_URL (estándar PostgreSQL)
+const DATABASE_URL = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL;
 
-if (!SUPABASE_URL) {
-    console.warn('⚠️  SUPABASE_URL no está configurada. Configura la variable de entorno para habilitar la persistencia en la base de datos.');
+if (!DATABASE_URL) {
+    console.warn('⚠️  DATABASE_URL no está configurada. Configura la variable de entorno para habilitar la persistencia en Neon.');
 }
 
-if (!SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY no está configurada. Las operaciones de escritura en Supabase no funcionarán hasta que la proporciones.');
-}
-
-const supabase =
-    SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-        ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-        : null;
-
-if (supabase) {
-    console.log('✅ Cliente de Supabase inicializado correctamente.');
+// Inicializar pool de conexiones a Neon (PostgreSQL)
+let dbPool = null;
+if (DATABASE_URL) {
+    try {
+        dbPool = new Pool({
+            connectionString: DATABASE_URL,
+            ssl: {
+                rejectUnauthorized: false // Neon requiere SSL
+            },
+            max: 1 // En serverless, mantener solo 1 conexión
+        });
+        console.log('✅ Cliente de Neon (PostgreSQL) inicializado correctamente.');
+    } catch (error) {
+        console.error('❌ Error inicializando Neon:', error.message);
+        dbPool = null;
+    }
 } else {
-    console.log('⏸️  Supabase no se ha inicializado. Solo se generarán los HTMLs locales.');
+    console.log('⏸️  Neon no se ha inicializado. Solo se generarán los HTMLs locales.');
 }
 
+// Detectar si estamos en Vercel (serverless)
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
 const GENERATED_SITES_DIR = path.join(__dirname, 'webs_generadas');
 const fsPromises = fs.promises;
 
@@ -72,8 +78,15 @@ const stringOrNull = (value) => {
     return trimmed === '' ? null : trimmed;
 };
 
-if (!fs.existsSync(GENERATED_SITES_DIR)) {
-    fs.mkdirSync(GENERATED_SITES_DIR, { recursive: true });
+// Solo crear directorio si NO estamos en Vercel (serverless)
+// En Vercel, todo se guarda en Neon (PostgreSQL)
+// No crear directorios locales en serverless
+if (!IS_VERCEL && !fs.existsSync(GENERATED_SITES_DIR)) {
+    try {
+        fs.mkdirSync(GENERATED_SITES_DIR, { recursive: true });
+    } catch (err) {
+        console.warn('⚠️  No se pudo crear el directorio webs_generadas. Usando solo Neon.');
+    }
 }
 
 const isHexColor = (value = '') => /^#([0-9A-F]{3}){1,2}$/i.test(value.trim());
@@ -103,114 +116,134 @@ const sanitizeUrl = (value = '') => {
     return `https://${trimmed}`;
 };
 
-const supabaseDisponible = () => Boolean(supabase);
+const neonDisponible = () => Boolean(dbPool);
 
-const upsertClienteSupabase = async (payload = {}) => {
-    if (!supabaseDisponible() || !payload.email) return null;
+const upsertClienteNeon = async (payload = {}) => {
+    if (!neonDisponible() || !payload.email) return null;
 
-    const clientePayload = {
-        nombre_completo: stringOrNull(payload.nombre_completo),
-        email: payload.email,
-        telefono: stringOrNull(payload.telefono),
-        fuente_descubrimiento: stringOrNull(payload.fuente_descubrimiento),
-        fuente_descubrimiento_otro: stringOrNull(payload.fuente_descubrimiento_otro),
-        autoriza_portafolio: parseBooleanField(payload.autoriza_portafolio),
-        publicar_testimonio: parseBooleanField(payload.publicar_testimonio)
-    };
+    try {
+        const query = `
+            INSERT INTO clientes (
+                nombre_completo, email, telefono, fuente_descubrimiento,
+                fuente_descubrimiento_otro, autoriza_portafolio, publicar_testimonio
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ON CONFLICT (email) 
+            DO UPDATE SET
+                nombre_completo = EXCLUDED.nombre_completo,
+                telefono = EXCLUDED.telefono,
+                fuente_descubrimiento = EXCLUDED.fuente_descubrimiento,
+                fuente_descubrimiento_otro = EXCLUDED.fuente_descubrimiento_otro,
+                autoriza_portafolio = EXCLUDED.autoriza_portafolio,
+                publicar_testimonio = EXCLUDED.publicar_testimonio,
+                updated_at = NOW()
+            RETURNING id
+        `;
+        
+        const result = await dbPool.query(query, [
+            stringOrNull(payload.nombre_completo),
+            payload.email,
+            stringOrNull(payload.telefono),
+            stringOrNull(payload.fuente_descubrimiento),
+            stringOrNull(payload.fuente_descubrimiento_otro),
+            parseBooleanField(payload.autoriza_portafolio),
+            parseBooleanField(payload.publicar_testimonio)
+        ]);
 
-    const { data, error } = await supabase
-        .from('clientes')
-        .upsert(clientePayload, { onConflict: 'email' })
-        .select()
-        .single();
-
-    if (error) {
-        throw new Error(`Supabase clientes: ${error.message}`);
+        return result.rows[0]?.id || null;
+    } catch (error) {
+        throw new Error(`Neon clientes: ${error.message}`);
     }
-
-    return data?.id || null;
 };
 
-const crearProyectoSupabase = async (payload = {}, clienteId) => {
-    if (!supabaseDisponible() || !clienteId) return null;
+const crearProyectoNeon = async (payload = {}, clienteId) => {
+    if (!neonDisponible() || !clienteId) return null;
 
-    const record = {
-        cliente_id: clienteId,
-        nombre_proyecto:
-            stringOrNull(payload.nombre_proyecto) ||
-            stringOrNull(payload.nombre_completo) ||
-            'Proyecto sin nombre',
-        sector: stringOrNull(payload.sector),
-        sector_otro: stringOrNull(payload.sector_otro),
-        plan: stringOrNull(payload.plan),
-        presupuesto_estimado: stringOrNull(payload.presupuesto),
-        extras: toArray(payload.extras).length ? toArray(payload.extras) : null,
-        estilos: toArray(payload.estilos).length ? toArray(payload.estilos) : null,
-        colores: buildColorPalette(payload),
-        fuentes: toArray(payload.fuentes).length ? toArray(payload.fuentes) : null,
-        secciones: toArray(payload.secciones).length ? toArray(payload.secciones) : null,
-        secciones_extra: stringOrNull(payload.secciones_extra),
-        menu_estilo: stringOrNull(payload.menu_seleccionado),
-        plantilla_estilo: stringOrNull(payload.plantilla_seleccionada),
-        footer_estilo: stringOrNull(payload.footer_seleccionado),
-        objetivo: stringOrNull(payload.objetivo),
-        redes_sociales: stringOrNull(payload.redes),
-        referencia_visual_1: stringOrNull(payload.ref1),
-        referencia_visual_2: stringOrNull(payload.ref2),
-        referencia_visual_3: stringOrNull(payload.ref3),
-        logo_idea: stringOrNull(payload.logo_idea),
-        observaciones: stringOrNull(payload.observaciones),
-        estado: 'pendiente',
-        fecha_entrega_deseada: stringOrNull(payload.fecha_entrega_deseada),
-        referencia: stringOrNull(payload.referencia),
-        cliente_categoria: stringOrNull(payload.cliente_categoria),
-        datos_encuesta_completos: payload
-    };
+    try {
+        const query = `
+            INSERT INTO proyectos (
+                cliente_id, nombre_proyecto, sector, sector_otro, plan, presupuesto_estimado,
+                extras, estilos, colores, fuentes, secciones, secciones_extra,
+                menu_estilo, plantilla_estilo, footer_estilo, objetivo, redes_sociales,
+                referencia_visual_1, referencia_visual_2, referencia_visual_3,
+                logo_idea, observaciones, estado, fecha_entrega_deseada, referencia,
+                cliente_categoria, datos_encuesta_completos
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)
+            RETURNING id
+        `;
+        
+        const result = await dbPool.query(query, [
+            clienteId,
+            stringOrNull(payload.nombre_proyecto) || stringOrNull(payload.nombre_completo) || 'Proyecto sin nombre',
+            stringOrNull(payload.sector),
+            stringOrNull(payload.sector_otro),
+            stringOrNull(payload.plan),
+            stringOrNull(payload.presupuesto),
+            toArray(payload.extras).length ? JSON.stringify(toArray(payload.extras)) : null,
+            toArray(payload.estilos).length ? JSON.stringify(toArray(payload.estilos)) : null,
+            buildColorPalette(payload) ? JSON.stringify(buildColorPalette(payload)) : null,
+            toArray(payload.fuentes).length ? JSON.stringify(toArray(payload.fuentes)) : null,
+            toArray(payload.secciones).length ? JSON.stringify(toArray(payload.secciones)) : null,
+            stringOrNull(payload.secciones_extra),
+            stringOrNull(payload.menu_seleccionado),
+            stringOrNull(payload.plantilla_seleccionada),
+            stringOrNull(payload.footer_seleccionado),
+            stringOrNull(payload.objetivo),
+            stringOrNull(payload.redes),
+            stringOrNull(payload.ref1),
+            stringOrNull(payload.ref2),
+            stringOrNull(payload.ref3),
+            stringOrNull(payload.logo_idea),
+            stringOrNull(payload.observaciones),
+            'pendiente',
+            stringOrNull(payload.fecha_entrega_deseada),
+            stringOrNull(payload.referencia),
+            stringOrNull(payload.cliente_categoria),
+            JSON.stringify(payload)
+        ]);
 
-    const { data, error } = await supabase.from('proyectos').insert(record).select().single();
-
-    if (error) {
-        throw new Error(`Supabase proyectos: ${error.message}`);
+        return result.rows[0]?.id || null;
+    } catch (error) {
+        throw new Error(`Neon proyectos: ${error.message}`);
     }
-
-    return data?.id || null;
 };
 
-const registrarWebGeneradaSupabase = async (
+const registrarWebGeneradaNeon = async (
     proyectoId,
     { fileName, previewUrl, absoluteUrl, relativeFilePath }
 ) => {
-    if (!supabaseDisponible() || !proyectoId) return null;
+    if (!neonDisponible() || !proyectoId) return null;
 
-    const webRecord = {
-        proyecto_id: proyectoId,
-        nombre_archivo: fileName,
-        ruta_archivo: relativeFilePath || fileName,
-        url_preview: previewUrl,
-        url_absoluta: absoluteUrl,
-        version_numero: 1,
-        estado: 'generada'
-    };
+    try {
+        const query = `
+            INSERT INTO webs_generadas (
+                proyecto_id, nombre_archivo, ruta_archivo, url_preview, url_absoluta,
+                version_numero, estado
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING id
+        `;
+        
+        const result = await dbPool.query(query, [
+            proyectoId,
+            fileName,
+            relativeFilePath || fileName,
+            previewUrl,
+            absoluteUrl,
+            1,
+            'generada'
+        ]);
 
-    const { data, error } = await supabase
-        .from('webs_generadas')
-        .insert(webRecord)
-        .select()
-        .single();
-
-    if (error) {
-        throw new Error(`Supabase webs_generadas: ${error.message}`);
+        return result.rows[0]?.id || null;
+    } catch (error) {
+        throw new Error(`Neon webs_generadas: ${error.message}`);
     }
-
-    return data?.id || null;
 };
 
-const persistSurveyInSupabase = async (payload, metadata = {}) => {
-    if (!supabaseDisponible()) return null;
+const persistSurveyInNeon = async (payload, metadata = {}) => {
+    if (!neonDisponible()) return null;
 
-    const clienteId = await upsertClienteSupabase(payload);
-    const proyectoId = await crearProyectoSupabase(payload, clienteId);
-    const webId = await registrarWebGeneradaSupabase(proyectoId, metadata);
+    const clienteId = await upsertClienteNeon(payload);
+    const proyectoId = await crearProyectoNeon(payload, clienteId);
+    const webId = await registrarWebGeneradaNeon(proyectoId, metadata);
 
     return { clienteId, proyectoId, webId };
 };
@@ -501,7 +534,7 @@ const buildQuickLandingHTML = (data = {}) => {
 </html>`;
 };
 
-const sendLandingToTelegram = async (filePath, data, previewUrl) => {
+const sendLandingToTelegram = async (filePath, data, previewUrl, htmlContent = null) => {
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
         console.warn('⚠️ Telegram no configurado. Skipping notification.');
         return;
@@ -525,7 +558,19 @@ const sendLandingToTelegram = async (filePath, data, previewUrl) => {
         ].filter(Boolean);
 
         form.append('caption', captionLines.join('\n').slice(0, 1024));
-        form.append('document', fs.createReadStream(filePath));
+        
+        // En Vercel, usar el contenido HTML directamente; en local, leer el archivo
+        if (IS_VERCEL && htmlContent) {
+            form.append('document', Buffer.from(htmlContent, 'utf-8'), {
+                filename: filePath.split('/').pop() || 'web.html',
+                contentType: 'text/html'
+            });
+        } else if (!IS_VERCEL && filePath && fs.existsSync(filePath)) {
+            form.append('document', fs.createReadStream(filePath));
+        } else {
+            console.warn('⚠️ No se puede enviar archivo a Telegram: archivo no disponible');
+            return;
+        }
 
         await axios.post(
             `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`,
@@ -554,27 +599,36 @@ app.post('/api/encuesta', async (req, res) => {
         const relativeFilePath = path.relative(__dirname, filePath);
 
         const htmlContent = buildQuickLandingHTML(payload);
-        await fsPromises.writeFile(filePath, htmlContent, 'utf-8');
 
         const previewUrl = `/webs_generadas/${fileName}`;
         const absoluteUrl = PUBLIC_BASE_URL
             ? new URL(previewUrl, PUBLIC_BASE_URL).href
             : null;
 
-        if (supabaseDisponible()) {
+        // En Vercel, solo guardar en Neon (no archivos locales)
+        if (IS_VERCEL || neonDisponible()) {
             try {
-                await persistSurveyInSupabase(payload, {
+                await persistSurveyInNeon(payload, {
                     fileName,
                     previewUrl,
                     absoluteUrl,
                     relativeFilePath
                 });
             } catch (dbError) {
-                console.error('Error guardando datos en Supabase:', dbError.message || dbError);
+                console.error('Error guardando datos en Neon:', dbError.message || dbError);
             }
         }
 
-        await sendLandingToTelegram(filePath, payload, previewUrl);
+        // Solo escribir archivo local si NO estamos en Vercel
+        if (!IS_VERCEL) {
+            try {
+                await fsPromises.writeFile(filePath, htmlContent, 'utf-8');
+            } catch (fileError) {
+                console.warn('⚠️  No se pudo escribir archivo local:', fileError.message);
+            }
+        }
+
+        await sendLandingToTelegram(filePath, payload, previewUrl, htmlContent);
 
         res.json({
             ok: true,
