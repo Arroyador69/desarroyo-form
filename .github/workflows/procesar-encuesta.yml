@@ -26,7 +26,6 @@ jobs:
       
       - name: 📦 Instalar dependencias
         run: npm ci
-        working-directory: ./desarroyo-form
       
       - name: 🔧 Configurar variables de entorno
         run: |
@@ -52,7 +51,6 @@ jobs:
       - name: 🎨 Procesar encuesta y generar HTML
         id: procesar
         run: |
-          cd desarroyo-form
           node scripts/procesar-encuesta.js
         env:
           ENCUESTA_DATA: ${{ env.ENCUESTA_DATA }}
@@ -61,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-generada
-          path: desarroyo-form/webs_generadas/*.html
+          path: webs_generadas/*.html
           retention-days: 7
       
       - name: ✅ Notificar éxito
