@@ -1,6 +1,6 @@
 -- ============================================
 -- ESQUEMA DE BASE DE DATOS PARA DESARROYO.TECH
--- Supabase (PostgreSQL)
+-- Neon / PostgreSQL (compatible con Supabase)
 -- ============================================
 
 -- ============================================
