@@ -254,18 +254,65 @@
 
       <main>
         <section>
-          <h2>1. Introduction</h2>
-          <p>This page explains how you can manage your personal data in Novawidget Pro. As a user, you have complete control over your data and can exercise your rights at any time.</p>
-          <div class="contact-box">
-            <h3>Contact for privacy requests:</h3>
-            <p><strong>Email:</strong> <a href="mailto:alberto@desarroyo.tech" id="contact-email">alberto@desarroyo.tech</a></p>
-            <button class="btn-copy" onclick="copyEmail()">📋 Copy email</button>
-            <p><strong>Response time:</strong> Maximum 30 business days</p>
-          </div>
+          <h2>NovaWidget Pro is built with privacy by design.</h2>
         </section>
 
         <section>
-          <h2>2. Data Management from the Application</h2>
+          <h2>Your Privacy Choices</h2>
+          <p>
+            Because NovaWidget Pro does not collect or process personal data:
+          </p>
+          <ul>
+            <li>There is no personal data to access, export, or delete</li>
+            <li>No privacy settings or consent management are required</li>
+            <li>No user account is needed</li>
+          </ul>
+          <p>
+            All app data is stored locally on your device and can be permanently removed at any time by deleting the app.
+          </p>
+        </section>
+
+        <section>
+          <h2>Contact</h2>
+          <p>
+            If you have questions about privacy or data handling, you may contact:
+          </p>
+          <div class="contact-box">
+            <p><strong>📧 Email:</strong> <a href="mailto:alberto@desarroyo.tech" id="contact-email">alberto@desarroyo.tech</a></p>
+            <button class="btn-copy" onclick="copyEmail()">📋 Copy email</button>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>© 2025 NovaWidget Pro · Developed by DesArroyo.tech</p>
+        <p>
+          <a href="/Novawidget-Pro-en/">Home</a> ·
+          <a href="privacy-policy.html">Privacy Policy</a> ·
+          <a href="mailto:alberto@desarroyo.tech">Contact</a>
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      function copyEmail() {
+        const email = 'alberto@desarroyo.tech';
+        navigator.clipboard.writeText(email).then(() => {
+          const btn = event.target;
+          const originalText = btn.textContent;
+          btn.textContent = '✓ Copied!';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = '';
+          }, 2000);
+        }).catch(() => {
+          alert('Email: ' + email);
+        });
+      }
+    </script>
+  </body>
+</html>
 
           <h3>2.1. View your data:</h3>
           <p><strong>All your data is visible directly in the application:</strong></p>
